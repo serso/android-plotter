@@ -1,0 +1,2 @@
+include ':lib', ':lib-tests'
+include ':app'
