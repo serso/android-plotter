@@ -38,10 +38,10 @@ public abstract class BaseMesh implements Mesh {
 	/**
 	 * Vertex buffer objects
 	 */
-	protected final boolean useVbo;
-	protected final int verticesVbo;
-	protected final int indicesVbo;
-	protected final int colorsVbo;
+	protected boolean useVbo;
+	protected int verticesVbo = NULL;
+	protected int indicesVbo = NULL;
+	protected int colorsVbo = NULL;
 
 	protected BaseMesh(@Nonnull GL11 gl) {
 		this(gl, MeshConfig.create());
@@ -50,20 +50,6 @@ public abstract class BaseMesh implements Mesh {
 	protected BaseMesh(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		this.gl = gl;
 		this.config = config.copy();
-
-		if (config.useVbo && supportsVbo(gl)) {
-			useVbo = true;
-			final int[] out = new int[3];
-			gl.glGenBuffers(3, out, 0);
-			verticesVbo = out[0];
-			colorsVbo = out[1];
-			indicesVbo = out[2];
-		} else {
-			useVbo = false;
-			verticesVbo = NULL;
-			colorsVbo = NULL;
-			indicesVbo = NULL;
-		}
 	}
 
 	private static boolean supportsVbo(@Nonnull GL11 gl) {
@@ -71,10 +57,28 @@ public abstract class BaseMesh implements Mesh {
 		return extensions.contains("vertex_buffer_object");
 	}
 
-	public void draw(@Nonnull GL10 gl10) {
-		if (gl != gl10) {
-			throw new IllegalArgumentException("Same GL object should be passed to draw method");
+	@Override
+	public void init(@Nonnull GL11 gl) {
+		final boolean usedVbo = useVbo;
+		useVbo = config.useVbo && supportsVbo(gl);
+		if (usedVbo) {
+			gl.glDeleteBuffers(3, new int[]{verticesVbo, colorsVbo, indicesVbo}, 0);
 		}
+
+		if (useVbo) {
+			final int[] out = new int[3];
+			gl.glGenBuffers(3, out, 0);
+			verticesVbo = out[0];
+			colorsVbo = out[1];
+			indicesVbo = out[2];
+		} else {
+			verticesVbo = NULL;
+			colorsVbo = NULL;
+			indicesVbo = NULL;
+		}
+	}
+
+	public void draw(@Nonnull GL11 gl) {
 		final boolean hasColors = colorsCount >= 0;
 
 		// counter-clockwise winding
@@ -114,7 +118,6 @@ public abstract class BaseMesh implements Mesh {
 			}
 			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, indices);
 		}
-		onDraw(gl);
 
 		if (hasColors) {
 			gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
@@ -124,9 +127,6 @@ public abstract class BaseMesh implements Mesh {
 		if (config.cullFace) {
 			gl.glDisable(GL10.GL_CULL_FACE);
 		}
-	}
-
-	protected void onDraw(@Nonnull GL11 gl) {
 	}
 
 	protected void setVertices(float[] vertices) {

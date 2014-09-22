@@ -302,12 +302,11 @@ class Graph3d implements Mesh {
 		return colors;
 	}
 
-	public void draw(@Nonnull GL10 gl10) {
+	public void draw(@Nonnull GL11 gl) {
 		if (function == null) {
 			return;
 		}
 
-		final GL11 gl = (GL11) gl10;
 		if (useVbo) {
 			gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, verticesVbo);
 			gl.glVertexPointer(3, GL10.GL_FLOAT, 0, 0);
@@ -332,5 +331,10 @@ class Graph3d implements Mesh {
 
 	public void setFunction(@Nullable PlotFunction function) {
 		this.function = function;
+	}
+
+	@Override
+	public void init(@Nonnull GL11 gl) {
+
 	}
 }

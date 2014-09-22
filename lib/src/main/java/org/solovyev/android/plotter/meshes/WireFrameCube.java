@@ -7,6 +7,11 @@ public class WireFrameCube extends BaseCube {
 
 	public WireFrameCube(@Nonnull GL11 gl, float width, float height, float depth) {
 		super(gl, width, height, depth);
+	}
+
+	@Override
+	public void init(@Nonnull GL11 gl) {
+		super.init(gl);
 
 		final short indices[] = {
 				// first facet

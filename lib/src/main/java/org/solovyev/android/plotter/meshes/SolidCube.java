@@ -7,6 +7,11 @@ public class SolidCube extends BaseCube {
 
 	public SolidCube(@Nonnull GL11 gl, float width, float height, float depth) {
 		super(gl, width, height, depth);
+	}
+
+	@Override
+	public void init(@Nonnull GL11 gl) {
+		super.init(gl);
 
 		final short indices[] = {
 				0, 4, 5,

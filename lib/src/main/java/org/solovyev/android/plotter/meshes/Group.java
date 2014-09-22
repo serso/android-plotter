@@ -1,7 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
 import javax.annotation.Nonnull;
-import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL11;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class Group implements Mesh {
 	}
 
 	@Override
-	public void draw(@Nonnull GL10 gl) {
+	public void draw(@Nonnull GL11 gl) {
 		for (Mesh mesh : list) {
 			mesh.draw(gl);
 		}
@@ -31,5 +31,12 @@ public class Group implements Mesh {
 
 	public void clear() {
 		list.clear();
+	}
+
+	@Override
+	public void init(@Nonnull GL11 gl) {
+		for (Mesh mesh : list) {
+			mesh.init(gl);
+		}
 	}
 }

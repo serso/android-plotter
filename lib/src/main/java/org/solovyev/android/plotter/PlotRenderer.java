@@ -18,10 +18,7 @@ package org.solovyev.android.plotter;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
-import org.solovyev.android.plotter.meshes.SolidCube;
-import org.solovyev.android.plotter.meshes.WireFrameCube;
-import org.solovyev.android.plotter.meshes.WireFramePlane;
-import org.solovyev.android.plotter.meshes.Mesh;
+import org.solovyev.android.plotter.meshes.*;
 
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -81,11 +78,30 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		final SolidCube solidCube = new SolidCube((GL11) gl, 1, 1, 1);
+		solidCube.init((GL11) gl);
 		solidCube.setColor(Color.BLUE);
 		meshes.add(solidCube);
-		meshes.add(new WireFrameCube((GL11) gl, 1, 1, 1));
-		meshes.add(new WireFrameCube((GL11) gl, 2, 2, 2));
-		meshes.add(new WireFramePlane((GL11) gl, 5, 5, 30, 30));
+
+		final WireFrameCube wireFrameCube1 = new WireFrameCube((GL11) gl, 1, 1, 1);
+		wireFrameCube1.init((GL11) gl);
+		meshes.add(wireFrameCube1);
+
+		final WireFrameCube wireFrameCube2 = new WireFrameCube((GL11) gl, 2, 2, 2);
+		wireFrameCube2.init((GL11) gl);
+		meshes.add(wireFrameCube2);
+
+		final WireFramePlane wireFramePlane = new WireFramePlane((GL11) gl, 5, 5, 30, 30);
+		wireFramePlane.init((GL11) gl);
+		meshes.add(wireFramePlane);
+
+		final FunctionGraph functionGraph = new FunctionGraph((GL11) gl, 5, 5, 30, 30, new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return x * x + y * y;
+			}
+		});
+		functionGraph.init((GL11) gl);
+		meshes.add(functionGraph);
 
 		gl.glDisable(GL10.GL_DITHER);
 		gl.glDisable(GL10.GL_LIGHTING);
@@ -112,7 +128,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 gl10) {
-		if(zoomer.onFrame()) {
+		if (zoomer.onFrame()) {
 			setDirty();
 		}
 

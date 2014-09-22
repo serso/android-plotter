@@ -16,6 +16,11 @@ public abstract class BaseCube extends BaseMesh {
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
+	}
+
+	@Override
+	public void init(@Nonnull GL11 gl) {
+		super.init(gl);
 
 		final float x = width / 2;
 		final float y = height / 2;
