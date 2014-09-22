@@ -30,6 +30,8 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 
 	@Nonnull
 	private static PlotRenderer init(@Nonnull PlotView view) {
+		view.setEGLConfigChooser(new MultisampleConfigChooser());
+
 		final PlotRenderer renderer = new PlotRenderer(view);
 		view.setRenderer(renderer);
 
