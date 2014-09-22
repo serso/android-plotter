@@ -13,9 +13,9 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 	private static final int EGL_COVERAGE_BUFFERS_NV = 0x30E0;
 	private static final int EGL_COVERAGE_SAMPLES_NV = 0x30E1;
 
-	private static final int RED = 5;
-	private static final int GREEN = 6;
-	private static final int BLUE = 5;
+	private static final int RED = 8;
+	private static final int GREEN = 8;
+	private static final int BLUE = 8;
 	private static final int DEPTH = 16;
 
 	private final int[] tmp = new int[1];
@@ -58,15 +58,32 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 					EGL10.EGL_NONE);
 		}
 
-		// get all matching configurations
-		final EGLConfig[] configs = new EGLConfig[configData.count];
-		gl.eglChooseConfig(display, configData.spec, configs, configData.count, tmp);
-
-		final EGLConfig elConfig = findConfig(gl, display, configs);
-		if (elConfig == null) {
-			throw new IllegalArgumentException("No config chosen");
+		if (!configData.isValid()) {
+			// fallback to even simpler configuration
+			configData = ConfigData.trySpec(gl, display,
+					EGL10.EGL_RED_SIZE, 5,
+					EGL10.EGL_GREEN_SIZE, 6,
+					EGL10.EGL_BLUE_SIZE, 5,
+					EGL10.EGL_DEPTH_SIZE, DEPTH,
+					EGL10.EGL_RENDERABLE_TYPE, 4 /* EGL_OPENGL_ES2_BIT */,
+					EGL10.EGL_NONE);
 		}
-		return elConfig;
+
+		if (configData.isValid()) {
+			// get all matching configurations
+			final EGLConfig[] configs = new EGLConfig[configData.count];
+			gl.eglChooseConfig(display, configData.spec, configs, configData.count, tmp);
+
+			final EGLConfig elConfig = findConfig(gl, display, configs);
+			if (elConfig == null) {
+				throw new IllegalArgumentException("No config chosen");
+			}
+			return elConfig;
+		} else {
+			// fallback to default android chooser
+			final SimpleEGLConfigChooser fallbackChooser = new SimpleEGLConfigChooser(true);
+			return fallbackChooser.chooseConfig(gl, display);
+		}
 	}
 
 	@Nullable
@@ -119,5 +136,120 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 			return count > 0;
 		}
 	}
+
+	/**
+	 * Following classes are copied from Android GLSurfaceView
+	 */
+
+	private static class SimpleEGLConfigChooser extends ComponentSizeChooser {
+		public SimpleEGLConfigChooser(boolean withDepthBuffer) {
+			super(8, 8, 8, 0, withDepthBuffer ? 16 : 0, 0);
+		}
+	}
+
+	private static class ComponentSizeChooser extends BaseConfigChooser {
+
+		private final int[] mValue;
+		// Subclasses can adjust these values:
+		protected final int mRedSize;
+		protected final int mGreenSize;
+		protected final int mBlueSize;
+		protected final int mAlphaSize;
+		protected final int mDepthSize;
+		protected final int mStencilSize;
+
+		public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
+									int alphaSize, int depthSize, int stencilSize) {
+			super(new int[]{
+					EGL10.EGL_RED_SIZE, redSize,
+					EGL10.EGL_GREEN_SIZE, greenSize,
+					EGL10.EGL_BLUE_SIZE, blueSize,
+					EGL10.EGL_ALPHA_SIZE, alphaSize,
+					EGL10.EGL_DEPTH_SIZE, depthSize,
+					EGL10.EGL_STENCIL_SIZE, stencilSize,
+					EGL10.EGL_NONE});
+			mValue = new int[1];
+			mRedSize = redSize;
+			mGreenSize = greenSize;
+			mBlueSize = blueSize;
+			mAlphaSize = alphaSize;
+			mDepthSize = depthSize;
+			mStencilSize = stencilSize;
+		}
+
+		@Override
+		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
+									  EGLConfig[] configs) {
+			for (EGLConfig config : configs) {
+				int d = findConfigAttrib(egl, display, config,
+						EGL10.EGL_DEPTH_SIZE, 0);
+				int s = findConfigAttrib(egl, display, config,
+						EGL10.EGL_STENCIL_SIZE, 0);
+				if ((d >= mDepthSize) && (s >= mStencilSize)) {
+					int r = findConfigAttrib(egl, display, config,
+							EGL10.EGL_RED_SIZE, 0);
+					int g = findConfigAttrib(egl, display, config,
+							EGL10.EGL_GREEN_SIZE, 0);
+					int b = findConfigAttrib(egl, display, config,
+							EGL10.EGL_BLUE_SIZE, 0);
+					int a = findConfigAttrib(egl, display, config,
+							EGL10.EGL_ALPHA_SIZE, 0);
+					if ((r == mRedSize) && (g == mGreenSize)
+							&& (b == mBlueSize) && (a == mAlphaSize)) {
+						return config;
+					}
+				}
+			}
+			return null;
+		}
+
+		private int findConfigAttrib(EGL10 egl, EGLDisplay display,
+									 EGLConfig config, int attribute, int defaultValue) {
+
+			if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
+				return mValue[0];
+			}
+			return defaultValue;
+		}
+	}
+
+	private static abstract class BaseConfigChooser implements GLSurfaceView.EGLConfigChooser {
+
+		protected final int[] mConfigSpec;
+
+		public BaseConfigChooser(int[] configSpec) {
+			mConfigSpec = configSpec;
+		}
+
+		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+			int[] num_config = new int[1];
+			if (!egl.eglChooseConfig(display, mConfigSpec, null, 0,
+					num_config)) {
+				throw new IllegalArgumentException("eglChooseConfig failed");
+			}
+
+			int numConfigs = num_config[0];
+
+			if (numConfigs <= 0) {
+				throw new IllegalArgumentException(
+						"No configs match configSpec");
+			}
+
+			EGLConfig[] configs = new EGLConfig[numConfigs];
+			if (!egl.eglChooseConfig(display, mConfigSpec, configs, numConfigs,
+					num_config)) {
+				throw new IllegalArgumentException("eglChooseConfig#2 failed");
+			}
+			EGLConfig config = chooseConfig(egl, display, configs);
+			if (config == null) {
+				throw new IllegalArgumentException("No config chosen");
+			}
+			return config;
+		}
+
+		abstract EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
+										EGLConfig[] configs);
+	}
+
 }
 
