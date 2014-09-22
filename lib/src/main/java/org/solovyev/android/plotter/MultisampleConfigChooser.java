@@ -18,8 +18,6 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 	private static final int BLUE = 5;
 	private static final int DEPTH = 16;
 
-	private boolean usesCoverageAa;
-
 	private final int[] tmp = new int[1];
 
 	@Override
@@ -47,8 +45,6 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 					EGL_COVERAGE_BUFFERS_NV, 1 /* true */,
 					EGL_COVERAGE_SAMPLES_NV, 2,  // always 5 in practice on tegra 2
 					EGL10.EGL_NONE);
-
-			usesCoverageAa = configData.isValid();
 		}
 
 		if (!configData.isValid()) {
