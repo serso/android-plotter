@@ -34,7 +34,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final boolean highQuality = Build.VERSION.SDK_INT >= 5;
 
 	@Nonnull
-	private final List<Mesh> meshes = new ArrayList<Mesh>();
+	private final Group meshes = new Group();
+
+	@Nonnull
+	private final List<FunctionGraph> pool = new ArrayList<FunctionGraph>();
 
 	private final float[] matrix1 = new float[16], matrix2 = new float[16], matrix3 = new float[16];
 	private float angleX, angleY;
@@ -77,31 +80,26 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		final SolidCube solidCube = new SolidCube((GL11) gl, 1, 1, 1);
-		solidCube.init((GL11) gl);
+		final SolidCube solidCube = new SolidCube(1, 1, 1);
 		solidCube.setColor(Color.BLUE);
 		meshes.add(solidCube);
-
-		final WireFrameCube wireFrameCube1 = new WireFrameCube((GL11) gl, 1, 1, 1);
-		wireFrameCube1.init((GL11) gl);
-		meshes.add(wireFrameCube1);
-
-		final WireFrameCube wireFrameCube2 = new WireFrameCube((GL11) gl, 2, 2, 2);
-		wireFrameCube2.init((GL11) gl);
-		meshes.add(wireFrameCube2);
-
-		final WireFramePlane wireFramePlane = new WireFramePlane((GL11) gl, 5, 5, 30, 30);
-		wireFramePlane.init((GL11) gl);
-		meshes.add(wireFramePlane);
-
-		final FunctionGraph functionGraph = new FunctionGraph((GL11) gl, 5, 5, 30, 30, new Function2() {
+		meshes.add(new WireFrameCube(1, 1, 1));
+		meshes.add(new WireFrameCube(2, 2, 2));
+		meshes.add(new WireFramePlane(5, 5, 30, 30));
+		meshes.add(new FunctionGraph(5, 5, 30, 30, new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
-		});
-		functionGraph.init((GL11) gl);
-		meshes.add(functionGraph);
+		}));
+		meshes.add(new FunctionGraph(5, 5, 30, 30, new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return (float) (Math.sin(x) + Math.sin(y));
+			}
+		}));
+
+		meshes.init((GL11) gl, MeshConfig.create());
 
 		gl.glDisable(GL10.GL_DITHER);
 		gl.glDisable(GL10.GL_LIGHTING);
@@ -119,7 +117,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glClearColor(Color.red(bg), Color.green(bg), Color.blue(bg), Color.alpha(bg));
 
 		gl.glShadeModel(GL10.GL_SMOOTH);
-		ensureMeshesSize((GL11) gl);
 		angleX = .5f;
 		angleY = 0;
 
@@ -138,7 +135,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			zoomer.reset();
 		}
 		if (dirty) {
-			ensureMeshesSize(gl);
+			//ensureMeshesSize(gl);
 
 			dimensions.copy(d);
 			d.setGraphDimensions(dimensions.getGWidth() * zoomer.getLevel() / 4, dimensions.getGHeight() * zoomer.getLevel() / 4);
@@ -189,30 +186,40 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private void ensureMeshesSize(@Nonnull GL11 gl) {
 		// for each functions we should assign mesh
 		// if there are not enough meshes => create new
-		// if there are too many meshes => disable them
+		// if there are too many meshes => release them
 		int i = 0;
 		for (PlotFunction function : plotData.functions) {
 			for (; i < meshes.size(); i++) {
 				final Mesh mesh = meshes.get(i);
-				if (mesh instanceof Graph3d) {
-					((Graph3d) mesh).setFunction(function);
+				if (mesh instanceof FunctionGraph) {
+					((FunctionGraph) mesh).setFunction(function.function);
+					((FunctionGraph) mesh).setColor(function.lineStyle.color);
 					i++;
 					break;
 				}
 			}
 
 			if (i == meshes.size()) {
-				final Graph3d mesh = new Graph3d(gl, highQuality);
-				mesh.setFunction(function);
+				final int poolSize = pool.size();
+				final FunctionGraph mesh;
+				if (poolSize > 0) {
+					mesh = pool.remove(poolSize - 1);
+					mesh.setFunction(function.function);
+				} else {
+					mesh = new FunctionGraph(5, 5, 30, 30, function.function);
+				}
+				mesh.setColor(function.lineStyle.color);
 				meshes.add(mesh);
 				i++;
 			}
 		}
 
-		for (; i < meshes.size(); i++) {
-			final Mesh mesh = meshes.get(i);
-			if (mesh instanceof Graph3d) {
-				((Graph3d) mesh).setFunction(null);
+		for (int k = meshes.size() - 1; k >= i; k--) {
+			final Mesh mesh = meshes.get(k);
+			if (mesh instanceof FunctionGraph) {
+				final FunctionGraph pooledMesh = (FunctionGraph) meshes.remove(k);
+				pooledMesh.setFunction(Function0.ZERO);
+				pool.add(pooledMesh);
 			}
 		}
 	}
@@ -238,7 +245,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		this.height = height;
 		gl.glViewport(0, 0, width, height);
 		initFrustum((GL11) gl);
-		setDirty();
+		//setDirty();
 	}
 
 	private void setDirty(boolean force) {

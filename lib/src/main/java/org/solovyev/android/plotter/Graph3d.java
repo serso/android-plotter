@@ -32,7 +32,7 @@ import javax.microedition.khronos.opengles.GL11;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-class Graph3d implements Mesh {
+public class Graph3d implements Mesh {
 
 	// vertices count per polygon (triangle = 3)
 	public static final int VERTICES_COUNT = 3;
@@ -65,7 +65,70 @@ class Graph3d implements Mesh {
 		ticksCount = useHighQuality3d ? 5 : 0;
 		polygonsCount = nn + 6 + 8 + ticksCount * 6;
 
-		short[] b = new short[nn];
+		short[] b = makeIndices(n);
+		indices = Meshes.allocateBuffer(b);
+
+		final String extensions = gl.glGetString(GL10.GL_EXTENSIONS);
+		useVbo = extensions.contains("vertex_buffer_object");
+
+		if (useVbo) {
+			final int[] out = new int[3];
+			gl.glGenBuffers(3, out, 0);
+			verticesVbo = out[0];
+			colorsVbo = out[1];
+			indicesVbo = out[2];
+		}
+	}
+
+/*
+ 0     1     2     3     5
+  +-----+-----+-----+-----+
+  |     |     |     |     |
+  |     |     |     |     |
+10|    9|    8|    7|    6|
+  +------------------------
+  |     |     |     |     |
+  |     |     |     |     |
+11|   12|   13|   14|   15|
+  +------------------------
+  |     |     |     |     |
+  |     |     |     |     |
+20|   19|   18|   17|   16|
+  +------------------------
+  |     |     |     |     |
+  |     |     |     |     |
+21|   22|   23|   24|   25|
+  +------------------------
+ */
+
+	public static void main(String... args) {
+		final int n = 10;
+
+		final float Δx = 9f / (n - 1);
+		final float Δy = 9f / (n - 1);
+
+		float y = 0;
+		float x = -Δx;
+
+		int k = 0;
+		for (int i = 0; i < n; i++, y += Δy) {
+			float xinc = (i & 1) == 0 ? Δx : -Δx;
+			x += xinc;
+			for (int j = 0; j < n; j++, x += xinc, k += VERTICES_COUNT) {
+				System.out.println(x + ", " + y);
+			}
+		}
+
+		System.out.println("############");
+		short[] indices = makeIndices(n);
+		for (short index : indices) {
+			System.out.println(index);
+		}
+	}
+
+	private static short[] makeIndices(int n) {
+		final int nn = n * n;
+		final short[] b = new short[nn];
 		int p = 0;
 		for (int i = 0; i < n; i++) {
 			short v = 0;
@@ -80,18 +143,7 @@ class Graph3d implements Mesh {
 				b[p++] = (short) (v + i);
 			}
 		}
-		indices = Meshes.allocateBuffer(b);
-
-		final String extensions = gl.glGetString(GL10.GL_EXTENSIONS);
-		useVbo = extensions.contains("vertex_buffer_object");
-
-		if (useVbo) {
-			final int[] out = new int[3];
-			gl.glGenBuffers(3, out, 0);
-			verticesVbo = out[0];
-			colorsVbo = out[1];
-			indicesVbo = out[2];
-		}
+		return b;
 	}
 
 	public void update(@Nonnull GL10 gl10, @Nonnull Dimensions dimensions) {
@@ -334,7 +386,7 @@ class Graph3d implements Mesh {
 	}
 
 	@Override
-	public void init(@Nonnull GL11 gl) {
+	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 
 	}
 }

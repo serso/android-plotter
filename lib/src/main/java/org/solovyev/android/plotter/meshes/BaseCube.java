@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.Color;
+import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
@@ -11,16 +12,15 @@ public abstract class BaseCube extends BaseMesh {
 	private final float height;
 	private final float depth;
 
-	public BaseCube(@Nonnull GL11 gl, float width, float height, float depth) {
-		super(gl);
+	public BaseCube(float width, float height, float depth) {
 		this.width = width;
 		this.height = height;
 		this.depth = depth;
 	}
 
 	@Override
-	public void init(@Nonnull GL11 gl) {
-		super.init(gl);
+	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		super.init(gl, config);
 
 		final float x = width / 2;
 		final float y = height / 2;

@@ -1,17 +1,19 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.MeshConfig;
+
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class SolidCube extends BaseCube {
 
-	public SolidCube(@Nonnull GL11 gl, float width, float height, float depth) {
-		super(gl, width, height, depth);
+	public SolidCube(float width, float height, float depth) {
+		super(width, height, depth);
 	}
 
 	@Override
-	public void init(@Nonnull GL11 gl) {
-		super.init(gl);
+	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		super.init(gl, config);
 
 		final short indices[] = {
 				0, 4, 5,
