@@ -173,6 +173,18 @@ public abstract class BaseMesh implements Mesh {
 		}
 	}
 
+	@Nonnull
+	public final BaseMesh withColor(int color) {
+		setColor(color);
+		return this;
+	}
+
+	@Nonnull
+	public final BaseMesh withColor(@Nonnull Color color) {
+		setColor(color);
+		return this;
+	}
+
 	public final void setColor(int color) {
 		setColor(new Color(color));
 	}

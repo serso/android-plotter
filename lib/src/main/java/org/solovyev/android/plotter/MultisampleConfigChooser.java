@@ -76,14 +76,20 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 
 			final EGLConfig elConfig = findConfig(gl, display, configs);
 			if (elConfig == null) {
-				throw new IllegalArgumentException("No config chosen");
+				// fallback to default android chooser
+				return chooseDefaultConfig(gl, display);
 			}
 			return elConfig;
 		} else {
 			// fallback to default android chooser
-			final SimpleEGLConfigChooser fallbackChooser = new SimpleEGLConfigChooser(true);
-			return fallbackChooser.chooseConfig(gl, display);
+			return chooseDefaultConfig(gl, display);
 		}
+	}
+
+	@Nonnull
+	private EGLConfig chooseDefaultConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display) {
+		final SimpleEGLConfigChooser fallbackChooser = new SimpleEGLConfigChooser(true);
+		return fallbackChooser.chooseConfig(gl, display);
 	}
 
 	@Nullable

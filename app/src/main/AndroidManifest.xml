@@ -31,6 +31,7 @@
 	<supports-screens android:anyDensity="true" />
 
 	<application
+		android:hardwareAccelerated="true"
 		android:name=".PlotterApplication"
 		android:allowBackup="true"
 		android:icon="@drawable/app_icon"

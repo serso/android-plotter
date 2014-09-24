@@ -34,6 +34,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final boolean highQuality = Build.VERSION.SDK_INT >= 5;
 
 	@Nonnull
+	private final Fps fps = new Fps();
+
+	@Nonnull
 	private final Group meshes = new Group();
 
 	@Nonnull
@@ -86,13 +89,25 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		meshes.add(new WireFrameCube(1, 1, 1));
 		meshes.add(new WireFrameCube(2, 2, 2));
 		meshes.add(new WireFramePlane(5, 5, 30, 30));
-		meshes.add(new FunctionGraph(5, 5, 30, 30, new Function2() {
+		meshes.add(FunctionGraph.create(new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
 		}));
-		meshes.add(new FunctionGraph(5, 5, 30, 30, new Function2() {
+		meshes.add(FunctionGraph.create(new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return -x * x - y * y;
+			}
+		}).withColor(Color.GREEN));
+		meshes.add(FunctionGraph.create(new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return -x * x + y * y;
+			}
+		}).withColor(Color.RED));
+		meshes.add(FunctionGraph.create(5, 5, 30, 30, new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.sin(y));
@@ -177,6 +192,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		for (Mesh mesh : meshes) {
 			mesh.draw(gl);
 		}
+
+		fps.logFrame();
+		surface.requestRender();
 	}
 
 	private void initFrustum(@Nonnull GL11 gl) {
@@ -206,7 +224,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					mesh = pool.remove(poolSize - 1);
 					mesh.setFunction(function.function);
 				} else {
-					mesh = new FunctionGraph(5, 5, 30, 30, function.function);
+					mesh = FunctionGraph.create(5, 5, 30, 30, function.function);
 				}
 				mesh.setColor(function.lineStyle.color);
 				meshes.add(mesh);
