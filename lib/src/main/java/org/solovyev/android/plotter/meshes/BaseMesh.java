@@ -4,7 +4,6 @@ import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.nio.Buffer;
@@ -14,7 +13,6 @@ import java.nio.ShortBuffer;
 public abstract class BaseMesh implements Mesh {
 
 	private static final int NULL = 0xDEADC0DE;
-	private static final Color DEFAULT_COLOR = Color.WHITE;
 
 	/**
 	 * OpenGL instance associated with this mesh. This must be a instance which is used for drawing.
@@ -33,8 +31,8 @@ public abstract class BaseMesh implements Mesh {
 	@Nonnull
 	protected IndicesOrder indicesOrder = IndicesOrder.TRIANGLES;
 
-	@Nullable
-	private Color color;
+	@Nonnull
+	private Color color = Color.WHITE;
 	protected FloatBuffer colors;
 	protected int colorsCount = -1;
 
@@ -92,8 +90,7 @@ public abstract class BaseMesh implements Mesh {
 		}
 
 		if (!hasColors) {
-			// color hasn't been set => fallback to default
-			gl.glColor4f(DEFAULT_COLOR.red, DEFAULT_COLOR.green, DEFAULT_COLOR.blue, DEFAULT_COLOR.alpha);
+			gl.glColor4f(color.red, color.green, color.blue, color.alpha);
 		}
 
 		onPreDraw(gl);
@@ -142,10 +139,6 @@ public abstract class BaseMesh implements Mesh {
 			bindVboBuffer(this.vertices, verticesVbo, GL11.GL_ARRAY_BUFFER);
 			this.vertices = null;
 		}
-
-		if (color != null) {
-			setColor(color);
-		}
 	}
 
 	private void bindVboBuffer(@Nonnull FloatBuffer source, int destination, int type) {
@@ -191,14 +184,6 @@ public abstract class BaseMesh implements Mesh {
 
 	public final void setColor(@Nonnull Color color) {
 		this.color = color;
-		if (verticesCount <= 0) {
-			return;
-		}
-		final float[] colors = new float[verticesCount * Color.COMPONENTS];
-		for (int i = 0; i < verticesCount; i++) {
-			Color.fillVertex(colors, i, color);
-		}
-		setColors(colors);
 	}
 
 	protected void setColors(@Nonnull float[] colors) {
