@@ -92,6 +92,18 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		meshes.add(FunctionGraph.create(new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
+				return x + y;
+			}
+		}).withColor(Color.BLUE));
+		meshes.add(FunctionGraph.create(new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return (float) (Math.sin(x) + Math.cos(x));
+			}
+		}).withColor(Color.CYAN));
+		meshes.add(FunctionGraph.create(new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
 		}));
