@@ -8,6 +8,10 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
 
+/**
+ * OpenGL configuration chooser which tries to choose a config with anti-aliasing (multisampling).
+ * In case if such configuration is not supported by device default configuration is used.
+ */
 public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigChooser {
 
 	private static final int EGL_COVERAGE_BUFFERS_NV = 0x30E0;
@@ -18,8 +22,6 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 	private static final int BLUE = 5;
 	private static final int ALPHA = 0;
 	private static final int DEPTH = 16;
-
-	private final int[] tmp = new int[1];
 
 	@Override
 	public EGLConfig chooseConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display) {
@@ -65,14 +67,7 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 			return config;
 		}
 
-		// fallback to default android chooser
-		return chooseDefaultConfig(gl, display);
-	}
-
-	@Nonnull
-	private EGLConfig chooseDefaultConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display) {
-		final SimpleEGLConfigChooser fallbackChooser = new SimpleEGLConfigChooser(true);
-		return fallbackChooser.chooseConfig(gl, display);
+		throw new IllegalArgumentException("No supported configuration found");
 	}
 
 	private static int findConfigAttrib(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig config, int attribute, int defaultValue, int[] tmp) {
@@ -117,10 +112,11 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 
 		@Nullable
 		private EGLConfig findConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig[] configs, int[] tmp) {
-			// CAUTION! eglChooseConfigs returns configs with higher bit depth
-			// first: Even though we asked for rgb565 configurations, rgb888
+			// sometimes eglChooseConfig returns configurations with not requested
+			// options: even though we asked for rgb565 configurations, rgb888
 			// configurations are considered to be "better" and returned first.
-			// You need to explicitly filter the data returned by eglChooseConfig!
+			// We need to explicitly filter data returned by eglChooseConfig
+			// adn choose the right configuration.
 			for (final EGLConfig config : configs) {
 				if (config != null && isDesiredConfig(gl, display, tmp, config)) {
 					return config;
@@ -149,120 +145,5 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 			return true;
 		}
 	}
-
-	/**
-	 * Following classes are copied from Android GLSurfaceView
-	 */
-
-	private static class SimpleEGLConfigChooser extends ComponentSizeChooser {
-		public SimpleEGLConfigChooser(boolean withDepthBuffer) {
-			super(8, 8, 8, 0, withDepthBuffer ? 16 : 0, 0);
-		}
-	}
-
-	private static class ComponentSizeChooser extends BaseConfigChooser {
-
-		private final int[] mValue;
-		// Subclasses can adjust these values:
-		protected final int mRedSize;
-		protected final int mGreenSize;
-		protected final int mBlueSize;
-		protected final int mAlphaSize;
-		protected final int mDepthSize;
-		protected final int mStencilSize;
-
-		public ComponentSizeChooser(int redSize, int greenSize, int blueSize,
-									int alphaSize, int depthSize, int stencilSize) {
-			super(new int[]{
-					EGL10.EGL_RED_SIZE, redSize,
-					EGL10.EGL_GREEN_SIZE, greenSize,
-					EGL10.EGL_BLUE_SIZE, blueSize,
-					EGL10.EGL_ALPHA_SIZE, alphaSize,
-					EGL10.EGL_DEPTH_SIZE, depthSize,
-					EGL10.EGL_STENCIL_SIZE, stencilSize,
-					EGL10.EGL_NONE});
-			mValue = new int[1];
-			mRedSize = redSize;
-			mGreenSize = greenSize;
-			mBlueSize = blueSize;
-			mAlphaSize = alphaSize;
-			mDepthSize = depthSize;
-			mStencilSize = stencilSize;
-		}
-
-		@Override
-		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
-									  EGLConfig[] configs) {
-			for (EGLConfig config : configs) {
-				int d = findConfigAttrib(egl, display, config,
-						EGL10.EGL_DEPTH_SIZE, 0);
-				int s = findConfigAttrib(egl, display, config,
-						EGL10.EGL_STENCIL_SIZE, 0);
-				if ((d >= mDepthSize) && (s >= mStencilSize)) {
-					int r = findConfigAttrib(egl, display, config,
-							EGL10.EGL_RED_SIZE, 0);
-					int g = findConfigAttrib(egl, display, config,
-							EGL10.EGL_GREEN_SIZE, 0);
-					int b = findConfigAttrib(egl, display, config,
-							EGL10.EGL_BLUE_SIZE, 0);
-					int a = findConfigAttrib(egl, display, config,
-							EGL10.EGL_ALPHA_SIZE, 0);
-					if ((r == mRedSize) && (g == mGreenSize)
-							&& (b == mBlueSize) && (a == mAlphaSize)) {
-						return config;
-					}
-				}
-			}
-			return null;
-		}
-
-		private int findConfigAttrib(EGL10 egl, EGLDisplay display,
-									 EGLConfig config, int attribute, int defaultValue) {
-
-			if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
-				return mValue[0];
-			}
-			return defaultValue;
-		}
-	}
-
-	private static abstract class BaseConfigChooser implements GLSurfaceView.EGLConfigChooser {
-
-		protected final int[] mConfigSpec;
-
-		public BaseConfigChooser(int[] configSpec) {
-			mConfigSpec = configSpec;
-		}
-
-		public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
-			int[] num_config = new int[1];
-			if (!egl.eglChooseConfig(display, mConfigSpec, null, 0,
-					num_config)) {
-				throw new IllegalArgumentException("eglChooseConfig failed");
-			}
-
-			int numConfigs = num_config[0];
-
-			if (numConfigs <= 0) {
-				throw new IllegalArgumentException(
-						"No configs match configSpec");
-			}
-
-			EGLConfig[] configs = new EGLConfig[numConfigs];
-			if (!egl.eglChooseConfig(display, mConfigSpec, configs, numConfigs,
-					num_config)) {
-				throw new IllegalArgumentException("eglChooseConfig#2 failed");
-			}
-			EGLConfig config = chooseConfig(egl, display, configs);
-			if (config == null) {
-				throw new IllegalArgumentException("No config chosen");
-			}
-			return config;
-		}
-
-		abstract EGLConfig chooseConfig(EGL10 egl, EGLDisplay display,
-										EGLConfig[] configs);
-	}
-
 }
 
