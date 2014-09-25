@@ -13,9 +13,10 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 	private static final int EGL_COVERAGE_BUFFERS_NV = 0x30E0;
 	private static final int EGL_COVERAGE_SAMPLES_NV = 0x30E1;
 
-	private static final int RED = 8;
-	private static final int GREEN = 8;
-	private static final int BLUE = 8;
+	private static final int RED = 5;
+	private static final int GREEN = 6;
+	private static final int BLUE = 5;
+	private static final int ALPHA = 0;
 	private static final int DEPTH = 16;
 
 	private final int[] tmp = new int[1];
@@ -23,67 +24,49 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 	@Override
 	public EGLConfig chooseConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display) {
 		// try to find a normal multisample configuration first.
-		ConfigData configData = ConfigData.trySpec(gl, display, EGL10.EGL_RED_SIZE, RED,
+		EGLConfig config = ConfigData.create(EGL10.EGL_RED_SIZE, RED,
 				EGL10.EGL_GREEN_SIZE, GREEN,
 				EGL10.EGL_BLUE_SIZE, BLUE,
+				EGL10.EGL_ALPHA_SIZE, ALPHA,
 				EGL10.EGL_DEPTH_SIZE, DEPTH,
 				EGL10.EGL_RENDERABLE_TYPE, 4 /* EGL_OPENGL_ES2_BIT */,
 				EGL10.EGL_SAMPLE_BUFFERS, 1 /* true */,
 				EGL10.EGL_SAMPLES, 2,
-				EGL10.EGL_NONE);
-
-		if (!configData.isValid()) {
-			// no normal multisampling config was found. Try to create a
-			// coverage multisampling configuration, for the nVidia Tegra2.
-			// See the EGL_NV_coverage_sample documentation.
-
-			configData = ConfigData.trySpec(gl, display, EGL10.EGL_RED_SIZE, RED,
-					EGL10.EGL_GREEN_SIZE, GREEN,
-					EGL10.EGL_BLUE_SIZE, BLUE,
-					EGL10.EGL_DEPTH_SIZE, DEPTH,
-					EGL10.EGL_RENDERABLE_TYPE, 4 /* EGL_OPENGL_ES2_BIT */,
-					EGL_COVERAGE_BUFFERS_NV, 1 /* true */,
-					EGL_COVERAGE_SAMPLES_NV, 2,  // always 5 in practice on tegra 2
-					EGL10.EGL_NONE);
+				EGL10.EGL_NONE).tryConfig(gl, display);
+		if (config != null) {
+			return config;
 		}
 
-		if (!configData.isValid()) {
-			// fallback to simple configuration
-			configData = ConfigData.trySpec(gl, display,
-					EGL10.EGL_RED_SIZE, RED,
-					EGL10.EGL_GREEN_SIZE, GREEN,
-					EGL10.EGL_BLUE_SIZE, BLUE,
-					EGL10.EGL_DEPTH_SIZE, DEPTH,
-					EGL10.EGL_RENDERABLE_TYPE, 4 /* EGL_OPENGL_ES2_BIT */,
-					EGL10.EGL_NONE);
+		// no normal multisampling config was found. Try to create a
+		// coverage multisampling configuration, for the nVidia Tegra2.
+		// See the EGL_NV_coverage_sample documentation.
+		config = ConfigData.create(EGL10.EGL_RED_SIZE, RED,
+				EGL10.EGL_GREEN_SIZE, GREEN,
+				EGL10.EGL_BLUE_SIZE, BLUE,
+				EGL10.EGL_ALPHA_SIZE, ALPHA,
+				EGL10.EGL_DEPTH_SIZE, DEPTH,
+				EGL10.EGL_RENDERABLE_TYPE, 4 /* EGL_OPENGL_ES2_BIT */,
+				EGL_COVERAGE_BUFFERS_NV, 1 /* true */,
+				EGL_COVERAGE_SAMPLES_NV, 2,  // always 5 in practice on tegra 2
+				EGL10.EGL_NONE).tryConfig(gl, display);
+		if (config != null) {
+			return config;
 		}
 
-		if (!configData.isValid()) {
-			// fallback to even simpler configuration
-			configData = ConfigData.trySpec(gl, display,
-					EGL10.EGL_RED_SIZE, 5,
-					EGL10.EGL_GREEN_SIZE, 6,
-					EGL10.EGL_BLUE_SIZE, 5,
-					EGL10.EGL_DEPTH_SIZE, DEPTH,
-					EGL10.EGL_RENDERABLE_TYPE, 4 /* EGL_OPENGL_ES2_BIT */,
-					EGL10.EGL_NONE);
+		// fallback to simple configuration
+		config = ConfigData.create(
+				EGL10.EGL_RED_SIZE, RED,
+				EGL10.EGL_GREEN_SIZE, GREEN,
+				EGL10.EGL_BLUE_SIZE, BLUE,
+				EGL10.EGL_ALPHA_SIZE, ALPHA,
+				EGL10.EGL_DEPTH_SIZE, DEPTH,
+				EGL10.EGL_NONE).tryConfig(gl, display);
+		if (config != null) {
+			return config;
 		}
 
-		if (configData.isValid()) {
-			// get all matching configurations
-			final EGLConfig[] configs = new EGLConfig[configData.count];
-			gl.eglChooseConfig(display, configData.spec, configs, configData.count, tmp);
-
-			final EGLConfig elConfig = findConfig(gl, display, configs);
-			if (elConfig == null) {
-				// fallback to default android chooser
-				return chooseDefaultConfig(gl, display);
-			}
-			return elConfig;
-		} else {
-			// fallback to default android chooser
-			return chooseDefaultConfig(gl, display);
-		}
+		// fallback to default android chooser
+		return chooseDefaultConfig(gl, display);
 	}
 
 	@Nonnull
@@ -92,28 +75,7 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 		return fallbackChooser.chooseConfig(gl, display);
 	}
 
-	@Nullable
-	private EGLConfig findConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig[] configs) {
-		// CAUTION! eglChooseConfigs returns configs with higher bit depth
-		// first: Even though we asked for rgb565 configurations, rgb888
-		// configurations are considered to be "better" and returned first.
-		// You need to explicitly filter the data returned by eglChooseConfig!
-		for (final EGLConfig config : configs) {
-			if (config != null) {
-				final boolean red = findConfigAttrib(gl, display, config, EGL10.EGL_RED_SIZE, 0) == RED;
-				final boolean green = findConfigAttrib(gl, display, config, EGL10.EGL_GREEN_SIZE, 0) == GREEN;
-				final boolean blue = findConfigAttrib(gl, display, config, EGL10.EGL_BLUE_SIZE, 0) == BLUE;
-				final boolean depth = findConfigAttrib(gl, display, config, EGL10.EGL_DEPTH_SIZE, 0) >= DEPTH;
-				if (red && green && blue && depth) {
-					return config;
-				}
-			}
-		}
-
-		return null;
-	}
-
-	private int findConfigAttrib(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig config, int attribute, int defaultValue) {
+	private static int findConfigAttrib(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig config, int attribute, int defaultValue, int[] tmp) {
 		if (gl.eglGetConfigAttrib(display, config, attribute, tmp)) {
 			return tmp[0];
 		}
@@ -121,25 +83,70 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
 	}
 
 	private static final class ConfigData {
-		final int count;
 		final int[] spec;
 
-		private ConfigData(int count, int[] spec) {
-			this.count = count;
+		private ConfigData(int[] spec) {
 			this.spec = spec;
 		}
 
 		@Nonnull
-		private static ConfigData trySpec(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, int... spec) {
-			final int[] count = new int[1];
-			if (!gl.eglChooseConfig(display, spec, null, 0, count)) {
-				return new ConfigData(0, spec);
-			}
-			return new ConfigData(count[0], spec);
+		private static ConfigData create(int... spec) {
+			return new ConfigData(spec);
 		}
 
-		boolean isValid() {
-			return count > 0;
+		@Nullable
+		private EGLConfig tryConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display) {
+			final int[] tmp = new int[1];
+
+			if (!gl.eglChooseConfig(display, spec, null, 0, tmp)) {
+				return null;
+			}
+			final int count = tmp[0];
+			if (count > 0) {
+				// get all matching configurations
+				final EGLConfig[] configs = new EGLConfig[count];
+				if (!gl.eglChooseConfig(display, spec, configs, count, tmp)) {
+					return null;
+				}
+
+				return findConfig(gl, display, configs, tmp);
+			}
+
+			return null;
+		}
+
+		@Nullable
+		private EGLConfig findConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig[] configs, int[] tmp) {
+			// CAUTION! eglChooseConfigs returns configs with higher bit depth
+			// first: Even though we asked for rgb565 configurations, rgb888
+			// configurations are considered to be "better" and returned first.
+			// You need to explicitly filter the data returned by eglChooseConfig!
+			for (final EGLConfig config : configs) {
+				if (config != null && isDesiredConfig(gl, display, tmp, config)) {
+					return config;
+				}
+			}
+
+			return null;
+		}
+
+		private boolean isDesiredConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull int[] tmp, @Nonnull EGLConfig config) {
+			for (int i = 0; i + 1 < spec.length; i += 2) {
+				final int attribute = spec[i];
+				final int desiredValue = spec[i + 1];
+				final int actualValue = findConfigAttrib(gl, display, config, attribute, 0, tmp);
+				if (attribute == EGL10.EGL_DEPTH_SIZE) {
+					if (actualValue < desiredValue) {
+						return false;
+					}
+				} else {
+					if (desiredValue != actualValue) {
+						return false;
+					}
+				}
+			}
+
+			return true;
 		}
 	}
 
