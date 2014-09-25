@@ -12,8 +12,8 @@ public class WireFrameCube extends BaseCube {
 	}
 
 	@Override
-	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		super.init(gl, config);
+	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		super.initGl(gl, config);
 
 		final short indices[] = {
 				// first facet
@@ -33,5 +33,11 @@ public class WireFrameCube extends BaseCube {
 				3, 7};
 
 		setIndices(indices, IndicesOrder.LINES);
+	}
+
+	@Nonnull
+	@Override
+	public Mesh copy() {
+		return new WireFrameCube(width, height, depth);
 	}
 }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Group implements Mesh, Iterable<Mesh> {
+public final class Group implements Mesh, Iterable<Mesh> {
 
 	@Nonnull
 	private final List<Mesh> list;
@@ -21,11 +21,25 @@ public class Group implements Mesh, Iterable<Mesh> {
 		list = new ArrayList<Mesh>(capacity);
 	}
 
+	private Group(@Nonnull List<Mesh> list) {
+		this.list = list;
+	}
+
 	@Override
 	public void draw(@Nonnull GL11 gl) {
 		for (Mesh mesh : list) {
 			mesh.draw(gl);
 		}
+	}
+
+	@Nonnull
+	@Override
+	public Mesh copy() {
+		final List<Mesh> meshes = new ArrayList<Mesh>(list.size());
+		for (Mesh mesh : list) {
+			meshes.add(mesh.copy());
+		}
+		return new Group(meshes);
 	}
 
 	public boolean add(@Nonnull Mesh mesh) {
@@ -37,9 +51,9 @@ public class Group implements Mesh, Iterable<Mesh> {
 	}
 
 	@Override
-	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		for (Mesh mesh : list) {
-			mesh.init(gl, config);
+			mesh.initGl(gl, config);
 		}
 	}
 

@@ -44,13 +44,32 @@ public abstract class BaseMesh implements Mesh {
 	protected int indicesVbo = NULL;
 	protected int colorsVbo = NULL;
 
+	@Nonnull
+	private volatile State state = State.DIRTY;
+
 	private static boolean supportsVbo(@Nonnull GL11 gl) {
 		final String extensions = gl.glGetString(GL10.GL_EXTENSIONS);
 		return extensions.contains("vertex_buffer_object");
 	}
 
+	@Nonnull
+	public final State getState() {
+		return state;
+	}
+
 	@Override
-	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+	public void init() {
+		if (state != State.DIRTY) {
+			throw new IllegalArgumentException("Init should be called only for dirty meshes");
+		}
+		state = State.INIT;
+	}
+
+	@Override
+	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		if (state != State.INIT) {
+			throw new IllegalArgumentException("InitGL should be called only for initialized meshes");
+		}
 		this.gl = gl;
 		this.config = config;
 
@@ -71,6 +90,7 @@ public abstract class BaseMesh implements Mesh {
 			colorsVbo = NULL;
 			indicesVbo = NULL;
 		}
+		state = State.INIT_GL;
 	}
 
 	public void draw(@Nonnull GL11 gl) {
@@ -132,7 +152,11 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	protected void setVertices(float[] vertices) {
-		this.vertices = Meshes.allocateBuffer(vertices);
+		if (this.vertices != null && this.vertices.capacity() == vertices.length) {
+			this.vertices = Meshes.putBuffer(vertices, this.vertices);
+		} else {
+			this.vertices = Meshes.allocateBuffer(vertices);
+		}
 		this.verticesCount = vertices.length / 3;
 
 		if (useVbo) {
@@ -156,7 +180,11 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	protected void setIndices(short[] indices, @Nonnull IndicesOrder order) {
-		this.indices = Meshes.allocateBuffer(indices);
+		if (this.indices != null && this.indices.capacity() == indices.length) {
+			this.indices = Meshes.putBuffer(indices, this.indices);
+		} else {
+			this.indices = Meshes.allocateBuffer(indices);
+		}
 		this.indicesCount = indices.length;
 		this.indicesOrder = order;
 

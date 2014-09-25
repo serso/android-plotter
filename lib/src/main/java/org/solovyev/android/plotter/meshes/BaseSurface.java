@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
@@ -28,26 +29,36 @@ import javax.microedition.khronos.opengles.GL11;
  */
 public abstract class BaseSurface extends BaseMesh {
 
-	protected final float width;
-	protected final float height;
+	@Nonnull
+	protected Dimensions dimensions;
 	protected final int widthVertices;
 	protected final int heightVertices;
+	private final float[] vertices;
+	private final short[] indices;
 
 	protected BaseSurface(float width, float height, int widthVertices, int heightVertices) {
-		this.width = width;
-		this.height = height;
+		this.dimensions = new Dimensions();
+		this.dimensions.setGraphDimensions(width, height);
 		this.widthVertices = widthVertices;
 		this.heightVertices = heightVertices;
+		this.vertices = new float[this.heightVertices * this.widthVertices * 3];
+		this.indices = new short[this.heightVertices * this.widthVertices];
+	}
+
+	public void setDimensions(@Nonnull Dimensions dimensions) {
+		this.dimensions = dimensions;
 	}
 
 	@Override
-	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		super.init(gl, config);
-
-		final float[] vertices = new float[heightVertices * widthVertices * 3];
-		final short[] indices = new short[heightVertices * widthVertices];
+	public void init() {
+		super.init();
 
 		fillArrays(vertices, indices);
+	}
+
+	@Override
+	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		super.initGl(gl, config);
 
 		setVertices(vertices);
 		setIndices(indices, IndicesOrder.LINE_STRIP);
@@ -60,16 +71,16 @@ public abstract class BaseSurface extends BaseMesh {
 	}
 
 	void fillArrays(@Nonnull float[] vertices, @Nonnull short[] indices) {
-		final float x0 = -width / 2;
-		final float xn = width / 2;
-		final float y0 = -height / 2;
+		final float xMin = dimensions.getXMin();
+		final float xMax = xMin + dimensions.graph.width;
+		final float yMin = dimensions.getYMin();
 
-		final float dx = width / (widthVertices - 1);
-		final float dy = height / (heightVertices - 1);
+		final float dx = dimensions.graph.width / (widthVertices - 1);
+		final float dy = dimensions.graph.height / (heightVertices - 1);
 
 		int vertex = 0;
 		for (int yi = 0; yi < heightVertices; yi++) {
-			final float y = y0 + yi * dy;
+			final float y = yMin + yi * dy;
 			final boolean yEven = yi % 2 == 0;
 
 			for (int xi = 0; xi < widthVertices; xi++) {
@@ -91,10 +102,10 @@ public abstract class BaseSurface extends BaseMesh {
 				final float x;
 				if (yEven) {
 					// going right
-					x = x0 + xi * dx;
+					x = xMin + xi * dx;
 				} else {
 					// going left
-					x = xn - xi * dx;
+					x = xMax - xi * dx;
 				}
 
 				final float z = z(x, y, xi, yi);

@@ -19,9 +19,18 @@ public final class Meshes {
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(array.length * BYTES_IN_FLOAT);
 		buffer.order(ByteOrder.nativeOrder());
 		final FloatBuffer floatBuffer = buffer.asFloatBuffer();
-		floatBuffer.put(array);
-		floatBuffer.position(0);
-		return floatBuffer;
+		return putBuffer(array, floatBuffer);
+	}
+
+	@Nonnull
+	public static FloatBuffer putBuffer(float[] array, @Nonnull FloatBuffer to) {
+		if (to.capacity() != array.length) {
+			throw new IllegalArgumentException("Arrays should have save size");
+		}
+		to.position(0);
+		to.put(array);
+		to.position(0);
+		return to;
 	}
 
 	@Nonnull
@@ -29,17 +38,17 @@ public final class Meshes {
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(array.length * BYTES_IN_SHORT);
 		buffer.order(ByteOrder.nativeOrder());
 		final ShortBuffer shortBuffer = buffer.asShortBuffer();
-		shortBuffer.put(array);
-		shortBuffer.position(0);
-		return shortBuffer;
+		return putBuffer(array, shortBuffer);
 	}
 
 	@Nonnull
-	static ByteBuffer allocateBuffer(byte[] array) {
-		final ByteBuffer buffer = ByteBuffer.allocateDirect(array.length);
-		buffer.order(ByteOrder.nativeOrder());
-		buffer.put(array);
-		buffer.position(0);
-		return buffer;
+	public static ShortBuffer putBuffer(short[] array, @Nonnull ShortBuffer to) {
+		if (to.capacity() != array.length) {
+			throw new IllegalArgumentException("Arrays should have save size");
+		}
+		to.position(0);
+		to.put(array);
+		to.position(0);
+		return to;
 	}
 }

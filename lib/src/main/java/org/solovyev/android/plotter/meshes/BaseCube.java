@@ -8,9 +8,9 @@ import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseCube extends BaseMesh {
 
-	private final float width;
-	private final float height;
-	private final float depth;
+	protected final float width;
+	protected final float height;
+	protected final float depth;
 
 	public BaseCube(float width, float height, float depth) {
 		this.width = width;
@@ -19,8 +19,8 @@ public abstract class BaseCube extends BaseMesh {
 	}
 
 	@Override
-	public void init(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		super.init(gl, config);
+	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		super.initGl(gl, config);
 
 		final float x = width / 2;
 		final float y = height / 2;

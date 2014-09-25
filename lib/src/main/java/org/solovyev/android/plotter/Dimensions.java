@@ -23,20 +23,15 @@
 package org.solovyev.android.plotter;
 
 import android.graphics.PointF;
-import android.view.View;
 
 import javax.annotation.Nonnull;
 
 public final class Dimensions {
 
-	public interface Listener {
-		void onChanged();
-	}
-
-	//                    |<--------------gWidth-------------->|
+	//                    |<--------------gw-------------->|
 	//                   xMin                                xMax
 	// -------------------|------------------------------------|--------------------
-	//                    |<-------------vWidthPxs------------>|
+	//                    |<-------------vwPxs------------>|
 	//
 	/*
 	*
@@ -63,31 +58,14 @@ public final class Dimensions {
 
 
 	@Nonnull
-	private Listener listener;
-
-	// view width and height in pixels
-	private int vWidthPxs;
-	private int vHeightPxs;
+	public final View view = new View();
 
 	// current position of camera in graph coordinates
-	private float x0;
-	private float y0;
+	@Nonnull
+	private final Camera camera = new Camera();
 
-	// graph width and height in function units (NOT screen pixels)
-	private float gWidth = 20;
-	private float gHeight = 20;
-
-	public Dimensions(@Nonnull Listener listener) {
-		this.listener = listener;
-	}
-
-	/*
-	**********************************************************************
-	*
-	*                           METHODS
-	*
-	**********************************************************************
-	*/
+	@Nonnull
+	public final Graph graph = new Graph();
 
 	@Nonnull
 	PointF toGraphCoordinates(float xPxs, float yPxs) {
@@ -105,11 +83,11 @@ public final class Dimensions {
 	// X
 
 	public float getXMin() {
-		return x0 - gWidth / 2;
+		return camera.x - graph.width / 2;
 	}
 
 	float getXMax(float minX) {
-		return minX + gWidth;
+		return minX + graph.width;
 	}
 
 	public float getXMax() {
@@ -119,7 +97,7 @@ public final class Dimensions {
 	// Y
 
 	public float getYMin() {
-		return y0 - gHeight / 2;
+		return camera.y - graph.height / 2;
 	}
 
 	public float getYMax() {
@@ -127,140 +105,105 @@ public final class Dimensions {
 	}
 
 	public float getYMax(float yMin) {
-		return yMin + gHeight;
+		return yMin + graph.height;
 	}
 
 	float getXGraphToViewScale() {
-		if (vWidthPxs != 0) {
-			return gWidth / ((float) vWidthPxs);
+		if (view.width != 0) {
+			return graph.width / ((float) view.width);
 		} else {
 			return 0f;
 		}
 	}
 
 	float getYGraphToViewScale() {
-		if (vHeightPxs != 0) {
-			return gHeight / ((float) vHeightPxs);
+		if (view.height != 0) {
+			return graph.height / ((float) view.height);
 		} else {
 			return 0f;
 		}
 	}
 
 	private float getViewAspectRatio() {
-		if (vWidthPxs != 0) {
-			return ((float) vHeightPxs) / vWidthPxs;
+		if (view.width != 0) {
+			return ((float) view.height) / view.width;
 		} else {
 			return 0f;
 		}
 	}
 
-	public int getVWidthPxs() {
-		return vWidthPxs;
-	}
-
-	public int getVHeightPxs() {
-		return vHeightPxs;
-	}
-
-	public float getX0() {
-		return x0;
-	}
-
-	public float getY0() {
-		return y0;
-	}
-
 	public float getGWidth() {
-		return gWidth;
+		return graph.width;
 	}
 
 	public float getGHeight() {
-		return gHeight;
+		return graph.height;
 	}
-
-	/*
-	**********************************************************************
-	*
-	*                           SETTERS
-	*
-	**********************************************************************
-	*/
 
 	public void setXRange(float xMin, float xMax) {
-		setXRange0(xMin, xMax);
-
-		listener.onChanged();
-	}
-
-	private void setXRange0(float xMin, float xMax) {
-		this.gWidth = xMax - xMin;
-		this.x0 = xMin + gWidth / 2;
+		graph.width = xMax - xMin;
+		camera.x = xMin + graph.width / 2;
 	}
 
 	public void setYRange(float yMin, float yMax) {
 		setYRange0(yMin, yMax);
-
-		listener.onChanged();
 	}
 
 	private void setYRange0(float yMin, float yMax) {
-		this.gHeight = yMax - yMin;
-		this.y0 = yMin + gHeight / 2;
+		graph.height = yMax - yMin;
+		camera.y = yMin + graph.height / 2;
 	}
 
 	public void setRanges(float xMin, float xMax, float yMin, float yMax) {
-		setXRange0(xMin, xMax);
-		setYRange0(yMin, yMax);
-
-		listener.onChanged();
+		setXRange(xMin, xMax);
+		setYRange(yMin, yMax);
 	}
 
-	public void setViewDimensions(@Nonnull View view) {
-		this.vWidthPxs = view.getWidth();
-		this.vHeightPxs = view.getHeight();
-
-		listener.onChanged();
+	public void setViewDimensions(@Nonnull android.view.View view) {
+		this.view.width = view.getWidth();
+		this.view.height = view.getHeight();
 	}
 
 
-	public void setGraphDimensions(float gWidth, float gHeight) {
-		this.gWidth = gWidth;
-		this.gHeight = gHeight;
-
-		listener.onChanged();
+	public void setGraphDimensions(float width, float height) {
+		graph.width = width;
+		graph.height = height;
 	}
 
 	public void setViewDimensions(int vWidthPxs, int vHeightPxs) {
-		this.vWidthPxs = vWidthPxs;
-		this.vHeightPxs = vHeightPxs;
-
-		listener.onChanged();
-	}
-
-	void setXY(float x0, float y0) {
-		this.x0 = x0;
-		this.y0 = y0;
-	}
-
-	public void increaseXY(float dx, float dy) {
-		this.x0 += dx;
-		this.y0 += dy;
+		view.width = vWidthPxs;
+		view.height = vHeightPxs;
 	}
 
 	@Nonnull
 	public Dimensions copy() {
-		return copy(new Dimensions(listener));
+		return copy(new Dimensions());
 	}
 
 	@Nonnull
 	public Dimensions copy(@Nonnull Dimensions that) {
-		that.vWidthPxs = this.vWidthPxs;
-		that.vHeightPxs = this.vHeightPxs;
-		that.x0 = this.x0;
-		that.y0 = this.y0;
-		that.gWidth = this.gWidth;
-		that.gHeight = this.gHeight;
+		that.view.height = this.view.height;
+		that.view.width = this.view.width;
+		that.camera.x = this.camera.x;
+		that.camera.y = this.camera.y;
+		that.graph.width = this.graph.width;
+		that.graph.height = this.graph.height;
 
 		return that;
+	}
+
+	public static final class Camera {
+		public float x = 0;
+		public float y = 0;
+	}
+
+	public static final class Graph {
+		public float width = 20;
+		public float height = 20;
+	}
+
+	public static final class View {
+		public int width;
+		public int height;
 	}
 }

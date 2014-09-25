@@ -41,4 +41,10 @@ public class FunctionGraph extends BaseSurface {
 	public void setFunction(@Nonnull Function function) {
 		this.function = function;
 	}
+
+	@Nonnull
+	@Override
+	public Mesh copy() {
+		return new FunctionGraph(dimensions.graph.width, dimensions.graph.height, widthVertices, heightVertices, function);
+	}
 }

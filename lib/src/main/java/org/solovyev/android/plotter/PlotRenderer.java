@@ -17,7 +17,6 @@ package org.solovyev.android.plotter;
 
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.Build;
 import org.solovyev.android.plotter.meshes.*;
 
 import javax.annotation.Nonnull;
@@ -26,12 +25,14 @@ import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Nonnull
 	private final PlotSurface surface;
-	private final boolean highQuality = Build.VERSION.SDK_INT >= 5;
 
 	@Nonnull
 	private final Fps fps = new Fps();
@@ -44,7 +45,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	private final float[] matrix1 = new float[16], matrix2 = new float[16], matrix3 = new float[16];
 	private float angleX, angleY;
-	private volatile boolean dirty = true;
 
 	private static final float DISTANCE = 15f;
 
@@ -58,19 +58,18 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private PlotData plotData = PlotData.create();
 
 	@Nonnull
-	private final Dimensions dimensions = new Dimensions(new Dimensions.Listener() {
+	private final Dimensions dimensions = new Dimensions();
+
+	@Nonnull
+	private final Executor background = Executors.newSingleThreadExecutor(new ThreadFactory() {
 		@Override
-		public void onChanged() {
-			setDirty();
+		public Thread newThread(Runnable r) {
+			return new Thread(r, "PlotBackground");
 		}
 	});
 
 	@Nonnull
-	private final Dimensions d = new Dimensions(new Dimensions.Listener() {
-		@Override
-		public void onChanged() {
-		}
-	});
+	private final Initializer initializer = new Initializer(meshes);
 
 	private int width;
 	private int height;
@@ -83,7 +82,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		final SolidCube solidCube = new SolidCube(1, 1, 1);
+		initializer.init((GL11) gl, MeshConfig.create());
+		/*final SolidCube solidCube = new SolidCube(1, 1, 1);
 		solidCube.setColor(Color.BLUE);
 		meshes.add(solidCube);
 		meshes.add(new WireFrameCube(1, 1, 1));
@@ -125,8 +125,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				return (float) (Math.sin(x) + Math.sin(y));
 			}
 		}));
-
-		meshes.init((GL11) gl, MeshConfig.create());
+*/
+		meshes.add(DoubleBufferMesh.wrap(FunctionGraph.create(5, 5, 30, 30, new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return (float) (Math.sin(x) + Math.sin(y));
+			}
+		})));
 
 		gl.glDisable(GL10.GL_DITHER);
 		gl.glDisable(GL10.GL_LIGHTING);
@@ -148,6 +153,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		angleY = 0;
 
 		zoomer.reset();
+		setDirty();
 	}
 
 	@Override
@@ -161,20 +167,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			initFrustum(gl);
 			zoomer.reset();
 		}
-		if (dirty) {
-			//ensureMeshesSize(gl);
-
-			dimensions.copy(d);
-			d.setGraphDimensions(dimensions.getGWidth() * zoomer.getLevel() / 4, dimensions.getGHeight() * zoomer.getLevel() / 4);
-
-			for (Mesh mesh : meshes) {
-				if (mesh instanceof Graph3d) {
-					((Graph3d) mesh).update(gl, d);
-				}
-			}
-			dirty = false;
-		}
-
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
 		gl.glMatrixMode(GL10.GL_MODELVIEW);
@@ -279,10 +271,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void setDirty(boolean force) {
-		if (!dirty || force) {
-			dirty = true;
-			surface.requestRender();
-		}
+		background.execute(initializer);
 	}
 
 	private void setDirty() {
