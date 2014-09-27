@@ -94,7 +94,7 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 		public void onTouchUp(float x, float y) {
 			final float vx = handler.getXVelocity();
 			final float vy = handler.getYVelocity();
-			renderer.setRotation(vx / 100f, vy / 100f);
+			renderer.setRotation(vy / 100f, vx / 100f);
 			renderer.startRotating();
 		}
 
