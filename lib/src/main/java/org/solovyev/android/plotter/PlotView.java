@@ -3,6 +3,7 @@ package org.solovyev.android.plotter;
 import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
@@ -31,6 +32,9 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 	@Nonnull
 	private static PlotRenderer init(@Nonnull PlotView view) {
 		view.setEGLConfigChooser(new MultisampleConfigChooser());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			view.setPreserveEGLContextOnPause(true);
+		}
 
 		final PlotRenderer renderer = new PlotRenderer(view);
 		view.setRenderer(renderer);
@@ -51,8 +55,8 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 		renderer.plotNothing();
 	}
 
-	public void setDirty() {
-		renderer.setDirty();
+	public void setDirtyFunctions() {
+		renderer.setDirtyFunctions();
 	}
 
 	@Override

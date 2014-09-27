@@ -32,6 +32,9 @@ public class MainActivity extends Activity {
 			}
 	);
 
+	@Nonnull
+	private final FunctionSwitcher functionSwitcher = new FunctionSwitcher();
+
 	private final class MyFunction extends Function {
 
 		@Nonnull
@@ -70,7 +73,6 @@ public class MainActivity extends Activity {
 		plotView = new PlotView(this);
 		setContentView(plotView);
 		plotView.plot(function);
-		plotView.post(new FunctionSwitcher());
 	}
 
 	@Override
@@ -83,6 +85,7 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		plotView.onResume();
+		plotView.post(functionSwitcher);
 	}
 
 	private class FunctionSwitcher implements Runnable {
@@ -95,7 +98,7 @@ public class MainActivity extends Activity {
 				position = 0;
 			}
 			function.function = functions.get(position);
-			plotView.setDirty();
+			plotView.setDirtyFunctions();
 			plotView.postDelayed(this, 5000L);
 		}
 	}

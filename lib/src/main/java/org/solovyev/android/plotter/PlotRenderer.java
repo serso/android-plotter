@@ -160,7 +160,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
 
 		// fill the background
-		// todo serso: here we overdraw the window background. Try to use transparent background
 		final int bg = plotData.axisStyle.backgroundColor;
 		gl.glClearColor(Color.red(bg), Color.green(bg), Color.blue(bg), Color.alpha(bg));
 
@@ -169,6 +168,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		angleY = 0;
 
 		zoomer.reset();
+
+		// surface was created, let's reinitialize all meshes if needed (just to avoid reinitialization in onDrawFrame)
+		allMeshes.initGl((GL11) gl, this.config);
 	}
 
 	@Override
@@ -219,7 +221,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		initFrustum(gl, DISTANCE * zoomer.getLevel());
 	}
 
-	private void ensureMeshesSize() {
+	private void ensureFunctionsSize() {
 		Check.isMainThread();
 
 		// for each functions we should assign mesh
@@ -279,27 +281,27 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		//setDirty();
 	}
 
-	private void setDirty(boolean force) {
-		ensureMeshesSize();
+	public void setDirty() {
 		background.execute(initializer);
-	}
-
-	void setDirty() {
-		setDirty(false);
 	}
 
 	public void plot(@Nonnull Function function) {
 		plotData.add(function);
-		setDirty();
+		setDirtyFunctions();
+	}
+
+	public void setDirtyFunctions() {
+		ensureFunctionsSize();
+		background.execute(initializer);
 	}
 
 	public void plot(@Nonnull PlotFunction function) {
 		plotData.add(function.copy());
-		setDirty();
+		setDirtyFunctions();
 	}
 
 	public void plotNothing() {
 		plotData.functions.clear();
-		setDirty();
+		setDirtyFunctions();
 	}
 }

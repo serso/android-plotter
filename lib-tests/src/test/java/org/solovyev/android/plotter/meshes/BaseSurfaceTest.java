@@ -4,6 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import javax.annotation.Nonnull;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(RobolectricTestRunner.class)
@@ -48,6 +50,12 @@ public class BaseSurfaceTest {
 			@Override
 			protected float z(float x, float y, int xi, int yi) {
 				return 0;
+			}
+
+			@Nonnull
+			@Override
+			protected BaseMesh makeCopy() {
+				return null;
 			}
 		};
 

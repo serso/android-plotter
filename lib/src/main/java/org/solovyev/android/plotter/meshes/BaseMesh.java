@@ -5,6 +5,7 @@ import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
@@ -17,12 +18,13 @@ public abstract class BaseMesh implements Mesh {
 	private static final int NULL = 0xDEADC0DE;
 
 	/**
+	 * Note that all properties of this class must be accessed from the GL thread if not stated otherwise
+	 */
+
+	/**
 	 * OpenGL instance associated with this mesh. This must be a instance which is used for drawing.
 	 */
-	@Nonnull
 	protected GL11 gl;
-
-	@Nonnull
 	protected MeshConfig config;
 
 	protected FloatBuffer vertices;
@@ -32,9 +34,6 @@ public abstract class BaseMesh implements Mesh {
 	protected int indicesCount = -1;
 	@Nonnull
 	protected IndicesOrder indicesOrder = IndicesOrder.TRIANGLES;
-
-	@Nonnull
-	private volatile Color color = Color.WHITE;
 
 	protected FloatBuffer colors;
 	protected int colorsCount = -1;
@@ -47,9 +46,13 @@ public abstract class BaseMesh implements Mesh {
 	protected int indicesVbo = NULL;
 	protected int colorsVbo = NULL;
 
+	// can be set from any thread
+	@Nonnull
+	private volatile Color color = Color.WHITE;
+
+	// can be accessed/changed from any thread
 	@Nonnull
 	private final StateHolder state = new StateHolder();
-
 
 	private static boolean supportsVbo(@Nonnull GL11 gl) {
 		final String extensions = gl.glGetString(GL10.GL_EXTENSIONS);
@@ -84,9 +87,14 @@ public abstract class BaseMesh implements Mesh {
 	@Override
 	public final boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		Check.isGlThread();
+
+		if (this.gl == null || !this.gl.equals(gl)) {
+			state.setIf(State.INIT, State.INIT_GL);
+		}
 		if (!state.setIf(State.INITIALIZING_GL, State.INIT)) {
 			return false;
 		}
+
 		this.gl = gl;
 		this.config = config;
 
@@ -199,6 +207,7 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	protected final void setVertices(@Nonnull FloatBuffer vertices) {
+		Check.isGlThread();
 		this.vertices = vertices;
 		this.verticesCount = vertices.capacity() / 3;
 
@@ -227,6 +236,7 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	protected final void setIndices(@Nonnull ShortBuffer indices, @Nonnull IndicesOrder order) {
+		Check.isGlThread();
 		this.indices = indices;
 		this.indicesCount = indices.capacity();
 		this.indicesOrder = order;
@@ -258,6 +268,7 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	protected void setColors(@Nonnull float[] colors) {
+		Check.isGlThread();
 		if (verticesCount <= 0) {
 			throw new IllegalStateException("Vertices must be set before setting the color");
 		}
@@ -280,12 +291,13 @@ public abstract class BaseMesh implements Mesh {
 		private State state = State.DIRTY;
 
 		@GuardedBy("this")
-		private boolean delayedDirty = false;
+		@Nullable
+		private State delayedState;
 
 		@Nonnull
 		public State get() {
 			synchronized (this) {
-				return state;
+				return delayedState != null ? delayedState : state;
 			}
 		}
 
@@ -304,7 +316,7 @@ public abstract class BaseMesh implements Mesh {
 				if (state == State.INITIALIZING || state == State.INITIALIZING_GL) {
 					// if we are in the middle of initialization process we should postpone setting dirty state until
 					// the process is done
-					delayedDirty = true;
+					delayedState = State.DIRTY;
 				} else {
 					state = State.DIRTY;
 				}
@@ -313,9 +325,9 @@ public abstract class BaseMesh implements Mesh {
 
 		public boolean set(@Nonnull State newState) {
 			synchronized (this) {
-				if (delayedDirty) {
-					state = State.DIRTY;
-					delayedDirty = false;
+				if (delayedState != null) {
+					state = delayedState;
+					delayedState = null;
 					return false;
 				} else {
 					state = newState;

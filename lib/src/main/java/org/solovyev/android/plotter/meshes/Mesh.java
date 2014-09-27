@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public interface Mesh {
+
 	boolean init();
 
 	boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config);
