@@ -37,7 +37,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final PlotSurface surface;
 
 	@Nonnull
-	private final Fps fps = new Fps();
+	private final Spf spf = new Spf();
 
 	@Nonnull
 	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create();
@@ -94,7 +94,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private final MeshConfig config = MeshConfig.create();
 
-	private volatile boolean rotating = rotation.shouldRotate();
+	private volatile boolean looping = rotation.shouldRotate();
 
 	public PlotRenderer(@Nonnull PlotSurface surface) {
 		this.surface = surface;
@@ -179,6 +179,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 gl10) {
+		spf.logFrameStart();
 		if (zoomer.onFrame()) {
 			setDirty();
 		}
@@ -202,10 +203,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		allMeshes.initGl(gl, config);
 		allMeshes.draw(gl);
 
-		fps.logFrame();
-		if (rotating) {
+		if (looping) {
 			surface.requestRender();
 		}
+		spf.logFrameEnd();
 	}
 
 	private void initFrustum(@Nonnull GL11 gl) {
@@ -302,12 +303,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void stopRotating() {
-		rotating = false;
+		looping = false;
 	}
 
 	public void startRotating() {
-		rotating = rotation.shouldRotate();
-		if (rotating) {
+		looping = rotation.shouldRotate();
+		if (looping) {
 			surface.requestRender();
 		}
 	}

@@ -5,7 +5,6 @@ import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 
 import javax.annotation.Nonnull;
 
@@ -17,20 +16,26 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 	private final PlotRenderer renderer;
 
 	@Nonnull
-	private final PointF lastTouch = new PointF();
+	private final TouchListener touchListener = new TouchListener();
 
 	public PlotView(Context context) {
 		super(context);
-		renderer = init(this);
+		init();
+		renderer = initGl(this);
 	}
 
 	public PlotView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		renderer = init(this);
+		init();
+		renderer = initGl(this);
+	}
+
+	private void init() {
+		setOnTouchListener(touchListener.handler);
 	}
 
 	@Nonnull
-	private static PlotRenderer init(@Nonnull PlotView view) {
+	private static PlotRenderer initGl(@Nonnull PlotView view) {
 		view.setEGLConfigChooser(new MultisampleConfigChooser());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			view.setPreserveEGLContextOnPause(true);
@@ -59,30 +64,50 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 		renderer.setDirtyFunctions();
 	}
 
-	@Override
-	public boolean onTouchEvent(@Nonnull MotionEvent e) {
-		final float x = e.getX();
-		final float y = e.getY();
+	private class TouchListener implements TouchHandler.Listener {
 
-		final int action = e.getAction();
-		switch (action) {
-			case MotionEvent.ACTION_DOWN:
-				renderer.stopRotating();
-				break;
-			case MotionEvent.ACTION_UP:
-			case MotionEvent.ACTION_MOVE:
-				final float dx = x - lastTouch.x;
-				final float dy = y - lastTouch.y;
-				if (dx > 1f || dx < -1f || dy > 1f || dy < -1f) {
-					renderer.setRotation(dy, dx);
-					lastTouch.x = x;
-					lastTouch.y = y;
-				}
-				if(action == MotionEvent.ACTION_UP) {
-					renderer.startRotating();
-				}
-				break;
+		@Nonnull
+		private final TouchHandler handler = TouchHandler.create(this);
+
+		@Nonnull
+		private final PointF lastTouch = new PointF();
+
+		@Override
+		public void onTouchDown(float x, float y) {
+			renderer.stopRotating();
+			lastTouch.x = x;
+			lastTouch.y = y;
 		}
-		return true;
+
+		@Override
+		public void onTouchMove(float x, float y) {
+			final float dx = x - lastTouch.x;
+			final float dy = y - lastTouch.y;
+			if (dx > 1f || dx < -1f || dy > 1f || dy < -1f) {
+				renderer.setRotation(dy, dx);
+				lastTouch.x = x;
+				lastTouch.y = y;
+			}
+		}
+
+		@Override
+		public void onTouchUp(float x, float y) {
+			final float vx = handler.getXVelocity();
+			final float vy = handler.getYVelocity();
+			renderer.setRotation(vx / 100f, vy / 100f);
+			renderer.startRotating();
+		}
+
+		@Override
+		public void onTouchZoomDown(float x1, float y1, float x2, float y2) {
+		}
+
+		@Override
+		public void onTouchZoomMove(float x1, float y1, float x2, float y2) {
+		}
+
+		@Override
+		public void onTouchZoomUp(float x1, float y1, float x2, float y2) {
+		}
 	}
 }
