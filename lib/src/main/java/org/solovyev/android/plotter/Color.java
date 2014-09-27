@@ -84,4 +84,9 @@ public final class Color {
 		colors[index + 2] = blue;
 		colors[index + 3] = alpha;
 	}
+
+	@Nonnull
+	public Color transparentCopy(float alpha) {
+		return new Color(red, green, blue, alpha);
+	}
 }

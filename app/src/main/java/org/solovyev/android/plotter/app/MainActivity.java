@@ -73,6 +73,12 @@ public class MainActivity extends Activity {
 		plotView = new PlotView(this);
 		setContentView(plotView);
 		plotView.plot(function);
+		plotView.plot(new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return (float) (Math.sin(x) + Math.sin(y)) - 2f;
+			}
+		});
 	}
 
 	@Override

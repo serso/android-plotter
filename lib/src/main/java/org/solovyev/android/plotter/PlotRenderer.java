@@ -101,7 +101,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		this.matrix = angles.getMatrix();
 
 		final SolidCube solidCube = new SolidCube(1, 1, 1);
-		solidCube.setColor(Color.BLUE);
+		solidCube.setColor(Color.BLUE.transparentCopy(0.5f));
 		otherMeshes.addMesh(solidCube);
 		otherMeshes.addMesh(new WireFrameCube(1, 1, 1));
 		otherMeshes.addMesh(new WireFrameCube(2, 2, 2));
@@ -170,6 +170,11 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glClearColor(Color.red(bg), Color.green(bg), Color.blue(bg), Color.alpha(bg));
 
 		gl.glShadeModel(GL10.GL_SMOOTH);
+
+		if (this.config.alpha) {
+			gl.glEnable(GL10.GL_BLEND);
+			gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		}
 
 		zoomer.reset();
 
