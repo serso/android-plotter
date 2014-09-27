@@ -39,11 +39,13 @@ final class PlotData {
 
 	@Nonnull
 	public static PlotData create() {
+		Check.isMainThread();
 		return new PlotData();
 	}
 
 	@Nonnull
 	public PlotData copy() {
+		Check.isMainThread();
 		final PlotData copy = create();
 
 		copy.axisStyle = axisStyle.copy();
@@ -55,12 +57,14 @@ final class PlotData {
 	}
 
 	public void add(@Nonnull PlotFunction function) {
+		Check.isMainThread();
 		if (!update(function)) {
 			functions.add(function);
 		}
 	}
 
 	private boolean update(@Nonnull PlotFunction function) {
+		Check.isMainThread();
 		for (int i = 0; i < functions.size(); i++) {
 			final PlotFunction oldFunction = functions.get(i);
 			if (oldFunction.function == function.function) {

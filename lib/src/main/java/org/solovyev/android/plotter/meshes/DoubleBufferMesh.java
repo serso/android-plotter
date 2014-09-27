@@ -8,42 +8,50 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.microedition.khronos.opengles.GL11;
 
 @ThreadSafe
-public class DoubleBufferMesh implements Mesh {
+public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 
 	@Nonnull
 	private final Object lock = new Object();
 
 	@GuardedBy("lock")
-	private Mesh current;
+	private M current;
 
 	@GuardedBy("lock")
-	private Mesh next;
+	private M next;
 
 	@Nonnull
-	private final Mesh first;
+	private final M first;
 
 	@Nonnull
-	private final Mesh second;
+	private final M second;
 
-	private DoubleBufferMesh(@Nonnull Mesh first, @Nonnull Mesh second) {
+	private DoubleBufferMesh(@Nonnull M first, @Nonnull M second) {
 		this.first = first;
 		this.second = second;
 	}
 
 	@Nonnull
-	public static DoubleBufferMesh wrap(@Nonnull Mesh mesh) {
-		return new DoubleBufferMesh(mesh, mesh.copy());
+	public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh) {
+		return new DoubleBufferMesh<M>(mesh, (M) mesh.copy());
 	}
 
 	@Override
-	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		final Mesh next;
-		synchronized (lock) {
-			next = this.next != null ? this.next : this.first;
+	public boolean init() {
+		final M next = getNext();
+		return next.init();
+	}
+
+	@Override
+	public boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		final M next = getNext();
+		final boolean initGl = next.initGl(gl, config);
+		if (initGl) {
+			swap(next);
 		}
+		return initGl;
+	}
 
-		next.initGl(gl, config);
-
+	private void swap(@Nonnull M next) {
 		synchronized (lock) {
 			if (this.current == null) {
 				this.next = this.second;
@@ -54,9 +62,18 @@ public class DoubleBufferMesh implements Mesh {
 		}
 	}
 
+	@Nonnull
+	public M getNext() {
+		M next;
+		synchronized (lock) {
+			next = this.next != null ? this.next : this.first;
+		}
+		return next;
+	}
+
 	@Override
 	public void draw(@Nonnull GL11 gl) {
-		final Mesh current;
+		final M current;
 		synchronized (lock) {
 			current = this.current;
 		}
@@ -68,7 +85,13 @@ public class DoubleBufferMesh implements Mesh {
 
 	@Nonnull
 	@Override
-	public Mesh copy() {
+	public M copy() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Nonnull
+	@Override
+	public State getState() {
 		throw new UnsupportedOperationException();
 	}
 }

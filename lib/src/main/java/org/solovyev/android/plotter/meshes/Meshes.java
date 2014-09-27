@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -34,6 +35,17 @@ public final class Meshes {
 	}
 
 	@Nonnull
+	static FloatBuffer allocateOrPutBuffer(@Nonnull float[] indices, @Nullable FloatBuffer buffer) {
+		FloatBuffer newBuffer;
+		if (buffer != null && buffer.capacity() == indices.length) {
+			newBuffer = putBuffer(indices, buffer);
+		} else {
+			newBuffer = allocateBuffer(indices);
+		}
+		return newBuffer;
+	}
+
+	@Nonnull
 	public static ShortBuffer allocateBuffer(short[] array) {
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(array.length * BYTES_IN_SHORT);
 		buffer.order(ByteOrder.nativeOrder());
@@ -50,5 +62,16 @@ public final class Meshes {
 		to.put(array);
 		to.position(0);
 		return to;
+	}
+
+	@Nonnull
+	static ShortBuffer allocateOrPutBuffer(@Nonnull short[] indices, @Nullable ShortBuffer buffer) {
+		ShortBuffer newBuffer;
+		if (buffer != null && buffer.capacity() == indices.length) {
+			newBuffer = putBuffer(indices, buffer);
+		} else {
+			newBuffer = allocateBuffer(indices);
+		}
+		return newBuffer;
 	}
 }

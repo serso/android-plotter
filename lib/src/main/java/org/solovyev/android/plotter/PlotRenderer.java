@@ -24,10 +24,12 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 final class PlotRenderer implements GLSurfaceView.Renderer {
 
@@ -38,7 +40,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final Fps fps = new Fps();
 
 	@Nonnull
-	private final Group meshes = new Group();
+	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create();
+
+	@Nonnull
+	private final DoubleBufferGroup<Mesh> otherMeshes = DoubleBufferGroup.create();
+
+	@Nonnull
+	private final Group<Mesh> allMeshes = ListGroup.create(Arrays.<Mesh>asList(functionMeshes, otherMeshes));
 
 	@Nonnull
 	private final List<FunctionGraph> pool = new ArrayList<FunctionGraph>();
@@ -61,78 +69,86 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final Dimensions dimensions = new Dimensions();
 
 	@Nonnull
-	private final Executor background = Executors.newSingleThreadExecutor(new ThreadFactory() {
+	private final Executor background = Executors.newFixedThreadPool(4, new ThreadFactory() {
+
+		@Nonnull
+		private final AtomicInteger counter = new AtomicInteger(0);
+
 		@Override
-		public Thread newThread(Runnable r) {
-			return new Thread(r, "PlotBackground");
+		public Thread newThread(@Nonnull Runnable r) {
+			return new Thread(r, "PlotBackground #" + counter.getAndIncrement());
 		}
 	});
 
 	@Nonnull
-	private final Initializer initializer = new Initializer(meshes);
+	private final Initializer initializer = new Initializer(allMeshes);
 
 	private int width;
 	private int height;
+
+	@Nonnull
+	private final MeshConfig config = MeshConfig.create();
 
 	public PlotRenderer(@Nonnull PlotSurface surface) {
 		this.surface = surface;
 		Matrix.setIdentityM(matrix1, 0);
 		Matrix.rotateM(matrix1, 0, -75, 1, 0, 0);
-	}
 
-	@Override
-	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-		initializer.init((GL11) gl, MeshConfig.create());
-		/*final SolidCube solidCube = new SolidCube(1, 1, 1);
+		final SolidCube solidCube = new SolidCube(1, 1, 1);
 		solidCube.setColor(Color.BLUE);
-		meshes.add(solidCube);
-		meshes.add(new WireFrameCube(1, 1, 1));
-		meshes.add(new WireFrameCube(2, 2, 2));
-		meshes.add(new WireFramePlane(5, 5, 30, 30));
-		meshes.add(FunctionGraph.create(new Function2() {
+		otherMeshes.addMesh(solidCube);
+		otherMeshes.addMesh(new WireFrameCube(1, 1, 1));
+		otherMeshes.addMesh(new WireFrameCube(2, 2, 2));
+		/*
+		otherMeshes.addMesh(new WireFramePlane(5, 5, 30, 30));
+		otherMeshes.addMesh(FunctionGraph.create(new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return x + y;
 			}
 		}).withColor(Color.BLUE));
-		meshes.add(FunctionGraph.create(new Function2() {
+		otherMeshes.addMesh(FunctionGraph.create(new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.cos(x));
 			}
 		}).withColor(Color.CYAN));
-		meshes.add(FunctionGraph.create(new Function2() {
+		otherMeshes.addMesh(FunctionGraph.create(new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
 		}));
-		meshes.add(FunctionGraph.create(new Function2() {
+		otherMeshes.addMesh(FunctionGraph.create(new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return -x * x - y * y;
 			}
 		}).withColor(Color.GREEN));
-		meshes.add(FunctionGraph.create(new Function2() {
+		otherMeshes.addMesh(FunctionGraph.create(new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return -x * x + y * y;
 			}
 		}).withColor(Color.RED));
-		meshes.add(FunctionGraph.create(5, 5, 30, 30, new Function2() {
+		otherMeshes.addMesh(FunctionGraph.create(5, 5, 30, 30, new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return (float) (Math.sin(x) + Math.sin(y));
+			}
+		}));*/
+		/*meshes.addMesh(FunctionGraph.create(5, 5, 30, 30, new Function2() {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.sin(y));
 			}
 		}));
-*/
-		meshes.add(DoubleBufferMesh.wrap(FunctionGraph.create(5, 5, 30, 30, new Function2() {
-			@Override
-			public float evaluate(float x, float y) {
-				return (float) (Math.sin(x) + Math.sin(y));
-			}
-		})));
+		background.execute(initializer);*/
+		setDirty();
+	}
 
+	@Override
+	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		gl.glDisable(GL10.GL_DITHER);
 		gl.glDisable(GL10.GL_LIGHTING);
 
@@ -153,7 +169,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		angleY = 0;
 
 		zoomer.reset();
-		setDirty();
 	}
 
 	@Override
@@ -193,9 +208,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glMultMatrixf(matrix3, 0);
 		System.arraycopy(matrix3, 0, matrix1, 0, 16);
 
-		for (Mesh mesh : meshes) {
-			mesh.draw(gl);
-		}
+		allMeshes.initGl(gl, config);
+		allMeshes.draw(gl);
 
 		fps.logFrame();
 		surface.requestRender();
@@ -205,23 +219,20 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		initFrustum(gl, DISTANCE * zoomer.getLevel());
 	}
 
-	private void ensureMeshesSize(@Nonnull GL11 gl) {
+	private void ensureMeshesSize() {
+		Check.isMainThread();
+
 		// for each functions we should assign mesh
 		// if there are not enough meshes => create new
 		// if there are too many meshes => release them
 		int i = 0;
 		for (PlotFunction function : plotData.functions) {
-			for (; i < meshes.size(); i++) {
-				final Mesh mesh = meshes.get(i);
-				if (mesh instanceof FunctionGraph) {
-					((FunctionGraph) mesh).setFunction(function.function);
-					((FunctionGraph) mesh).setColor(function.lineStyle.color);
-					i++;
-					break;
-				}
-			}
-
-			if (i == meshes.size()) {
+			if (i < functionMeshes.size()) {
+				final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.get(i);
+				final FunctionGraph mesh = dbm.getNext();
+				mesh.setFunction(function.function);
+				mesh.setColor(function.lineStyle.color);
+			} else {
 				final int poolSize = pool.size();
 				final FunctionGraph mesh;
 				if (poolSize > 0) {
@@ -231,18 +242,16 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					mesh = FunctionGraph.create(5, 5, 30, 30, function.function);
 				}
 				mesh.setColor(function.lineStyle.color);
-				meshes.add(mesh);
-				i++;
+				functionMeshes.add(DoubleBufferMesh.wrap(mesh));
 			}
+			i++;
 		}
 
-		for (int k = meshes.size() - 1; k >= i; k--) {
-			final Mesh mesh = meshes.get(k);
-			if (mesh instanceof FunctionGraph) {
-				final FunctionGraph pooledMesh = (FunctionGraph) meshes.remove(k);
-				pooledMesh.setFunction(Function0.ZERO);
-				pool.add(pooledMesh);
-			}
+		for (int k = functionMeshes.size() - 1; k >= i; k--) {
+			final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.remove(k);
+			final FunctionGraph mesh = dbm.getNext();
+			mesh.setFunction(Function0.ZERO);
+			pool.add(mesh);
 		}
 	}
 
@@ -271,10 +280,11 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void setDirty(boolean force) {
+		ensureMeshesSize();
 		background.execute(initializer);
 	}
 
-	private void setDirty() {
+	void setDirty() {
 		setDirty(false);
 	}
 

@@ -6,9 +6,9 @@ import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public interface Mesh {
-	void init();
+	boolean init();
 
-	void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config);
+	boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config);
 
 	void draw(@Nonnull GL11 gl);
 
@@ -19,8 +19,16 @@ public interface Mesh {
 	State getState();
 
 	enum State {
-		DIRTY,
-		INIT,
-		INIT_GL
+		DIRTY(0),
+		INITIALIZING(1),
+		INIT(2),
+		INITIALIZING_GL(3),
+		INIT_GL(4);
+
+		final int order;
+
+		State(int order) {
+			this.order = order;
+		}
 	}
 }

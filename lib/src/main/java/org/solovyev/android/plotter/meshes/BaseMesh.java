@@ -1,9 +1,11 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.nio.Buffer;
@@ -32,7 +34,8 @@ public abstract class BaseMesh implements Mesh {
 	protected IndicesOrder indicesOrder = IndicesOrder.TRIANGLES;
 
 	@Nonnull
-	private Color color = Color.WHITE;
+	private volatile Color color = Color.WHITE;
+
 	protected FloatBuffer colors;
 	protected int colorsCount = -1;
 
@@ -45,7 +48,8 @@ public abstract class BaseMesh implements Mesh {
 	protected int colorsVbo = NULL;
 
 	@Nonnull
-	private volatile State state = State.DIRTY;
+	private final StateHolder state = new StateHolder();
+
 
 	private static boolean supportsVbo(@Nonnull GL11 gl) {
 		final String extensions = gl.glGetString(GL10.GL_EXTENSIONS);
@@ -54,21 +58,34 @@ public abstract class BaseMesh implements Mesh {
 
 	@Nonnull
 	public final State getState() {
-		return state;
+		return state.get();
+	}
+
+	protected final void setDirty() {
+		state.setDirty();
 	}
 
 	@Override
-	public void init() {
-		if (state != State.DIRTY) {
-			throw new IllegalArgumentException("Init should be called only for dirty meshes");
+	public final boolean init() {
+		Check.isNotMainThread();
+		if (!state.setIf(State.INITIALIZING, State.DIRTY)) {
+			return false;
 		}
-		state = State.INIT;
+		onInit();
+		return state.set(State.INIT);
+	}
+
+	/**
+	 * Method initializes mesh. Note that this method might be called on background thread
+	 */
+	protected void onInit() {
 	}
 
 	@Override
-	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		if (state != State.INIT) {
-			throw new IllegalArgumentException("InitGL should be called only for initialized meshes");
+	public final boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		Check.isGlThread();
+		if (!state.setIf(State.INITIALIZING_GL, State.INIT)) {
+			return false;
 		}
 		this.gl = gl;
 		this.config = config;
@@ -90,10 +107,25 @@ public abstract class BaseMesh implements Mesh {
 			colorsVbo = NULL;
 			indicesVbo = NULL;
 		}
-		state = State.INIT_GL;
+		onInitGl(gl, config);
+		return state.set(State.INIT_GL);
 	}
 
-	public void draw(@Nonnull GL11 gl) {
+	/**
+	 * Method initializes mesh on the GL thread
+	 *
+	 * @param gl     gl instance
+	 * @param config configuration
+	 */
+	protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+	}
+
+	public final void draw(@Nonnull GL11 gl) {
+		Check.isGlThread();
+
+		if (getState() != State.INIT_GL) {
+			return;
+		}
 		final boolean hasColors = colorsCount >= 0;
 
 		// counter-clockwise winding
@@ -151,13 +183,24 @@ public abstract class BaseMesh implements Mesh {
 	protected void onPreDraw(@Nonnull GL11 gl) {
 	}
 
+	@Nonnull
+	@Override
+	public final BaseMesh copy() {
+		final BaseMesh copy = makeCopy();
+		copy.color = this.color;
+		return copy;
+	}
+
+	@Nonnull
+	protected abstract BaseMesh makeCopy();
+
 	protected void setVertices(float[] vertices) {
-		if (this.vertices != null && this.vertices.capacity() == vertices.length) {
-			this.vertices = Meshes.putBuffer(vertices, this.vertices);
-		} else {
-			this.vertices = Meshes.allocateBuffer(vertices);
-		}
-		this.verticesCount = vertices.length / 3;
+		setVertices(Meshes.allocateOrPutBuffer(vertices, this.vertices));
+	}
+
+	protected final void setVertices(@Nonnull FloatBuffer vertices) {
+		this.vertices = vertices;
+		this.verticesCount = vertices.capacity() / 3;
 
 		if (useVbo) {
 			bindVboBuffer(this.vertices, verticesVbo, GL11.GL_ARRAY_BUFFER);
@@ -179,13 +222,13 @@ public abstract class BaseMesh implements Mesh {
 		gl.glBindBuffer(type, 0);
 	}
 
-	protected void setIndices(short[] indices, @Nonnull IndicesOrder order) {
-		if (this.indices != null && this.indices.capacity() == indices.length) {
-			this.indices = Meshes.putBuffer(indices, this.indices);
-		} else {
-			this.indices = Meshes.allocateBuffer(indices);
-		}
-		this.indicesCount = indices.length;
+	protected final void setIndices(short[] indices, @Nonnull IndicesOrder order) {
+		setIndices(Meshes.allocateOrPutBuffer(indices, this.indices), order);
+	}
+
+	protected final void setIndices(@Nonnull ShortBuffer indices, @Nonnull IndicesOrder order) {
+		this.indices = indices;
+		this.indicesCount = indices.capacity();
 		this.indicesOrder = order;
 
 		if (useVbo) {
@@ -228,6 +271,57 @@ public abstract class BaseMesh implements Mesh {
 		if (useVbo) {
 			bindVboBuffer(this.colors, colorsVbo, GL11.GL_ARRAY_BUFFER);
 			this.colors = null;
+		}
+	}
+
+	private static final class StateHolder {
+		@GuardedBy("this")
+		@Nonnull
+		private State state = State.DIRTY;
+
+		@GuardedBy("this")
+		private boolean delayedDirty = false;
+
+		@Nonnull
+		public State get() {
+			synchronized (this) {
+				return state;
+			}
+		}
+
+		private boolean setIf(@Nonnull State newState, @Nonnull State oldState) {
+			synchronized (this) {
+				if (state != oldState) {
+					return false;
+				}
+				state = newState;
+			}
+			return true;
+		}
+
+		public void setDirty() {
+			synchronized (this) {
+				if (state == State.INITIALIZING || state == State.INITIALIZING_GL) {
+					// if we are in the middle of initialization process we should postpone setting dirty state until
+					// the process is done
+					delayedDirty = true;
+				} else {
+					state = State.DIRTY;
+				}
+			}
+		}
+
+		public boolean set(@Nonnull State newState) {
+			synchronized (this) {
+				if (delayedDirty) {
+					state = State.DIRTY;
+					delayedDirty = false;
+					return false;
+				} else {
+					state = newState;
+					return true;
+				}
+			}
 		}
 	}
 }

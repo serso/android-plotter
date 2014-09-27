@@ -19,8 +19,8 @@ public abstract class BaseCube extends BaseMesh {
 	}
 
 	@Override
-	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		super.initGl(gl, config);
+	public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		super.onInitGl(gl, config);
 
 		final float x = width / 2;
 		final float y = height / 2;

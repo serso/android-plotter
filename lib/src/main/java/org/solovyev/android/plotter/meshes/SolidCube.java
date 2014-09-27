@@ -12,8 +12,8 @@ public class SolidCube extends BaseCube {
 	}
 
 	@Override
-	public void initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		super.initGl(gl, config);
+	public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+		super.onInitGl(gl, config);
 
 		final short indices[] = {
 				0, 4, 5,
@@ -34,7 +34,7 @@ public class SolidCube extends BaseCube {
 
 	@Nonnull
 	@Override
-	public Mesh copy() {
+	protected BaseMesh makeCopy() {
 		return new SolidCube(width, height, depth);
 	}
 }

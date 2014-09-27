@@ -51,6 +51,10 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 		renderer.plotNothing();
 	}
 
+	public void setDirty() {
+		renderer.setDirty();
+	}
+
 	@Override
 	public boolean onTouchEvent(MotionEvent e) {
 		float x = e.getX();

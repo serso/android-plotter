@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Function;
 
 import javax.annotation.Nonnull;
@@ -7,7 +8,7 @@ import javax.annotation.Nonnull;
 public class FunctionGraph extends BaseSurface {
 
 	@Nonnull
-	private Function function;
+	private volatile Function function;
 
 	FunctionGraph(float width, float height, int widthVertices, int heightVertices, @Nonnull Function function) {
 		super(width, height, widthVertices, heightVertices);
@@ -21,30 +22,33 @@ public class FunctionGraph extends BaseSurface {
 
 	@Nonnull
 	public static FunctionGraph create(@Nonnull Function function) {
-		return new FunctionGraph(5f, 5f, 50, 50, function);
+		return new FunctionGraph(5f, 5f, 10, 10, function);
 	}
 
 	@Override
 	protected float z(float x, float y, int xi, int yi) {
-		switch (function.getArity()) {
+		final Function f = function;
+		switch (f.getArity()) {
 			case 0:
-				return function.evaluate();
+				return f.evaluate();
 			case 1:
-				return function.evaluate(x);
+				return f.evaluate(x);
 			case 2:
-				return function.evaluate(x, y);
+				return f.evaluate(x, y);
 			default:
 				throw new IllegalArgumentException();
 		}
 	}
 
 	public void setFunction(@Nonnull Function function) {
+		Check.isMainThread();
 		this.function = function;
+		setDirty();
 	}
 
 	@Nonnull
 	@Override
-	public Mesh copy() {
+	protected BaseMesh makeCopy() {
 		return new FunctionGraph(dimensions.graph.width, dimensions.graph.height, widthVertices, heightVertices, function);
 	}
 }
