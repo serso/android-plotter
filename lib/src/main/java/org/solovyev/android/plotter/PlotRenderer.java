@@ -51,8 +51,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private final List<FunctionGraph> pool = new ArrayList<FunctionGraph>();
 
-	private final float[] matrix1 = new float[16], matrix2 = new float[16], matrix3 = new float[16];
-	private float angleX, angleY;
+	@Nonnull
+	private final Angles rotation = new Angles(0f, 0.5f);
+
+	@Nonnull
+	private final Angles angles = new Angles(-75, 0);
+
+	@Nonnull
+	private final float[] matrix;
 
 	private static final float DISTANCE = 15f;
 
@@ -60,7 +66,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Nonnull
 	private final Zoomer zoomer = new Zoomer();
-
 
 	@Nonnull
 	private PlotData plotData = PlotData.create();
@@ -89,10 +94,11 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private final MeshConfig config = MeshConfig.create();
 
+	private volatile boolean rotating = rotation.shouldRotate();
+
 	public PlotRenderer(@Nonnull PlotSurface surface) {
 		this.surface = surface;
-		Matrix.setIdentityM(matrix1, 0);
-		Matrix.rotateM(matrix1, 0, -75, 1, 0, 0);
+		this.matrix = angles.getMatrix();
 
 		final SolidCube solidCube = new SolidCube(1, 1, 1);
 		solidCube.setColor(Color.BLUE);
@@ -164,8 +170,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glClearColor(Color.red(bg), Color.green(bg), Color.blue(bg), Color.alpha(bg));
 
 		gl.glShadeModel(GL10.GL_SMOOTH);
-		angleX = .5f;
-		angleY = 0;
 
 		zoomer.reset();
 
@@ -190,31 +194,18 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glLoadIdentity();
 
 		gl.glTranslatef(0, 0, -DISTANCE * zoomer.getLevel());
-		Matrix.setIdentityM(matrix2, 0);
-		float ax = Math.abs(angleX);
-		float ay = Math.abs(angleY);
-		if (ay * 3 < ax) {
-			Matrix.rotateM(matrix2, 0, angleX, 0, 1, 0);
-		} else if (ax * 3 < ay) {
-			Matrix.rotateM(matrix2, 0, angleY, 1, 0, 0);
-		} else {
-			if (ax > ay) {
-				Matrix.rotateM(matrix2, 0, angleX, 0, 1, 0);
-				Matrix.rotateM(matrix2, 0, angleY, 1, 0, 0);
-			} else {
-				Matrix.rotateM(matrix2, 0, angleY, 1, 0, 0);
-				Matrix.rotateM(matrix2, 0, angleX, 0, 1, 0);
-			}
-		}
-		Matrix.multiplyMM(matrix3, 0, matrix2, 0, matrix1, 0);
-		gl.glMultMatrixf(matrix3, 0);
-		System.arraycopy(matrix3, 0, matrix1, 0, 16);
+
+		angles.add(rotation);
+		rotation.rotateBy(matrix);
+		gl.glMultMatrixf(matrix, 0);
 
 		allMeshes.initGl(gl, config);
 		allMeshes.draw(gl);
 
 		fps.logFrame();
-		surface.requestRender();
+		if (rotating) {
+			surface.requestRender();
+		}
 	}
 
 	private void initFrustum(@Nonnull GL11 gl) {
@@ -256,7 +247,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			pool.add(mesh);
 		}
 	}
-
 
 	private void initFrustum(@Nonnull GL10 gl, float distance) {
 		if (height == 0 || width == 0) {
@@ -303,5 +293,90 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	public void plotNothing() {
 		plotData.functions.clear();
 		setDirtyFunctions();
+	}
+
+	public void setRotation(float angleX, float angleY) {
+		rotation.x = angleX;
+		rotation.y = angleY;
+		surface.requestRender();
+	}
+
+	public void stopRotating() {
+		rotating = false;
+	}
+
+	public void startRotating() {
+		rotating = rotation.shouldRotate();
+		if (rotating) {
+			surface.requestRender();
+		}
+	}
+
+	private static final class Angles {
+
+		private static final float MIN_ROTATION = 0.5f;
+
+		@Nonnull
+		private final float[] rotation = new float[16];
+
+		@Nonnull
+		private final float[] tmp = new float[16];
+
+		public float x;
+		public float y;
+
+		private Angles() {
+		}
+
+		private Angles(float x, float y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public void add(@Nonnull Angles angles) {
+			x += angles.x;
+			y += angles.y;
+
+			if (x >= 180) {
+				x -= 360;
+			}
+
+			if (x < -180) {
+				x += 360;
+			}
+
+			if (y >= 180) {
+				y -= 360;
+			}
+
+			if (y < -180) {
+				y += 360;
+			}
+		}
+
+		@Nonnull
+		public float[] getMatrix() {
+			final float[] matrix = new float[16];
+			rotateTo(matrix);
+			return matrix;
+		}
+
+		public void rotateTo(float[] matrix) {
+			Matrix.setIdentityM(matrix, 0);
+			Matrix.rotateM(matrix, 0, x, 1, 0, 0);
+			Matrix.rotateM(matrix, 0, y, 0, 1, 0);
+		}
+
+		public void rotateBy(@Nonnull float[] matrix) {
+			Matrix.setIdentityM(rotation, 0);
+			Matrix.rotateM(rotation, 0, x, 1, 0, 0);
+			Matrix.rotateM(rotation, 0, y, 0, 1, 0);
+			Matrix.multiplyMM(tmp, 0, rotation, 0, matrix, 0);
+			System.arraycopy(tmp, 0, matrix, 0, 16);
+		}
+
+		public boolean shouldRotate() {
+			return Math.abs(x) >= MIN_ROTATION || Math.abs(y) >= MIN_ROTATION;
+		}
 	}
 }

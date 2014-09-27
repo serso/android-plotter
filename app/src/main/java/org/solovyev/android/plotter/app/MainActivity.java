@@ -99,7 +99,7 @@ public class MainActivity extends Activity {
 			}
 			function.function = functions.get(position);
 			plotView.setDirtyFunctions();
-			plotView.postDelayed(this, 5000L);
+			plotView.postDelayed(this, 10000L);
 		}
 	}
 }

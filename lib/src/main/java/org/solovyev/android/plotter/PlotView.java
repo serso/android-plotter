@@ -17,7 +17,7 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 	private final PlotRenderer renderer;
 
 	@Nonnull
-	private final PointF previousTouch = new PointF();
+	private final PointF lastTouch = new PointF();
 
 	public PlotView(Context context) {
 		super(context);
@@ -60,30 +60,29 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 	}
 
 	@Override
-	public boolean onTouchEvent(MotionEvent e) {
-		float x = e.getX();
-		float y = e.getY();
+	public boolean onTouchEvent(@Nonnull MotionEvent e) {
+		final float x = e.getX();
+		final float y = e.getY();
 
-		switch (e.getAction()) {
+		final int action = e.getAction();
+		switch (action) {
+			case MotionEvent.ACTION_DOWN:
+				renderer.stopRotating();
+				break;
+			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_MOVE:
-
-				float dx = x - previousTouch.x;
-				float dy = y - previousTouch.y;
-
-				// reverse direction of rotation above the mid-line
-				if (y > getHeight() / 2) {
-					dx = dx * -1;
+				final float dx = x - lastTouch.x;
+				final float dy = y - lastTouch.y;
+				if (dx > 1f || dx < -1f || dy > 1f || dy < -1f) {
+					renderer.setRotation(dy, dx);
+					lastTouch.x = x;
+					lastTouch.y = y;
 				}
-
-				// reverse direction of rotation to left of the mid-line
-				if (x < getWidth() / 2) {
-					dy = dy * -1;
+				if(action == MotionEvent.ACTION_UP) {
+					renderer.startRotating();
 				}
-				requestRender();
+				break;
 		}
-
-		previousTouch.x = x;
-		previousTouch.y = y;
 		return true;
 	}
 }
