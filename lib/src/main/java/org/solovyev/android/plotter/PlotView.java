@@ -11,15 +11,18 @@ import android.util.AttributeSet;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class PlotView extends GLSurfaceView implements PlotSurface {
+public class PlotView extends GLSurfaceView implements PlottingView {
 
-	private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+	@Nullable
+	private Plotter plotter;
 
 	@Nonnull
 	private final PlotRenderer renderer;
 
 	@Nonnull
 	private final TouchListener touchListener = new TouchListener();
+
+	private boolean attached;
 
 	public PlotView(Context context) {
 		super(context);
@@ -52,6 +55,34 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 	}
 
 	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		if (plotter != null) {
+			plotter.attachView(this);
+		}
+		attached = true;
+	}
+
+	@Override
+	protected void onDetachedFromWindow() {
+		attached = false;
+		if (plotter != null) {
+			plotter.detachView(this);
+		}
+		super.onDetachedFromWindow();
+	}
+
+	public void setPlotter(@Nonnull Plotter plotter) {
+		Check.isMainThread();
+		Check.isNull(this.plotter);
+		this.plotter = plotter;
+		this.renderer.setPlotter(plotter);
+		if (attached) {
+			plotter.attachView(this);
+		}
+	}
+
+	@Override
 	public void onRestoreInstanceState(@Nullable Parcelable in) {
 		if (in instanceof Bundle) {
 			final Bundle state = (Bundle) in;
@@ -68,22 +99,6 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 		state.putParcelable("super", super.onSaveInstanceState());
 		renderer.saveState(state);
 		return state;
-	}
-
-	public void plot(@Nonnull Function function) {
-		renderer.plot(function);
-	}
-
-	public void plot(@Nonnull PlotFunction function) {
-		renderer.plot(function);
-	}
-
-	public void plotNothing() {
-		renderer.plotNothing();
-	}
-
-	public void setDirtyFunctions() {
-		renderer.setDirtyFunctions();
 	}
 
 	private class TouchListener implements TouchHandler.Listener {

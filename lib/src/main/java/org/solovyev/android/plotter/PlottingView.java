@@ -1,6 +1,6 @@
 package org.solovyev.android.plotter;
 
-public interface PlotSurface {
+public interface PlottingView {
 
 	void requestRender();
 }

@@ -9,7 +9,7 @@ import static java.lang.System.nanoTime;
 /**
  * Seconds per frame
  */
-public final class Spf {
+final class Spf {
 
 	private static final long SECOND = TimeUnit.SECONDS.toNanos(1);
 	private static final long MILLIS = TimeUnit.MILLISECONDS.toNanos(1);

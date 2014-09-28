@@ -47,8 +47,11 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 		final boolean initGl = next.initGl(gl, config);
 		if (initGl) {
 			swap(next);
+			return false;
 		}
-		return initGl;
+
+		// initGl must be called for current mesh also as GL instance might have changed
+		return getOther(next).initGl(gl, config);
 	}
 
 	private void swap(@Nonnull M next) {
@@ -69,6 +72,11 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 			next = this.next != null ? this.next : this.first;
 		}
 		return next;
+	}
+
+	@Nonnull
+	public M getOther(@Nonnull M mesh) {
+		return this.first == mesh ? this.second : this.first;
 	}
 
 	@Override
