@@ -4,9 +4,12 @@ import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class PlotView extends GLSurfaceView implements PlotSurface {
 
@@ -46,6 +49,25 @@ public class PlotView extends GLSurfaceView implements PlotSurface {
 
 		view.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		return renderer;
+	}
+
+	@Override
+	public void onRestoreInstanceState(@Nullable Parcelable in) {
+		if (in instanceof Bundle) {
+			final Bundle state = (Bundle) in;
+			in = state.getParcelable("super");
+			renderer.restoreState(state);
+		}
+
+		super.onRestoreInstanceState(in);
+	}
+
+	@Override
+	public Parcelable onSaveInstanceState() {
+		final Bundle state = new Bundle();
+		state.putParcelable("super", super.onSaveInstanceState());
+		renderer.saveState(state);
+		return state;
 	}
 
 	public void plot(@Nonnull Function function) {

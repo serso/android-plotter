@@ -16,10 +16,12 @@
 package org.solovyev.android.plotter;
 
 import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
+import android.os.Bundle;
+import android.os.Parcelable;
 import org.solovyev.android.plotter.meshes.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
@@ -31,6 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings("SynchronizeOnNonFinalField")
 final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Nonnull
@@ -51,14 +54,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private final List<FunctionGraph> pool = new ArrayList<FunctionGraph>();
 
+	/**
+	 * Synchronization is done on the current instance of the field, so it's always in a good state on GL thread
+	 */
+	@GuardedBy("rotation")
 	@Nonnull
-	private final Angles rotation = new Angles(0f, 0.5f);
-
-	@Nonnull
-	private final Angles angles = new Angles(-75, 0);
-
-	@Nonnull
-	private final float[] matrix;
+	private Rotation rotation = new Rotation();
 
 	private static final float DISTANCE = 15f;
 
@@ -98,7 +99,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	public PlotRenderer(@Nonnull PlotSurface surface) {
 		this.surface = surface;
-		this.matrix = angles.getMatrix();
 
 		final SolidCube solidCube = new SolidCube(1, 1, 1);
 		solidCube.setColor(Color.BLUE.transparentCopy(0.5f));
@@ -201,9 +201,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		gl.glTranslatef(0, 0, -DISTANCE * zoomer.getLevel());
 
-		angles.add(rotation);
-		rotation.rotateBy(matrix);
-		gl.glMultMatrixf(matrix, 0);
+		synchronized (rotation) {
+			rotation.onFrame();
+			gl.glMultMatrixf(rotation.matrix, 0);
+		}
 
 		allMeshes.initGl(gl, config);
 		allMeshes.draw(gl);
@@ -302,8 +303,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void setRotation(float angleX, float angleY) {
-		rotation.x = angleX;
-		rotation.y = angleY;
+		synchronized (rotation) {
+			rotation.speed.x = angleX;
+			rotation.speed.y = angleY;
+		}
 		surface.requestRender();
 	}
 
@@ -318,71 +321,74 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
-	private static final class Angles {
+	public void saveState(@Nonnull Bundle bundle) {
+		Check.isMainThread();
+		synchronized (rotation) {
+			rotation.saveState(bundle);
+		}
+	}
+
+	public void restoreState(@Nonnull Bundle bundle) {
+		Check.isMainThread();
+		synchronized (rotation) {
+			rotation = new Rotation(bundle);
+			looping = rotation.shouldRotate();
+		}
+		surface.requestRender();
+	}
+
+
+	private static final class Rotation {
 
 		private static final float MIN_ROTATION = 0.5f;
+		private static final Angle DEFAULT_ANGLE = new Angle(-75, 0);
+		private static final Angle DEFAULT_SPEED = new Angle(0f, 0.5f);
 
 		@Nonnull
-		private final float[] rotation = new float[16];
+		final Angle angle;
 
 		@Nonnull
-		private final float[] tmp = new float[16];
+		final Angle speed;
 
-		public float x;
-		public float y;
+		@Nonnull
+		final float[] matrix;
 
-		private Angles() {
+		private Rotation() {
+			angle = DEFAULT_ANGLE;
+			speed = DEFAULT_SPEED;
+			matrix = angle.getMatrix();
 		}
 
-		private Angles(float x, float y) {
-			this.x = x;
-			this.y = y;
+		private Rotation(@Nonnull Bundle bundle) {
+			angle = restoreAngle(bundle, "rotation.angle", DEFAULT_ANGLE);
+			speed = restoreAngle(bundle, "rotation.speed", DEFAULT_SPEED);
+			final float[] array = bundle.getFloatArray("rotation.matrix");
+			matrix = array != null ? array : angle.getMatrix();
 		}
 
-		public void add(@Nonnull Angles angles) {
-			x += angles.x;
-			y += angles.y;
-
-			if (x >= 180) {
-				x -= 360;
-			}
-
-			if (x < -180) {
-				x += 360;
-			}
-
-			if (y >= 180) {
-				y -= 360;
-			}
-
-			if (y < -180) {
-				y += 360;
-			}
+		public void saveState(@Nonnull Bundle bundle) {
+			bundle.putParcelable("rotation.angle", angle);
+			bundle.putParcelable("rotation.speed", speed);
+			bundle.putFloatArray("rotation.matrix", matrix);
 		}
 
 		@Nonnull
-		public float[] getMatrix() {
-			final float[] matrix = new float[16];
-			rotateTo(matrix);
-			return matrix;
+		private static Angle restoreAngle(@Nonnull Bundle bundle, @Nonnull String name, @Nonnull Angle def) {
+			final Parcelable angle = bundle.getParcelable(name);
+			if (angle instanceof Angle) {
+				return (Angle) angle;
+			}
+			return def;
 		}
 
-		public void rotateTo(float[] matrix) {
-			Matrix.setIdentityM(matrix, 0);
-			Matrix.rotateM(matrix, 0, x, 1, 0, 0);
-			Matrix.rotateM(matrix, 0, y, 0, 1, 0);
-		}
-
-		public void rotateBy(@Nonnull float[] matrix) {
-			Matrix.setIdentityM(rotation, 0);
-			Matrix.rotateM(rotation, 0, x, 1, 0, 0);
-			Matrix.rotateM(rotation, 0, y, 0, 1, 0);
-			Matrix.multiplyMM(tmp, 0, rotation, 0, matrix, 0);
-			System.arraycopy(tmp, 0, matrix, 0, 16);
+		public void onFrame() {
+			angle.add(speed);
+			speed.rotateBy(matrix);
 		}
 
 		public boolean shouldRotate() {
-			return Math.abs(x) >= MIN_ROTATION || Math.abs(y) >= MIN_ROTATION;
+			return Math.abs(speed.x) >= MIN_ROTATION || Math.abs(speed.y) >= MIN_ROTATION;
 		}
+
 	}
 }
