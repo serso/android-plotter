@@ -75,6 +75,16 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 	}
 
 	@Nonnull
+	public M getFirst() {
+		return first;
+	}
+
+	@Nonnull
+	public M getSecond() {
+		return second;
+	}
+
+	@Nonnull
 	public M getOther(@Nonnull M mesh) {
 		return this.first == mesh ? this.second : this.first;
 	}

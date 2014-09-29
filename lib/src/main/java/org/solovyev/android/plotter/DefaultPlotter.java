@@ -6,7 +6,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -26,7 +25,18 @@ final class DefaultPlotter implements Plotter {
 	private final Group<Mesh> allMeshes = ListGroup.create(Arrays.<Mesh>asList(functionMeshes, otherMeshes));
 
 	@Nonnull
-	private final List<FunctionGraph> pool = new ArrayList<FunctionGraph>();
+	private final Pool<FunctionGraph> pool = new ListPool<FunctionGraph>(new ListPool.Callback<FunctionGraph>() {
+		@Nonnull
+		@Override
+		public FunctionGraph create() {
+			return FunctionGraph.create(5, 5, 30, 30, Function0.ZERO);
+		}
+
+		@Override
+		public void release(@Nonnull FunctionGraph mesh) {
+			mesh.setFunction(Function0.ZERO);
+		}
+	});
 
 	@Nonnull
 	private PlotData plotData = PlotData.create();
@@ -110,14 +120,8 @@ final class DefaultPlotter implements Plotter {
 				mesh.setFunction(function.function);
 				mesh.setColor(function.lineStyle.color);
 			} else {
-				final int poolSize = pool.size();
-				final FunctionGraph mesh;
-				if (poolSize > 0) {
-					mesh = pool.remove(poolSize - 1);
-					mesh.setFunction(function.function);
-				} else {
-					mesh = FunctionGraph.create(5, 5, 30, 30, function.function);
-				}
+				final FunctionGraph mesh = pool.obtain();
+				mesh.setFunction(function.function);
 				mesh.setColor(function.lineStyle.color);
 				functionMeshes.add(DoubleBufferMesh.wrap(mesh));
 			}
@@ -126,9 +130,7 @@ final class DefaultPlotter implements Plotter {
 
 		for (int k = functionMeshes.size() - 1; k >= i; k--) {
 			final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.remove(k);
-			final FunctionGraph mesh = dbm.getNext();
-			mesh.setFunction(Function0.ZERO);
-			pool.add(mesh);
+			pool.release(dbm.getNext());
 		}
 	}
 
