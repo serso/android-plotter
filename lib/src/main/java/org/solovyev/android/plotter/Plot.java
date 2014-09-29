@@ -10,6 +10,6 @@ public final class Plot {
 
 	@Nonnull
 	public static Plotter newPlotter() {
-		return new PlotterImpl();
+		return new DefaultPlotter();
 	}
 }

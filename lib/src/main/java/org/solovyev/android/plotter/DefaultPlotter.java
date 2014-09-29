@@ -14,7 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-final class PlotterImpl implements Plotter {
+final class DefaultPlotter implements Plotter {
 
 	@Nonnull
 	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create();
