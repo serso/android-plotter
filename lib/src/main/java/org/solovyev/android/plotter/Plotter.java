@@ -6,6 +6,13 @@ import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 import java.util.List;
 
+/**
+ * Contains information about functions to be plotted and meshes to be drawn. This class doesn't do plotting but
+ * provides all required data to a {@link org.solovyev.android.plotter.PlottingView} which should be connected to it.
+ * Note that {@link org.solovyev.android.plotter.PlottingView} might be attached and detached at any time and this
+ * doesn't affect neither functions list nor any other plot data stored in this class. This class also makes sure that
+ * all meshes (including functions' graphs) are initialized prior to draw.
+ */
 public interface Plotter {
 
 	void add(@Nonnull Mesh mesh);
@@ -17,8 +24,6 @@ public interface Plotter {
 
 	void initGl(@Nonnull GL11 gl, boolean firstTime);
 	void draw(@Nonnull GL11 gl);
-
-	void setDirty();
 
 	void attachView(@Nonnull PlottingView view);
 	void detachView(@Nonnull PlottingView view);

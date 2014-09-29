@@ -156,7 +156,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			if (zoomer.onFrame()) {
 				// todo serso: actually here we need to update the dimension which will cause function reevaluation, now
 				// this code is broken
-				plotter.setDirty();
+				//plotter.setDirty();
 			}
 
 			final GL11 gl = (GL11) gl10;

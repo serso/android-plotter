@@ -96,7 +96,7 @@ final class DefaultPlotter implements Plotter {
 		allMeshes.draw(gl);
 	}
 
-	public void ensureFunctionsSize() {
+	private void ensureFunctionsSize() {
 		Check.isMainThread();
 
 		// for each functions we should assign mesh
@@ -132,18 +132,17 @@ final class DefaultPlotter implements Plotter {
 		}
 	}
 
-	@Override
-	public void setDirty() {
+	private void setDirty() {
 		background.execute(initializer);
 	}
 
 	@Override
 	public void add(@Nonnull Function function) {
 		plotData.add(function);
-		setDirtyFunctions();
+		onFunctionsChanged();
 	}
 
-	private void setDirtyFunctions() {
+	private void onFunctionsChanged() {
 		ensureFunctionsSize();
 		setDirty();
 	}
@@ -151,13 +150,13 @@ final class DefaultPlotter implements Plotter {
 	@Override
 	public void add(@Nonnull PlotFunction function) {
 		plotData.add(function.copy());
-		setDirtyFunctions();
+		onFunctionsChanged();
 	}
 
 	@Override
 	public void clearFunctions() {
 		plotData.functions.clear();
-		setDirtyFunctions();
+		onFunctionsChanged();
 	}
 
 	@Override
