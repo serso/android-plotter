@@ -116,9 +116,12 @@ final class DefaultPlotter implements Plotter {
 		for (PlotFunction function : plotData.functions) {
 			if (i < functionMeshes.size()) {
 				final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.get(i);
-				final FunctionGraph mesh = dbm.getNext();
-				mesh.setFunction(function.function);
-				mesh.setColor(function.lineStyle.color);
+				final FunctionGraph first = dbm.getFirst();
+				first.setFunction(function.function);
+				first.setColor(function.lineStyle.color);
+				final FunctionGraph second = dbm.getSecond();
+				second.setFunction(function.function);
+				second.setColor(function.lineStyle.color);
 			} else {
 				final FunctionGraph mesh = pool.obtain();
 				mesh.setFunction(function.function);

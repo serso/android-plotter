@@ -42,8 +42,10 @@ public class FunctionGraph extends BaseSurface {
 
 	public void setFunction(@Nonnull Function function) {
 		Check.isMainThread();
-		this.function = function;
-		setDirty();
+		if (this.function != function) {
+			this.function = function;
+			setDirty();
+		}
 	}
 
 	@Nonnull
