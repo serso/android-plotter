@@ -264,6 +264,8 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	public final void setColor(@Nonnull Color color) {
+		// todo serso: we must call setDirty here if the color has changed
+		// todo serso: we must null colors here and call setDirty if they were not null
 		this.color = color;
 	}
 
