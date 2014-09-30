@@ -50,12 +50,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private Dimensions dimensions = new Dimensions();
 
-	/**
-	 * Synchronization is done on the current instance of the field, so it's always in a good state on GL thread
-	 */
-	@GuardedBy("rotation")
 	@Nonnull
-	private Rotation rotation = new Rotation();
+	private final RotationHolder rotation = new RotationHolder();
 
 	@Nonnull
 	private final ZoomerHolder zoomer = new ZoomerHolder();
@@ -164,10 +160,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 			gl.glTranslatef(0, 0, -DISTANCE * zoomLevel);
 
-			synchronized (rotation) {
-				rotation.onFrame();
-				gl.glMultMatrixf(rotation.matrix, 0);
-			}
+			rotation.onFrame(gl10);
 
 			plotter.initGl(gl, false);
 			plotter.draw(gl);
@@ -205,11 +198,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void setRotation(float angleX, float angleY) {
-		synchronized (rotation) {
-			rotation.speed.x = angleX;
-			rotation.speed.y = angleY;
-		}
-		view.requestRender();
+		rotation.setRotation(angleX, angleY);
 	}
 
 	public void stopRotating() {
@@ -234,18 +223,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	public void saveState(@Nonnull Bundle bundle) {
 		Check.isMainThread();
-		synchronized (rotation) {
-			rotation.saveState(bundle);
-		}
+		rotation.saveState(bundle);
 		zoomer.saveState(bundle);
 	}
 
 	public void restoreState(@Nonnull Bundle bundle) {
 		Check.isMainThread();
-		synchronized (rotation) {
-			rotation = new Rotation(bundle);
-			looping = rotation.shouldRotate();
-		}
+		rotation.restoreState(bundle);
 		zoomer.restoreState(bundle);
 		view.requestRender();
 	}
@@ -311,6 +295,50 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
+	private final class RotationHolder {
+
+		/**
+		 * Synchronization is done on the current instance of the field, so it's always in a good state on GL thread
+		 */
+		@GuardedBy("rotation")
+		@Nonnull
+		Rotation rotation = new Rotation();
+
+		boolean shouldRotate() {
+			synchronized (rotation) {
+				return rotation.shouldRotate();
+			}
+		}
+
+		void onFrame(@Nonnull GL10 gl) {
+			synchronized (rotation) {
+				rotation.onFrame();
+				gl.glMultMatrixf(rotation.matrix, 0);
+			}
+		}
+
+		void setRotation(float angleX, float angleY) {
+			synchronized (rotation) {
+				rotation.speed.x = angleX;
+				rotation.speed.y = angleY;
+			}
+			view.requestRender();
+		}
+
+		void saveState(@Nonnull Bundle bundle) {
+			synchronized (rotation) {
+				rotation.saveState(bundle);
+			}
+		}
+
+		void restoreState(@Nonnull Bundle bundle) {
+			synchronized (rotation) {
+				rotation = new Rotation(bundle);
+				looping = rotation.shouldRotate();
+			}
+		}
+	}
+
 	private final class ZoomerHolder {
 
 		@GuardedBy("PlotRenderer.this.lock")
@@ -351,25 +379,25 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			return zoomLevel;
 		}
 
-		public void onSurfaceChanged(GL10 gl) {
+		void onSurfaceChanged(GL10 gl) {
 			synchronized (zoomer) {
 				initFrustum(gl, DISTANCE * zoomer.getLevel());
 			}
 		}
 
-		public void saveState(@Nonnull Bundle bundle) {
+		void saveState(@Nonnull Bundle bundle) {
 			synchronized (zoomer) {
 				zoomer.saveState(bundle);
 			}
 		}
 
-		public void restoreState(@Nonnull Bundle bundle) {
+		void restoreState(@Nonnull Bundle bundle) {
 			synchronized (zoomer) {
 				zoomer = new Zoomer(bundle);
 			}
 		}
 
-		public void zoom(boolean in) {
+		void zoom(boolean in) {
 			synchronized (zoomer) {
 				if(zoomer.zoom(in)) {
 					loop(true);
@@ -377,7 +405,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 
-		public void reset() {
+		void reset() {
 			synchronized (zoomer) {
 				if(zoomer.reset()) {
 					loop(true);
