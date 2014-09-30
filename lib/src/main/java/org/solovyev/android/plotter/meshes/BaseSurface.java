@@ -33,7 +33,7 @@ import java.nio.ShortBuffer;
 public abstract class BaseSurface extends BaseMesh {
 
 	@Nonnull
-	protected Dimensions dimensions;
+	protected volatile Dimensions dimensions;
 	protected final int widthVertices;
 	protected final int heightVertices;
 	private final float[] vertices;
@@ -53,7 +53,9 @@ public abstract class BaseSurface extends BaseMesh {
 	}
 
 	public void setDimensions(@Nonnull Dimensions dimensions) {
+		Check.isMainThread();
 		this.dimensions = dimensions;
+		setDirty();
 	}
 
 	@Override

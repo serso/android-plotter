@@ -217,6 +217,10 @@ final class DefaultPlotter implements Plotter {
 		public void requestRender() {
 			requested = true;
 		}
+
+		@Override
+		public void zoom(boolean in) {
+		}
 	}
 }
 

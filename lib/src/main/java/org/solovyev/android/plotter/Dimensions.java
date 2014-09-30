@@ -62,7 +62,7 @@ public final class Dimensions {
 
 	// current position of camera in graph coordinates
 	@Nonnull
-	private final Camera camera = new Camera();
+	public final Camera camera = new Camera();
 
 	@Nonnull
 	public final Graph graph = new Graph();

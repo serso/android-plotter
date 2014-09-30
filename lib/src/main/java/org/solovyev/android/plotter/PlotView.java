@@ -101,6 +101,15 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		return state;
 	}
 
+	@Override
+	public void zoom(boolean in) {
+		renderer.zoom(in);
+	}
+
+	public void resetZoom() {
+		renderer.resetZoom();
+	}
+
 	private class TouchListener implements TouchHandler.Listener {
 
 		@Nonnull

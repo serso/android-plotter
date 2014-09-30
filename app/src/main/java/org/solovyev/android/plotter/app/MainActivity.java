@@ -3,6 +3,7 @@ package org.solovyev.android.plotter.app;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.View;
 import org.solovyev.android.plotter.PlotView;
 
 import javax.annotation.Nonnull;
@@ -16,9 +17,31 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		plotView = new PlotView(this);
+		setContentView(R.layout.main);
+		plotView = (PlotView) findViewById(R.id.plotview);
 		plotView.setPlotter(PlotterApplication.get().getPlotter());
-		setContentView(plotView);
+
+		final View zoomOutButton = findViewById(R.id.zoom_out_button);
+		zoomOutButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				plotView.zoom(false);
+			}
+		});
+		final View zoom0Button = findViewById(R.id.zoom_0_button);
+		zoom0Button.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				plotView.resetZoom();
+			}
+		});
+		final View zoomInButton = findViewById(R.id.zoom_in_button);
+		zoomInButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				plotView.zoom(true);
+			}
+		});
 	}
 
 	@Override

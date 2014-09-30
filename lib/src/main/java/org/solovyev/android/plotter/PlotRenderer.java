@@ -32,6 +32,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private final Spf spf = new Spf();
 
+	// lock for synchronization GL objects
 	@Nonnull
 	private final Object lock = new Object();
 
@@ -45,8 +46,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@GuardedBy("lock")
 	private boolean glInitialized;
 
+	@GuardedBy("dimensions")
 	@Nonnull
-	private final Dimensions dimensions = new Dimensions();
+	private Dimensions dimensions = new Dimensions();
 
 	/**
 	 * Synchronization is done on the current instance of the field, so it's always in a good state on GL thread
@@ -55,12 +57,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private Rotation rotation = new Rotation();
 
+	@Nonnull
+	private final ZoomerHolder zoomer = new ZoomerHolder();
+
 	private static final float DISTANCE = 15f;
 
 	private float lastTouchX, lastTouchY;
-
-	@Nonnull
-	private final Zoomer zoomer = new Zoomer();
 
 	private int width;
 	private int height;
@@ -103,8 +105,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		// let's use fastest perspective calculations
 		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
-
-		zoomer.reset();
 
 		gl.glShadeModel(GL10.GL_SMOOTH);
 
@@ -153,23 +153,16 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		final Plotter plotter = getPlotter();
 		if (plotter != null) {
-			if (zoomer.onFrame()) {
-				// todo serso: actually here we need to update the dimension which will cause function reevaluation, now
-				// this code is broken
-				//plotter.setDirty();
-			}
-
 			final GL11 gl = (GL11) gl10;
-			if (zoomer.getCurrent() != zoomer.getLevel()) {
-				initFrustum(gl);
-				zoomer.reset();
-			}
+
+			final float zoomLevel = zoomer.onFrame(gl);
+
 			gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
 			gl.glMatrixMode(GL10.GL_MODELVIEW);
 			gl.glLoadIdentity();
 
-			gl.glTranslatef(0, 0, -DISTANCE * zoomer.getLevel());
+			gl.glTranslatef(0, 0, -DISTANCE * zoomLevel);
 
 			synchronized (rotation) {
 				rotation.onFrame();
@@ -186,11 +179,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		spf.logFrameEnd();
 	}
 
-	private void initFrustum(@Nonnull GL11 gl) {
-		initFrustum(gl, DISTANCE * zoomer.getLevel());
-	}
-
 	private void initFrustum(@Nonnull GL10 gl, float distance) {
+		Check.isGlThread();
+
 		if (height == 0 || width == 0) {
 			return;
 		}
@@ -209,7 +200,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		this.width = width;
 		this.height = height;
 		gl.glViewport(0, 0, width, height);
-		initFrustum((GL11) gl);
+		zoomer.onSurfaceChanged(gl);
 		//setDirty();
 	}
 
@@ -226,9 +217,18 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void startRotating() {
-		looping = rotation.shouldRotate();
-		if (looping) {
-			view.requestRender();
+		synchronized (rotation) {
+			final boolean shouldRotate = rotation.shouldRotate();
+			loop(shouldRotate);
+		}
+	}
+
+	private void loop(boolean loop) {
+		if (looping != loop) {
+			looping = loop;
+			if (looping) {
+				view.requestRender();
+			}
 		}
 	}
 
@@ -237,6 +237,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		synchronized (rotation) {
 			rotation.saveState(bundle);
 		}
+		zoomer.saveState(bundle);
 	}
 
 	public void restoreState(@Nonnull Bundle bundle) {
@@ -245,9 +246,17 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			rotation = new Rotation(bundle);
 			looping = rotation.shouldRotate();
 		}
+		zoomer.restoreState(bundle);
 		view.requestRender();
 	}
 
+	public void zoom(boolean in) {
+		zoomer.zoom(in);
+	}
+
+	public void resetZoom() {
+		zoomer.reset();
+	}
 
 	private static final class Rotation {
 
@@ -300,6 +309,80 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		public boolean shouldRotate() {
 			return Math.abs(speed.x) >= MIN_ROTATION || Math.abs(speed.y) >= MIN_ROTATION;
 		}
+	}
 
+	private final class ZoomerHolder {
+
+		@GuardedBy("PlotRenderer.this.lock")
+		Object frustumZoomer;
+
+		@GuardedBy("zoomer")
+		@Nonnull
+		volatile Zoomer zoomer = new Zoomer();
+
+		float onFrame(@Nonnull GL11 gl) {
+			final float zoomLevel;
+			synchronized (zoomer) {
+				if (zoomer.onFrame()) {
+					synchronized (lock) {
+						frustumZoomer = zoomer;
+					}
+					initFrustum(gl, DISTANCE * zoomer.getLevel());
+
+					// if we were running and now we are stopped it's time to update the dimensions
+					if (!zoomer.isZooming()) {
+						// todo serso: update dimensions
+						startRotating();
+					} else {
+						// we must loop while zoom is zooming
+						looping = true;
+					}
+				} else {
+					synchronized (lock) {
+						// frustum is not initialized yet => let's do it
+						if (frustumZoomer != zoomer) {
+							frustumZoomer = zoomer;
+							initFrustum(gl, DISTANCE * zoomer.getLevel());
+						}
+					}
+				}
+				zoomLevel = zoomer.getLevel();
+			}
+			return zoomLevel;
+		}
+
+		public void onSurfaceChanged(GL10 gl) {
+			synchronized (zoomer) {
+				initFrustum(gl, DISTANCE * zoomer.getLevel());
+			}
+		}
+
+		public void saveState(@Nonnull Bundle bundle) {
+			synchronized (zoomer) {
+				zoomer.saveState(bundle);
+			}
+		}
+
+		public void restoreState(@Nonnull Bundle bundle) {
+			synchronized (zoomer) {
+				zoomer = new Zoomer(bundle);
+			}
+		}
+
+		public void zoom(boolean in) {
+			synchronized (zoomer) {
+				if(zoomer.zoom(in)) {
+					loop(true);
+				}
+			}
+		}
+
+		public void reset() {
+			synchronized (zoomer) {
+				if(zoomer.reset()) {
+					loop(true);
+				}
+			}
+		}
 	}
 }

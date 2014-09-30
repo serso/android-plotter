@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:a="http://schemas.android.com/apk/res/android"
+	a:orientation="vertical"
+	a:layout_width="match_parent"
+	a:layout_height="match_parent">
+
+	<org.solovyev.android.plotter.PlotView
+		a:id="@+id/plotview"
+		a:layout_width="match_parent"
+		a:layout_height="0dp"
+		a:layout_weight="1" />
+
+	<LinearLayout
+		a:background="@color/black"
+		a:orientation="horizontal"
+		a:layout_width="match_parent"
+		a:layout_height="wrap_content"
+		a:gravity="center">
+
+		<Button
+			a:id="@+id/zoom_out_button"
+			a:layout_width="wrap_content"
+			a:layout_height="wrap_content"
+			a:text="-"/>
+
+		<Button
+			a:id="@+id/zoom_0_button"
+			a:layout_width="wrap_content"
+			a:layout_height="wrap_content"
+			a:text="0"/>
+
+		<Button
+			a:id="@+id/zoom_in_button"
+			a:layout_width="wrap_content"
+			a:layout_height="wrap_content"
+			a:text="+"/>
+	</LinearLayout>
+
+</LinearLayout>
