@@ -23,6 +23,7 @@ final class Zoomer {
 	private float to = level;
 
 	private long startTime = -1;
+	private long duration = DURATION;
 
 	public Zoomer(@Nonnull Bundle bundle) {
 		level = bundle.getFloat("zoom.level", 1f);
@@ -42,7 +43,7 @@ final class Zoomer {
 	public boolean onFrame() {
 		if (isZooming()) {
 			final long now = uptimeMillis();
-			final float position = (now - startTime) / (float) DURATION;
+			final float position = (now - startTime) / (float) duration;
 			if (position >= 1f) {
 				startTime = -1;
 				from = -1;
@@ -92,9 +93,22 @@ final class Zoomer {
 		return true;
 	}
 
+	public boolean zoomBy(float level) {
+		if (isZooming()) {
+			return false;
+		}
+		if (level == 1f) {
+			return false;
+		}
+		zoomTo(this.level * level);
+		duration = 1;
+		return true;
+	}
+
 	private void zoomTo(float newLevel) {
 		to = newLevel;
 		from = level;
+		duration = DURATION;
 		startTime = uptimeMillis();
 	}
 
@@ -121,7 +135,7 @@ final class Zoomer {
 		from = tmp;
 
 		final long now = uptimeMillis();
-		final long remaining = DURATION - (now - startTime);
+		final long remaining = duration - (now - startTime);
 		startTime = now - remaining;
 	}
 

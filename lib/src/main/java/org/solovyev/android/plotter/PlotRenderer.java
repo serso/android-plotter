@@ -58,8 +58,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	private static final float DISTANCE = 15f;
 
-	private float lastTouchX, lastTouchY;
-
 	private int width;
 	private int height;
 
@@ -242,6 +240,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		zoomer.reset();
 	}
 
+	public void zoomBy(float level) {
+		zoomer.zoomBy(level);
+	}
+
 	private static final class Rotation {
 
 		private static final float MIN_ROTATION = 0.5f;
@@ -409,6 +411,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			synchronized (zoomer) {
 				if(zoomer.reset()) {
 					loop(true);
+				}
+			}
+		}
+
+		public void zoomBy(float level) {
+			synchronized (zoomer) {
+				if(zoomer.zoomBy(level)) {
+					view.requestRender();
 				}
 			}
 		}

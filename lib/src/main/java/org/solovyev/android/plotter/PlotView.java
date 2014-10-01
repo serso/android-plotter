@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import static android.os.SystemClock.uptimeMillis;
+
 public class PlotView extends GLSurfaceView implements PlottingView {
 
 	@Nullable
@@ -116,10 +118,22 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		private final TouchHandler handler = TouchHandler.create(this);
 
 		@Nonnull
+		private final PinchZoomTracker zoomTracker = new PinchZoomTracker();
+
+		@Nonnull
 		private final PointF lastTouch = new PointF();
+
+		private long lastZoomTime = 0;
 
 		@Override
 		public void onTouchDown(float x, float y) {
+			if (lastZoomTime != 0) {
+				if (uptimeMillis() - lastZoomTime <= 50) {
+					return;
+				}
+
+				lastZoomTime = 0;
+			}
 			renderer.stopRotating();
 			lastTouch.x = x;
 			lastTouch.y = y;
@@ -127,6 +141,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 		@Override
 		public void onTouchMove(float x, float y) {
+			if (isZooming()) {
+				return;
+			}
 			final float dx = x - lastTouch.x;
 			final float dy = y - lastTouch.y;
 			if (dx > 1f || dx < -1f || dy > 1f || dy < -1f) {
@@ -138,22 +155,45 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 		@Override
 		public void onTouchUp(float x, float y) {
+			if (isZooming()) {
+				return;
+			}
 			final float vx = handler.getXVelocity();
 			final float vy = handler.getYVelocity();
 			renderer.setRotation(vy / 100f, vx / 100f);
 			renderer.startRotating();
 		}
 
+		private boolean isZooming() {
+			return lastZoomTime != 0;
+		}
+
+		private void setZooming() {
+			lastZoomTime = uptimeMillis();
+			renderer.startRotating();
+		}
+
 		@Override
 		public void onTouchZoomDown(float x1, float y1, float x2, float y2) {
+			setZooming();
+			zoomTracker.reset(x1, y1, x2, y2);
 		}
 
 		@Override
 		public void onTouchZoomMove(float x1, float y1, float x2, float y2) {
+			setZooming();
+			final PointF levels = zoomTracker.update(x1, y1, x2, y2);
+			final float level = Math.max(levels.x, levels.y);
+			if (level != 1f) {
+				zoomTracker.reset(x1, y1, x2, y2);
+				renderer.zoomBy(level);
+			}
 		}
 
 		@Override
 		public void onTouchZoomUp(float x1, float y1, float x2, float y2) {
+			setZooming();
 		}
 	}
+
 }
