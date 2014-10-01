@@ -27,4 +27,6 @@ public interface Plotter {
 
 	void attachView(@Nonnull PlottingView view);
 	void detachView(@Nonnull PlottingView view);
+
+	void setDimensions(@Nonnull Dimensions dimensions);
 }

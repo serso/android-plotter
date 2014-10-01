@@ -22,11 +22,10 @@
 
 package org.solovyev.android.plotter;
 
-import android.graphics.PointF;
-
 import javax.annotation.Nonnull;
 
 public final class Dimensions {
+	public static final int GRAPH_SIZE = 1;
 
 	//                    |<--------------gw-------------->|
 	//                   xMin                                xMax
@@ -57,9 +56,6 @@ public final class Dimensions {
 	* */
 
 
-	@Nonnull
-	public final View view = new View();
-
 	// current position of camera in graph coordinates
 	@Nonnull
 	public final Camera camera = new Camera();
@@ -67,31 +63,10 @@ public final class Dimensions {
 	@Nonnull
 	public final Graph graph = new Graph();
 
-	@Nonnull
-	PointF toGraphCoordinates(float xPxs, float yPxs) {
-		return new PointF(scaleXPxs(xPxs) + getXMin(), (getGHeight() - scaleYPxs(yPxs)) + getYMin());
-	}
-
-	private float scaleXPxs(float pxs) {
-		return pxs * getXGraphToViewScale();
-	}
-
-	private float scaleYPxs(float pxs) {
-		return pxs * getYGraphToViewScale();
-	}
-
 	// X
 
 	public float getXMin() {
 		return camera.x - graph.width / 2;
-	}
-
-	float getXMax(float minX) {
-		return minX + graph.width;
-	}
-
-	public float getXMax() {
-		return getXMax(getXMin());
 	}
 
 	// Y
@@ -100,79 +75,14 @@ public final class Dimensions {
 		return camera.y - graph.height / 2;
 	}
 
-	public float getYMax() {
-		return getYMax(getYMin());
-	}
-
-	public float getYMax(float yMin) {
-		return yMin + graph.height;
-	}
-
-	float getXGraphToViewScale() {
-		if (view.width != 0) {
-			return graph.width / ((float) view.width);
-		} else {
-			return 0f;
+	public boolean setGraphDimensions(float width, float height) {
+		if (graph.width != width || graph.height != height) {
+			graph.width = width;
+			graph.height = height;
+			return true;
 		}
-	}
 
-	float getYGraphToViewScale() {
-		if (view.height != 0) {
-			return graph.height / ((float) view.height);
-		} else {
-			return 0f;
-		}
-	}
-
-	private float getViewAspectRatio() {
-		if (view.width != 0) {
-			return ((float) view.height) / view.width;
-		} else {
-			return 0f;
-		}
-	}
-
-	public float getGWidth() {
-		return graph.width;
-	}
-
-	public float getGHeight() {
-		return graph.height;
-	}
-
-	public void setXRange(float xMin, float xMax) {
-		graph.width = xMax - xMin;
-		camera.x = xMin + graph.width / 2;
-	}
-
-	public void setYRange(float yMin, float yMax) {
-		setYRange0(yMin, yMax);
-	}
-
-	private void setYRange0(float yMin, float yMax) {
-		graph.height = yMax - yMin;
-		camera.y = yMin + graph.height / 2;
-	}
-
-	public void setRanges(float xMin, float xMax, float yMin, float yMax) {
-		setXRange(xMin, xMax);
-		setYRange(yMin, yMax);
-	}
-
-	public void setViewDimensions(@Nonnull android.view.View view) {
-		this.view.width = view.getWidth();
-		this.view.height = view.getHeight();
-	}
-
-
-	public void setGraphDimensions(float width, float height) {
-		graph.width = width;
-		graph.height = height;
-	}
-
-	public void setViewDimensions(int vWidthPxs, int vHeightPxs) {
-		view.width = vWidthPxs;
-		view.height = vHeightPxs;
+		return false;
 	}
 
 	@Nonnull
@@ -182,8 +92,6 @@ public final class Dimensions {
 
 	@Nonnull
 	public Dimensions copy(@Nonnull Dimensions that) {
-		that.view.height = this.view.height;
-		that.view.width = this.view.width;
 		that.camera.x = this.camera.x;
 		that.camera.y = this.camera.y;
 		that.graph.width = this.graph.width;
@@ -192,18 +100,78 @@ public final class Dimensions {
 		return that;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Dimensions that = (Dimensions) o;
+
+		if (!camera.equals(that.camera)) return false;
+		if (!graph.equals(that.graph)) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = camera.hashCode();
+		result = 31 * result + graph.hashCode();
+		return result;
+	}
+
 	public static final class Camera {
 		public float x = 0;
 		public float y = 0;
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			Camera that = (Camera) o;
+
+			if (Float.compare(that.x, x) != 0) return false;
+			if (Float.compare(that.y, y) != 0) return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
+			result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
+			return result;
+		}
 	}
 
 	public static final class Graph {
-		public float width = 20;
-		public float height = 20;
-	}
+		public float width = GRAPH_SIZE;
+		public float height = GRAPH_SIZE;
 
-	public static final class View {
-		public int width;
-		public int height;
+		public void multiplyBy(float value) {
+			width *= value;
+			height *= value;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			Graph that = (Graph) o;
+
+			if (Float.compare(that.height, height) != 0) return false;
+			if (Float.compare(that.width, width) != 0) return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
+			result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
+			return result;
+		}
 	}
 }

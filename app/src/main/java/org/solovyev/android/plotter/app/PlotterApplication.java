@@ -3,7 +3,6 @@ package org.solovyev.android.plotter.app;
 import android.app.Application;
 import org.solovyev.android.plotter.*;
 import org.solovyev.android.plotter.meshes.Mesh;
-import org.solovyev.android.plotter.meshes.SolidCube;
 import org.solovyev.android.plotter.meshes.WireFrameCube;
 
 import javax.annotation.Nonnull;
@@ -50,9 +49,8 @@ public class PlotterApplication extends Application {
 			}
 		});
 
-		final SolidCube solidCube = new SolidCube(1, 1, 1);
-		solidCube.setColor(Color.BLUE.transparentCopy(0.5f));
-		plotter.add(Arrays.<Mesh>asList(solidCube, new WireFrameCube(1, 1, 1), new WireFrameCube(2, 2, 2)));
+		final int size = Dimensions.GRAPH_SIZE;
+		plotter.add(Arrays.<Mesh>asList(new WireFrameCube(size, size, size)));
 		/*
 		otherMeshes.add(new WireFramePlane(5, 5, 30, 30));
 		otherMeshes.add(FunctionGraph.create(new Function2() {

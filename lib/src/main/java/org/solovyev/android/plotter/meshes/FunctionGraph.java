@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.Check;
+import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.Function;
 
 import javax.annotation.Nonnull;
@@ -15,9 +16,19 @@ public class FunctionGraph extends BaseSurface {
 		this.function = function;
 	}
 
+	FunctionGraph(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices, @Nonnull Function function) {
+		super(dimensions, widthVertices, heightVertices);
+		this.function = function;
+	}
+
 	@Nonnull
 	public static FunctionGraph create(float width, float height, int widthVertices, int heightVertices, @Nonnull Function function) {
 		return new FunctionGraph(width, height, widthVertices, heightVertices, function);
+	}
+
+	@Nonnull
+	public static FunctionGraph create(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices, @Nonnull Function function) {
+		return new FunctionGraph(dimensions, widthVertices, heightVertices, function);
 	}
 
 	@Nonnull

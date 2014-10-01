@@ -46,17 +46,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@GuardedBy("lock")
 	private boolean glInitialized;
 
-	@GuardedBy("dimensions")
-	@Nonnull
-	private Dimensions dimensions = new Dimensions();
-
 	@Nonnull
 	private final RotationHolder rotation = new RotationHolder();
 
 	@Nonnull
 	private final ZoomerHolder zoomer = new ZoomerHolder();
 
-	private static final float DISTANCE = 15f;
+	private static final float DISTANCE = 4f;
 
 	private int width;
 	private int height;
@@ -68,9 +64,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void setPlotter(@Nonnull Plotter plotter) {
+		float zoomLevel;
+		synchronized (zoomer) {
+			zoomLevel = zoomer.zoomer.getLevel();
+		}
 		synchronized (lock) {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
+			updateDimensions(plotter, zoomLevel);
 		}
 	}
 
@@ -149,7 +150,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		if (plotter != null) {
 			final GL11 gl = (GL11) gl10;
 
-			final float zoomLevel = zoomer.onFrame(gl);
+			final float zoomLevel = zoomer.onFrame(gl, plotter);
 
 			gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
@@ -230,6 +231,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		rotation.restoreState(bundle);
 		zoomer.restoreState(bundle);
 		view.requestRender();
+	}
+
+	private void updateDimensions(@Nonnull Plotter plotter, float level) {
+		final Dimensions dimensions = new Dimensions();
+		dimensions.graph.multiplyBy(level);
+		plotter.setDimensions(dimensions);
 	}
 
 	public void zoom(boolean in) {
@@ -350,7 +357,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		@Nonnull
 		volatile Zoomer zoomer = new Zoomer();
 
-		float onFrame(@Nonnull GL11 gl) {
+		float onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
 			final float zoomLevel;
 			synchronized (zoomer) {
 				if (zoomer.onFrame()) {
@@ -361,7 +368,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
-						// todo serso: update dimensions
+						updateDimensions(plotter, zoomer.getLevel());
 						startRotating();
 					} else {
 						// we must loop while zoom is zooming
@@ -394,14 +401,20 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		void restoreState(@Nonnull Bundle bundle) {
+			final float zoomLevel;
 			synchronized (zoomer) {
 				zoomer = new Zoomer(bundle);
+				zoomLevel = zoomer.getLevel();
+			}
+			final Plotter plotter = getPlotter();
+			if (plotter != null) {
+				updateDimensions(plotter, zoomLevel);
 			}
 		}
 
 		void zoom(boolean in) {
 			synchronized (zoomer) {
-				if(zoomer.zoom(in)) {
+				if (zoomer.zoom(in)) {
 					loop(true);
 				}
 			}
@@ -409,7 +422,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		void reset() {
 			synchronized (zoomer) {
-				if(zoomer.reset()) {
+				if (zoomer.reset()) {
 					loop(true);
 				}
 			}
@@ -417,7 +430,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		public void zoomBy(float level) {
 			synchronized (zoomer) {
-				if(zoomer.zoomBy(level)) {
+				if (zoomer.zoomBy(level)) {
 					view.requestRender();
 				}
 			}

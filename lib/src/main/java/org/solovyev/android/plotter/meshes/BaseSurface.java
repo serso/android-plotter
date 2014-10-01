@@ -44,8 +44,18 @@ public abstract class BaseSurface extends BaseMesh {
 	private volatile ShortBuffer indicesBuffer;
 
 	protected BaseSurface(float width, float height, int widthVertices, int heightVertices) {
-		this.dimensions = new Dimensions();
-		this.dimensions.setGraphDimensions(width, height);
+		this(makeDimensions(width, height), widthVertices, heightVertices);
+	}
+
+	@Nonnull
+	private static Dimensions makeDimensions(float width, float height) {
+		final Dimensions dimensions = new Dimensions();
+		dimensions.setGraphDimensions(width, height);
+		return dimensions;
+	}
+
+	protected BaseSurface(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices) {
+		this.dimensions = dimensions;
 		this.widthVertices = widthVertices;
 		this.heightVertices = heightVertices;
 		this.vertices = new float[this.heightVertices * this.widthVertices * 3];

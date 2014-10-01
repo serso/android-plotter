@@ -70,6 +70,17 @@ final class DefaultPlotter implements Plotter {
 	@Nonnull
 	private PlottingView view = emptyView;
 
+	@GuardedBy("lock")
+	@Nonnull
+	private Dimensions dimensions = new Dimensions();
+
+	@Nonnull
+	private final Runnable dimensionsChangedRunnable = new Runnable() {
+		@Override
+		public void run() {
+			onFunctionsChanged();
+		}
+	};
 
 	@Override
 	public void add(@Nonnull Mesh mesh) {
@@ -109,6 +120,8 @@ final class DefaultPlotter implements Plotter {
 	private void ensureFunctionsSize() {
 		Check.isMainThread();
 
+		final Dimensions dimensions = getDimensions();
+
 		// for each functions we should assign mesh
 		// if there are not enough meshes => create new
 		// if there are too many meshes => release them
@@ -119,13 +132,16 @@ final class DefaultPlotter implements Plotter {
 				final FunctionGraph first = dbm.getFirst();
 				first.setFunction(function.function);
 				first.setColor(function.lineStyle.color);
+				first.setDimensions(dimensions);
 				final FunctionGraph second = dbm.getSecond();
 				second.setFunction(function.function);
 				second.setColor(function.lineStyle.color);
+				second.setDimensions(dimensions);
 			} else {
 				final FunctionGraph mesh = pool.obtain();
 				mesh.setFunction(function.function);
 				mesh.setColor(function.lineStyle.color);
+				mesh.setDimensions(dimensions);
 				functionMeshes.add(DoubleBufferMesh.wrap(mesh));
 			}
 			i++;
@@ -170,9 +186,14 @@ final class DefaultPlotter implements Plotter {
 		synchronized (lock) {
 			Check.same(emptyView, this.view);
 			this.view = view;
-			if (emptyView.requested) {
-				emptyView.requested = false;
+			if (emptyView.shouldRender) {
+				emptyView.shouldRender = false;
 				this.view.requestRender();
+			}
+
+			if (emptyView.shouldUpdateFunctions) {
+				emptyView.shouldUpdateFunctions = false;
+				this.view.post(dimensionsChangedRunnable);
 			}
 		}
 	}
@@ -182,8 +203,26 @@ final class DefaultPlotter implements Plotter {
 		Check.isMainThread();
 		synchronized (lock) {
 			Check.same(view, this.view);
-			emptyView.requested = false;
+			emptyView.shouldRender = false;
+			emptyView.shouldUpdateFunctions = false;
 			this.view = emptyView;
+		}
+	}
+
+	@Override
+	public void setDimensions(@Nonnull Dimensions newDimensions) {
+		synchronized (lock) {
+			if (!dimensions.equals(newDimensions)) {
+				dimensions = newDimensions;
+				view.post(dimensionsChangedRunnable);
+			}
+		}
+	}
+
+	@Nonnull
+	public Dimensions getDimensions() {
+		synchronized (dimensions) {
+			return dimensions;
 		}
 	}
 
@@ -210,16 +249,23 @@ final class DefaultPlotter implements Plotter {
 	 * Dummy plotting view which tracks render requests. If the real view is set and this view detected render request
 	 * then {@link PlottingView#requestRender()} of the new view will be called.
 	 */
-	private final static class EmptyPlottingView implements PlottingView {
-		private boolean requested;
+	private final class EmptyPlottingView implements PlottingView {
+		private boolean shouldRender;
+		private boolean shouldUpdateFunctions;
 
 		@Override
 		public void requestRender() {
-			requested = true;
+			shouldRender = true;
 		}
 
 		@Override
 		public void zoom(boolean in) {
+		}
+
+		@Override
+		public boolean post(@Nonnull Runnable runnable) {
+			shouldUpdateFunctions = dimensionsChangedRunnable == runnable;
+			return true;
 		}
 	}
 }
