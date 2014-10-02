@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Plot;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.nio.ByteBuffer;
@@ -13,6 +15,16 @@ public final class Meshes {
 	public static final int BYTES_IN_SHORT = 2;
 
 	private Meshes() {
+	}
+
+	@Nonnull
+	static String getTag() {
+		return Plot.getTag("Meshes");
+	}
+
+	@Nonnull
+	static String getTag(@Nonnull String tag) {
+		return getTag() + "/" + tag;
 	}
 
 	@Nonnull

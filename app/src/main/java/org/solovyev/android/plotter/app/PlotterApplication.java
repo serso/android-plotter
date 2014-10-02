@@ -24,25 +24,20 @@ public class PlotterApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		plotter.add(new Function2() {
+		plotter.add(new Function2("sin(x)+sin(y)-2") {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.sin(y)) - 2f;
 			}
 		});
-		plotter.add(new Function0() {
-			@Override
-			public float evaluate() {
-				return 0;
-			}
-		});
-		plotter.add(new Function2() {
+		plotter.add(Function0.ZERO);
+		plotter.add(new Function2("x*x+y*y") {
 			@Override
 			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
 		});
-		plotter.add(new Function1() {
+		plotter.add(new Function1("x*x") {
 			@Override
 			public float evaluate(float x) {
 				return x * x;

@@ -53,4 +53,9 @@ public abstract class BaseCube extends BaseMesh {
 		Color.fillVertex(colors, 7, Color.CYAN);
 		return colors;
 	}
+
+	@Override
+	public String toString() {
+		return "Cube(" + width + ", " + height + ", " + depth + ")";
+	}
 }

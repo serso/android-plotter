@@ -152,10 +152,13 @@ final class Zoomer {
 	}
 
 	public void saveState(@Nonnull Bundle bundle) {
-		if (isZooming()) {
-			bundle.putFloat("zoom.level", to);
-		} else {
-			bundle.putFloat("zoom.level", level);
-		}
+		bundle.putFloat("zoom.level", isZooming() ? to : level);
+	}
+
+	@Override
+	public String toString() {
+		return "Zoomer{" +
+				"level=" + (isZooming() ? to : level) +
+				'}';
 	}
 }

@@ -18,6 +18,7 @@ package org.solovyev.android.plotter;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -245,6 +246,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		zoomer.zoomBy(level);
 	}
 
+	public void zoomBy(float x, float y) {
+		zoomer.zoomBy(x, y);
+	}
+
+	public void setPinchZoom(boolean pinchZoom) {
+		zoomer.setPinchZoom(pinchZoom);
+	}
+
 	private static final class Rotation {
 
 		private static final float MIN_ROTATION = 0.5f;
@@ -344,12 +353,18 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	private final class ZoomerHolder {
 
+		@Nonnull
+		private final String TAG = Plot.getTag("Zoomer");
+
 		@GuardedBy("PlotRenderer.this.lock")
 		Object frustumZoomer;
 
 		@GuardedBy("zoomer")
 		@Nonnull
 		volatile Zoomer zoomer = new Zoomer();
+
+		@GuardedBy("zoomer")
+		volatile boolean pinchZoom;
 
 		float onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
 			final float zoomLevel;
@@ -362,7 +377,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
-						plotter.updateDimensions(zoomer.getLevel());
+						if (!pinchZoom) {
+							plotter.updateDimensions(zoomer.getLevel());
+						}
 						startRotating();
 					} else {
 						// we must loop while zoom is zooming
@@ -390,6 +407,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		void saveState(@Nonnull Bundle bundle) {
 			synchronized (zoomer) {
+				Log.d(TAG, "Saving state: " + zoomer);
 				zoomer.saveState(bundle);
 			}
 		}
@@ -398,6 +416,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			final float zoomLevel;
 			synchronized (zoomer) {
 				zoomer = new Zoomer(bundle);
+				Log.d(TAG, "Restoring state: " + zoomer);
 				zoomLevel = zoomer.getLevel();
 			}
 			final Plotter plotter = getPlotter();
@@ -411,6 +430,11 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				if (zoomer.zoom(in)) {
 					loop(true);
 				}
+				if (in) {
+					Log.d(TAG, "Zooming in: " + zoomer);
+				} else {
+					Log.d(TAG, "Zooming out: " + zoomer);
+				}
 			}
 		}
 
@@ -419,6 +443,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				if (zoomer.reset()) {
 					loop(true);
 				}
+				Log.d(TAG, "Resetting: " + zoomer);
 			}
 		}
 
@@ -426,6 +451,32 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			synchronized (zoomer) {
 				if (zoomer.zoomBy(level)) {
 					view.requestRender();
+				}
+				Log.d(TAG, "Zooming by level=" + level + ". " + zoomer);
+			}
+		}
+
+		public void zoomBy(float x, float y) {
+			/*synchronized (zoomer) {
+				if (zoomer.zoomBy(level)) {
+					view.requestRender();
+				}
+			}*/
+		}
+
+		public void setPinchZoom(boolean pinchZoom) {
+			synchronized (zoomer) {
+				if (this.pinchZoom != pinchZoom) {
+					this.pinchZoom = pinchZoom;
+					if (this.pinchZoom) {
+						Log.d(TAG, "Starting pinch zoom");
+					} else {
+						final Plotter plotter = getPlotter();
+						if (plotter != null) {
+							plotter.updateDimensions(zoomer.getLevel());
+						}
+						Log.d(TAG, "Ending pinch zoom");
+					}
 				}
 			}
 		}

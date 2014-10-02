@@ -74,4 +74,9 @@ public class FunctionGraph extends BaseSurface {
 			next.setDimensions(current.dimensions);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return function.toString();
+	}
 }

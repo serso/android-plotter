@@ -5,12 +5,19 @@ import javax.annotation.Nonnull;
 public abstract class Function0 extends Function {
 
 	@Nonnull
-	public static final Function0 ZERO = new Function0() {
+	public static final Function0 ZERO = new Function0("0") {
 		@Override
 		public float evaluate() {
 			return 0;
 		}
 	};
+
+	protected Function0() {
+	}
+
+	protected Function0(@Nonnull String name) {
+		super(name);
+	}
 
 	@Override
 	public final int getArity() {

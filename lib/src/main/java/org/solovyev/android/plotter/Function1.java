@@ -1,6 +1,16 @@
 package org.solovyev.android.plotter;
 
+import javax.annotation.Nullable;
+
 public abstract class Function1 extends Function {
+
+	protected Function1() {
+	}
+
+	protected Function1(@Nullable String name) {
+		super(name);
+	}
+
 	@Override
 	public final int getArity() {
 		return 1;

@@ -11,6 +11,16 @@ public final class Plot {
 	}
 
 	@Nonnull
+	public static String getTag() {
+		return "Plot";
+	}
+
+	@Nonnull
+	public static String getTag(@Nonnull String tag) {
+		return getTag() + "/" + tag;
+	}
+
+	@Nonnull
 	public static Plotter newPlotter() {
 		return new DefaultPlotter();
 	}

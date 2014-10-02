@@ -2,6 +2,7 @@ package org.solovyev.android.plotter;
 
 import android.util.Log;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.System.nanoTime;
@@ -10,6 +11,9 @@ import static java.lang.System.nanoTime;
  * Seconds per frame
  */
 final class Spf {
+
+	@Nonnull
+	private static final String TAG = Plot.getTag("SPF");
 
 	private static final long SECOND = TimeUnit.SECONDS.toNanos(1);
 	private static final long MILLIS = TimeUnit.MILLISECONDS.toNanos(1);
@@ -37,7 +41,7 @@ final class Spf {
 		if (elapsedNanos >= SECOND) {
 			final long elapsedMillis = elapsedNanos / MILLIS;
 			final long spf = elapsedMillis / frames;
-			Log.d("SPF", "SPF=" + spf + "ms, FPS=" + (1000L / spf));
+			Log.d(TAG, "SPF=" + spf + "ms, FPS=" + (1000L / spf));
 			frames = 0;
 		}
 	}

@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.util.Log;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
@@ -10,6 +11,9 @@ import javax.microedition.khronos.opengles.GL11;
 
 @ThreadSafe
 public class DoubleBufferMesh<M extends Mesh> implements Mesh {
+
+	@Nonnull
+	private static final String TAG = Meshes.getTag("DoubleBufferMesh");
 
 	public static interface Swapper<M> {
 		void swap(@Nonnull M current, @Nonnull M next);
@@ -47,7 +51,11 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 	@Override
 	public boolean init() {
 		final M next = getNext();
-		return next.init();
+		final boolean initialized = next.init();
+		if (initialized) {
+			Log.d(TAG, "Initializing next=" + next);
+		}
+		return initialized;
 	}
 
 	@Override
@@ -65,6 +73,7 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 
 	private void swap(@Nonnull M next) {
 		synchronized (lock) {
+			Log.d(TAG, "Swapping current=" + getMeshName(this.current) + " with next=" + getMeshName(next));
 			if (this.current == null) {
 				this.next = this.second;
 			} else {
@@ -72,9 +81,14 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 			}
 			this.current = next;
 			if (swapper != null) {
-				swapper.swap(current, next);
+				swapper.swap(current, this.next);
 			}
 		}
+	}
+
+	@Nonnull
+	private String getMeshName(@Nonnull M mesh) {
+		return mesh + "(" + (mesh == this.first ? 0 : 1) + ")";
 	}
 
 	@Nonnull

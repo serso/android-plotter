@@ -41,6 +41,11 @@ final class PinchZoomTracker {
 			}
 		}
 
+		if ((current.x > 1f && current.y < 1f) || (current.y > 1f && current.x < 1f)) {
+			current.x = 1f;
+			current.y = 1f;
+		}
+
 		return current;
 	}
 
