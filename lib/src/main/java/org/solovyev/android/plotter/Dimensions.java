@@ -63,6 +63,8 @@ public final class Dimensions {
 	@Nonnull
 	public final Graph graph = new Graph();
 
+	public float zoom = 1f;
+
 	// X
 
 	public float getXMin() {
@@ -92,6 +94,7 @@ public final class Dimensions {
 
 	@Nonnull
 	public Dimensions copy(@Nonnull Dimensions that) {
+		that.zoom = this.zoom;
 		that.camera.x = this.camera.x;
 		that.camera.y = this.camera.y;
 		that.graph.width = this.graph.width;
@@ -103,10 +106,11 @@ public final class Dimensions {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof Dimensions)) return false;
 
 		Dimensions that = (Dimensions) o;
 
+		if (Float.compare(that.zoom, zoom) != 0) return false;
 		if (!camera.equals(that.camera)) return false;
 		if (!graph.equals(that.graph)) return false;
 
@@ -117,6 +121,7 @@ public final class Dimensions {
 	public int hashCode() {
 		int result = camera.hashCode();
 		result = 31 * result + graph.hashCode();
+		result = 31 * result + (zoom != +0.0f ? Float.floatToIntBits(zoom) : 0);
 		return result;
 	}
 

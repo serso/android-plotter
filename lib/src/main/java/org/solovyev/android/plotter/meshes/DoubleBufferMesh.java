@@ -3,12 +3,17 @@ package org.solovyev.android.plotter.meshes;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.microedition.khronos.opengles.GL11;
 
 @ThreadSafe
 public class DoubleBufferMesh<M extends Mesh> implements Mesh {
+
+	public static interface Swapper<M> {
+		void swap(@Nonnull M current, @Nonnull M next);
+	}
 
 	@Nonnull
 	private final Object lock = new Object();
@@ -25,14 +30,18 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 	@Nonnull
 	private final M second;
 
-	private DoubleBufferMesh(@Nonnull M first, @Nonnull M second) {
+	@Nullable
+	private final Swapper<M> swapper;
+
+	private DoubleBufferMesh(@Nonnull M first, @Nonnull M second, @Nullable Swapper<M> swapper) {
 		this.first = first;
 		this.second = second;
+		this.swapper = swapper;
 	}
 
 	@Nonnull
-	public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh) {
-		return new DoubleBufferMesh<M>(mesh, (M) mesh.copy());
+	public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh, @Nullable Swapper<M> swapper) {
+		return new DoubleBufferMesh<M>(mesh, (M) mesh.copy(), swapper);
 	}
 
 	@Override
@@ -62,6 +71,9 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 				this.next = this.current;
 			}
 			this.current = next;
+			if (swapper != null) {
+				swapper.swap(current, next);
+			}
 		}
 	}
 

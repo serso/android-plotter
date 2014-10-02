@@ -3,6 +3,7 @@ package org.solovyev.android.plotter.meshes;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL11;
 
 public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBufferMesh<M>> {
@@ -10,12 +11,16 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
 	@Nonnull
 	private final ListGroup<DoubleBufferMesh<M>> group = ListGroup.create();
 
-	private DoubleBufferGroup() {
+	@Nullable
+	private final DoubleBufferMesh.Swapper<M> swapper;
+
+	private DoubleBufferGroup(@Nonnull DoubleBufferMesh.Swapper<M> swapper) {
+		this.swapper = swapper;
 	}
 
 	@Nonnull
-	public static <M extends Mesh> DoubleBufferGroup<M> create() {
-		return new DoubleBufferGroup<M>();
+	public static <M extends Mesh> DoubleBufferGroup<M> create(@Nullable DoubleBufferMesh.Swapper<M> swapper) {
+		return new DoubleBufferGroup<M>(swapper);
 	}
 
 	@Override
@@ -34,7 +39,7 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
 	}
 
 	public boolean addMesh(@Nonnull M mesh) {
-		return add(DoubleBufferMesh.wrap(mesh));
+		return add(DoubleBufferMesh.wrap(mesh, swapper));
 	}
 
 	@Override

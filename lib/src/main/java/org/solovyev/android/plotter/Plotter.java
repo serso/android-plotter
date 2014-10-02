@@ -29,4 +29,6 @@ public interface Plotter {
 	void detachView(@Nonnull PlottingView view);
 
 	void setDimensions(@Nonnull Dimensions dimensions);
+
+	void updateDimensions(float zoom);
 }

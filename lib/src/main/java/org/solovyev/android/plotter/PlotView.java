@@ -108,6 +108,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		renderer.zoom(in);
 	}
 
+	@Override
 	public void resetZoom() {
 		renderer.resetZoom();
 	}

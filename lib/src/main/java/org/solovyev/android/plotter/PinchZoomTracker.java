@@ -7,7 +7,8 @@ import javax.annotation.Nonnull;
 final class PinchZoomTracker {
 
 	private static final float EPS = 1.5f;
-	private static final float MIN_DISTANCE = distance(0f, 50f);
+	// todo serso: dpi!!!
+	private static final float MIN_DISTANCE = distance(0f, 25f);
 
 	@Nonnull
 	private final PointF distance = new PointF();

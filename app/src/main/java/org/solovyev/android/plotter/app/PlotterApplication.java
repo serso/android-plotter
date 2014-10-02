@@ -24,6 +24,12 @@ public class PlotterApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
+		plotter.add(new Function2() {
+			@Override
+			public float evaluate(float x, float y) {
+				return (float) (Math.sin(x) + Math.sin(y)) - 2f;
+			}
+		});
 		plotter.add(new Function0() {
 			@Override
 			public float evaluate() {
@@ -40,12 +46,6 @@ public class PlotterApplication extends Application {
 			@Override
 			public float evaluate(float x) {
 				return x * x;
-			}
-		});
-		plotter.add(new Function2() {
-			@Override
-			public float evaluate(float x, float y) {
-				return (float) (Math.sin(x) + Math.sin(y)) - 2f;
 			}
 		});
 

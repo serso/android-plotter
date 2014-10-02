@@ -1,12 +1,14 @@
 package org.solovyev.android.plotter.meshes;
 
-import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.Function;
 
 import javax.annotation.Nonnull;
 
 public class FunctionGraph extends BaseSurface {
+
+	@Nonnull
+	public static final DoubleBufferMesh.Swapper<FunctionGraph> SWAPPER = new Swapper();
 
 	@Nonnull
 	private volatile Function function;
@@ -52,7 +54,7 @@ public class FunctionGraph extends BaseSurface {
 	}
 
 	public void setFunction(@Nonnull Function function) {
-		Check.isMainThread();
+		// todo serso: might be called on GL thread, requires synchronization
 		if (this.function != function) {
 			this.function = function;
 			setDirty();
@@ -63,5 +65,13 @@ public class FunctionGraph extends BaseSurface {
 	@Override
 	protected BaseMesh makeCopy() {
 		return new FunctionGraph(dimensions.graph.width, dimensions.graph.height, widthVertices, heightVertices, function);
+	}
+
+	private static class Swapper implements DoubleBufferMesh.Swapper<FunctionGraph> {
+		@Override
+		public void swap(@Nonnull FunctionGraph current, @Nonnull FunctionGraph next) {
+			next.setFunction(current.function);
+			next.setDimensions(current.dimensions);
+		}
 	}
 }

@@ -22,8 +22,6 @@
 
 package org.solovyev.android.plotter;
 
-import android.os.Looper;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -49,18 +47,17 @@ public final class Check {
 		throw new AssertionError();
 	}
 
-	private static boolean mainThread() {
-		return Looper.getMainLooper() == Looper.myLooper();
-	}
-
 	public static void isMainThread() {
-		if (!junit && !mainThread()) {
+		if (!junit && !Plot.isMainThread()) {
 			throw new AssertionException("Should be called on the main thread");
 		}
 	}
 
+	public static void isAnyThread() {
+	}
+
 	public static void isNotMainThread() {
-		if (!junit && mainThread()) {
+		if (!junit && Plot.isMainThread()) {
 			throw new AssertionException("Should be called on the background thread");
 		}
 	}

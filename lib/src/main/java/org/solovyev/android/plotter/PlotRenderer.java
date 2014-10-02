@@ -71,7 +71,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		synchronized (lock) {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
-			updateDimensions(plotter, zoomLevel);
+			this.plotter.updateDimensions(zoomLevel);
 		}
 	}
 
@@ -233,12 +233,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		view.requestRender();
 	}
 
-	private void updateDimensions(@Nonnull Plotter plotter, float level) {
-		final Dimensions dimensions = new Dimensions();
-		dimensions.graph.multiplyBy(level);
-		plotter.setDimensions(dimensions);
-	}
-
 	public void zoom(boolean in) {
 		zoomer.zoom(in);
 	}
@@ -368,7 +362,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
-						updateDimensions(plotter, zoomer.getLevel());
+						plotter.updateDimensions(zoomer.getLevel());
 						startRotating();
 					} else {
 						// we must loop while zoom is zooming
@@ -408,7 +402,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			}
 			final Plotter plotter = getPlotter();
 			if (plotter != null) {
-				updateDimensions(plotter, zoomLevel);
+				plotter.updateDimensions(zoomLevel);
 			}
 		}
 

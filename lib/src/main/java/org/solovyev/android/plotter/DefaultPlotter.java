@@ -16,10 +16,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 final class DefaultPlotter implements Plotter {
 
 	@Nonnull
-	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create();
+	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraph.SWAPPER);
 
 	@Nonnull
-	private final DoubleBufferGroup<Mesh> otherMeshes = DoubleBufferGroup.create();
+	private final DoubleBufferGroup<Mesh> otherMeshes = DoubleBufferGroup.create(null);
 
 	@Nonnull
 	private final Group<Mesh> allMeshes = ListGroup.create(Arrays.<Mesh>asList(functionMeshes, otherMeshes));
@@ -129,20 +129,16 @@ final class DefaultPlotter implements Plotter {
 		for (PlotFunction function : plotData.functions) {
 			if (i < functionMeshes.size()) {
 				final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.get(i);
-				final FunctionGraph first = dbm.getFirst();
-				first.setFunction(function.function);
-				first.setColor(function.lineStyle.color);
-				first.setDimensions(dimensions);
-				final FunctionGraph second = dbm.getSecond();
-				second.setFunction(function.function);
-				second.setColor(function.lineStyle.color);
-				second.setDimensions(dimensions);
+				final FunctionGraph next = dbm.getNext();
+				next.setFunction(function.function);
+				next.setColor(function.lineStyle.color);
+				next.setDimensions(dimensions);
 			} else {
 				final FunctionGraph mesh = pool.obtain();
 				mesh.setFunction(function.function);
 				mesh.setColor(function.lineStyle.color);
 				mesh.setDimensions(dimensions);
-				functionMeshes.add(DoubleBufferMesh.wrap(mesh));
+				functionMeshes.add(DoubleBufferMesh.wrap(mesh, FunctionGraph.SWAPPER));
 			}
 			i++;
 		}
@@ -181,47 +177,72 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
-	public void attachView(@Nonnull PlottingView view) {
+	public void attachView(@Nonnull PlottingView newView) {
 		Check.isMainThread();
 		synchronized (lock) {
-			Check.same(emptyView, this.view);
-			this.view = view;
+			Check.same(emptyView, view);
+			view = newView;
 			if (emptyView.shouldRender) {
 				emptyView.shouldRender = false;
-				this.view.requestRender();
+				view.requestRender();
 			}
 
 			if (emptyView.shouldUpdateFunctions) {
 				emptyView.shouldUpdateFunctions = false;
-				this.view.post(dimensionsChangedRunnable);
+				dimensionsChangedRunnable.run();
 			}
 		}
 	}
 
 	@Override
-	public void detachView(@Nonnull PlottingView view) {
+	public void detachView(@Nonnull PlottingView oldView) {
 		Check.isMainThread();
 		synchronized (lock) {
-			Check.same(view, this.view);
+			Check.same(oldView, view);
 			emptyView.shouldRender = false;
 			emptyView.shouldUpdateFunctions = false;
-			this.view = emptyView;
+			view = emptyView;
 		}
 	}
 
 	@Override
 	public void setDimensions(@Nonnull Dimensions newDimensions) {
+		Check.isMainThread();
+		synchronized (lock) {
+			updateDimensions(newDimensions);
+			view.resetZoom();
+		}
+	}
+
+	private void updateDimensions(@Nonnull Dimensions newDimensions) {
+		Check.isAnyThread();
 		synchronized (lock) {
 			if (!dimensions.equals(newDimensions)) {
 				dimensions = newDimensions;
-				view.post(dimensionsChangedRunnable);
+				if (!Plot.isMainThread() || view == emptyView) {
+					view.post(dimensionsChangedRunnable);
+				} else {
+					dimensionsChangedRunnable.run();
+				}
+			}
+		}
+	}
+
+	@Override
+	public void updateDimensions(float zoom) {
+		synchronized (lock) {
+			if (dimensions.zoom != zoom) {
+				final Dimensions newDimensions = dimensions.copy();
+				newDimensions.graph.multiplyBy(zoom / newDimensions.zoom);
+				newDimensions.zoom = zoom;
+				updateDimensions(newDimensions);
 			}
 		}
 	}
 
 	@Nonnull
 	public Dimensions getDimensions() {
-		synchronized (dimensions) {
+		synchronized (lock) {
 			return dimensions;
 		}
 	}
@@ -263,8 +284,14 @@ final class DefaultPlotter implements Plotter {
 		}
 
 		@Override
+		public void resetZoom() {
+		}
+
+		@Override
 		public boolean post(@Nonnull Runnable runnable) {
-			shouldUpdateFunctions = dimensionsChangedRunnable == runnable;
+			if (!shouldUpdateFunctions) {
+				shouldUpdateFunctions = dimensionsChangedRunnable == runnable;
+			}
 			return true;
 		}
 	}
