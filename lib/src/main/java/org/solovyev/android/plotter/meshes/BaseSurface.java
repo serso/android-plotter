@@ -64,8 +64,10 @@ public abstract class BaseSurface extends BaseMesh {
 
 	public void setDimensions(@Nonnull Dimensions dimensions) {
 		// todo serso: might be called on GL thread, requires synchronization
-		this.dimensions = dimensions;
-		setDirty();
+		if (!this.dimensions.equals(dimensions)) {
+			this.dimensions = dimensions;
+			setDirty();
+		}
 	}
 
 	@Override

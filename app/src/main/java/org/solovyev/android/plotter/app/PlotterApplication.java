@@ -16,6 +16,9 @@ public class PlotterApplication extends Application {
 	@Nonnull
 	private final Plotter plotter = Plot.newPlotter();
 
+	@Nonnull
+	public static final String PARABOLOID = "x*x+y*y";
+
 	public PlotterApplication() {
 		instance = this;
 	}
@@ -31,12 +34,14 @@ public class PlotterApplication extends Application {
 			}
 		});
 		plotter.add(Function0.ZERO);
-		plotter.add(new Function2("x*x+y*y") {
+		final PlotFunction paraboloid = PlotFunction.create(new Function2(PARABOLOID) {
 			@Override
 			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
 		});
+		paraboloid.lineStyle.color = Color.RED.toInt();
+		plotter.add(paraboloid);
 		plotter.add(new Function1("x*x") {
 			@Override
 			public float evaluate(float x) {

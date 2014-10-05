@@ -120,7 +120,7 @@ final class DefaultPlotter implements Plotter {
 	private void ensureFunctionsSize() {
 		Check.isMainThread();
 
-		final Dimensions dimensions = getDimensions();
+		final Dimensions dimensions = getDimensions().copy();
 
 		// for each functions we should assign mesh
 		// if there are not enough meshes => create new
@@ -130,9 +130,11 @@ final class DefaultPlotter implements Plotter {
 			if (i < functionMeshes.size()) {
 				final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.get(i);
 				final FunctionGraph next = dbm.getNext();
+				final FunctionGraph current = dbm.getOther(next);
 				next.setFunction(function.function);
 				next.setColor(function.lineStyle.color);
 				next.setDimensions(dimensions);
+				current.setColor(function.lineStyle.color);
 			} else {
 				final FunctionGraph mesh = pool.obtain();
 				mesh.setFunction(function.function);
@@ -171,9 +173,22 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
+	public void update(@Nonnull PlotFunction function) {
+		plotData.update(function.copy());
+		onFunctionsChanged();
+	}
+
+	@Override
 	public void clearFunctions() {
 		plotData.functions.clear();
 		onFunctionsChanged();
+	}
+
+	@Override
+	@Nonnull
+	public PlotData getPlotData() {
+		Check.isMainThread();
+		return plotData.copy();
 	}
 
 	@Override

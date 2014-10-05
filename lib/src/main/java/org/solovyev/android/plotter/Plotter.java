@@ -22,8 +22,14 @@ public interface Plotter {
 	void add(@Nonnull PlotFunction function);
 	void clearFunctions();
 
+	void update(@Nonnull PlotFunction function);
+
+
 	void initGl(@Nonnull GL11 gl, boolean firstTime);
 	void draw(@Nonnull GL11 gl);
+
+	@Nonnull
+	PlotData getPlotData();
 
 	void attachView(@Nonnull PlottingView view);
 	void detachView(@Nonnull PlottingView view);

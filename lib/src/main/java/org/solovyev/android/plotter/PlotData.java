@@ -22,11 +22,14 @@
 
 package org.solovyev.android.plotter;
 
+import android.text.TextUtils;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-final class PlotData {
+public final class PlotData {
 
 	@Nonnull
 	public AxisStyle axisStyle = AxisStyle.create();
@@ -63,7 +66,7 @@ final class PlotData {
 		}
 	}
 
-	private boolean update(@Nonnull PlotFunction function) {
+	boolean update(@Nonnull PlotFunction function) {
 		Check.isMainThread();
 		for (int i = 0; i < functions.size(); i++) {
 			final PlotFunction oldFunction = functions.get(i);
@@ -77,5 +80,15 @@ final class PlotData {
 
 	public void add(@Nonnull Function function) {
 		add(PlotFunction.create(function));
+	}
+
+	@Nullable
+	public PlotFunction get(@Nonnull String name) {
+		for (PlotFunction function : functions) {
+			if (TextUtils.equals(function.function.getName(), name)) {
+				return function;
+			}
+		}
+		return null;
 	}
 }

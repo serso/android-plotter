@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
-import org.solovyev.android.plotter.PlotView;
+import org.solovyev.android.plotter.*;
 
 import javax.annotation.Nonnull;
 
@@ -13,13 +13,34 @@ public class MainActivity extends Activity {
 	@Nonnull
 	private PlotView plotView;
 
+	@Nonnull
+	private final Plotter plotter = PlotterApplication.get().getPlotter();
+
+	@Nonnull
+	private final Runnable colorUpdater = new Runnable() {
+		private int direction = -1;
+		@Override
+		public void run() {
+			final PlotData plotData = plotter.getPlotData();
+			final PlotFunction function = plotData.get(PlotterApplication.PARABOLOID);
+			Check.isNotNull(function);
+			final Color color = Color.create(function.lineStyle.color);
+			if (color.equals(Color.BLACK) || color.equals(Color.RED)) {
+				direction = -direction;
+			}
+			function.lineStyle.color = color.add(direction * 0.01f, 0, 0).toInt();
+			plotter.update(function);
+			plotView.postDelayed(this, 100L);
+		}
+	};
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.main);
 		plotView = (PlotView) findViewById(R.id.plotview);
-		plotView.setPlotter(PlotterApplication.get().getPlotter());
+		plotView.setPlotter(plotter);
 
 		final View zoomOutButton = findViewById(R.id.zoom_out_button);
 		zoomOutButton.setOnClickListener(new View.OnClickListener() {
@@ -42,6 +63,8 @@ public class MainActivity extends Activity {
 				plotView.zoom(true);
 			}
 		});
+
+		plotView.post(colorUpdater);
 	}
 
 	@Override

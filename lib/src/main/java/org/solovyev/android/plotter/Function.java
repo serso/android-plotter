@@ -15,6 +15,11 @@ public abstract class Function implements SuperFunction {
 		this.name = name;
 	}
 
+	@Nullable
+	public String getName() {
+		return name;
+	}
+
 	@Override
 	public String toString() {
 		return name != null ? name : super.toString();

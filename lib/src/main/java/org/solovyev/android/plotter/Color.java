@@ -22,18 +22,28 @@ public final class Color {
 	public final float blue;
 	public final float alpha;
 
-	public Color(float red, float green, float blue, float alpha) {
+	private Color(float red, float green, float blue, float alpha) {
 		this.red = red;
 		this.green = green;
 		this.blue = blue;
 		this.alpha = alpha;
 	}
 
-	public Color(int color) {
+	private Color(int color) {
 		this.red = red(color);
 		this.green = green(color);
 		this.blue = blue(color);
 		this.alpha = alpha(color);
+	}
+
+	@Nonnull
+	public static Color create(int color) {
+		return new Color(color);
+	}
+
+	@Nonnull
+	public static Color create(float red, float green, float blue, float alpha) {
+		return new Color(red, green, blue, alpha);
 	}
 
 	static float red(int color) {
@@ -50,6 +60,22 @@ public final class Color {
 
 	static float alpha(int color) {
 		return android.graphics.Color.alpha(color) / 255f;
+	}
+
+	private static int red(float red) {
+		return ((int) (red * 255f)) << 16;
+	}
+
+	private static int green(float green) {
+		return ((int) (green * 255f)) << 8;
+	}
+
+	private static int blue(float blue) {
+		return ((int) (blue * 255f));
+	}
+
+	private static int alpha(float alpha) {
+		return ((int) (alpha * 255f)) << 24;
 	}
 
 	public static void fillVertex(@Nonnull float[] colors, int vertex, @Nonnull Color color) {
@@ -88,5 +114,50 @@ public final class Color {
 	@Nonnull
 	public Color transparentCopy(float alpha) {
 		return new Color(red, green, blue, alpha);
+	}
+
+	public int toInt() {
+		return red(red) | green(green) | blue(blue) | alpha(alpha);
+	}
+
+	@Nonnull
+	public Color add(float value) {
+		return add(value, value, value);
+	}
+
+	@Nonnull
+	public Color add(float red, float green, float blue) {
+		return Color.create(add(this.red, red), add(this.green, green), add(this.blue, blue), alpha);
+	}
+
+	private float add(float color, float value) {
+		final float result = color + value;
+		if (result > 1f) return 1f;
+		if (result < 0f) return 0f;
+		else return result;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Color color = (Color) o;
+
+		if (Float.compare(color.alpha, alpha) != 0) return false;
+		if (Float.compare(color.blue, blue) != 0) return false;
+		if (Float.compare(color.green, green) != 0) return false;
+		if (Float.compare(color.red, red) != 0) return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = (red != +0.0f ? Float.floatToIntBits(red) : 0);
+		result = 31 * result + (green != +0.0f ? Float.floatToIntBits(green) : 0);
+		result = 31 * result + (blue != +0.0f ? Float.floatToIntBits(blue) : 0);
+		result = 31 * result + (alpha != +0.0f ? Float.floatToIntBits(alpha) : 0);
+		return result;
 	}
 }

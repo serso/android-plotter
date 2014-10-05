@@ -60,6 +60,11 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	@Nonnull
+	Color getColor() {
+		return color;
+	}
+
+	@Nonnull
 	public final State getState() {
 		return state.get();
 	}
@@ -260,11 +265,10 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	public final void setColor(int color) {
-		setColor(new Color(color));
+		setColor(Color.create(color));
 	}
 
 	public final void setColor(@Nonnull Color color) {
-		// todo serso: we must call setDirty here if the color has changed
 		// todo serso: we must null colors here and call setDirty if they were not null
 		this.color = color;
 	}
@@ -336,6 +340,13 @@ public abstract class BaseMesh implements Mesh {
 					return true;
 				}
 			}
+		}
+	}
+
+	static class Swapper<M extends BaseMesh> implements DoubleBufferMesh.Swapper<M> {
+		@Override
+		public void swap(@Nonnull M current, @Nonnull M next) {
+			next.setColor(((BaseMesh) current).color);
 		}
 	}
 }

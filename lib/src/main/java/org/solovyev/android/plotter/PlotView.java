@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
@@ -46,7 +47,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	private static PlotRenderer initGl(@Nonnull PlotView view) {
 		view.setEGLConfigChooser(new MultisampleConfigChooser());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			view.setPreserveEGLContextOnPause(true);
+			preserveEglContextOnPause(view);
 		}
 
 		final PlotRenderer renderer = new PlotRenderer(view);
@@ -54,6 +55,11 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 		view.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		return renderer;
+	}
+
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	private static void preserveEglContextOnPause(@Nonnull PlotView view) {
+		view.setPreserveEGLContextOnPause(true);
 	}
 
 	@Override

@@ -55,7 +55,7 @@ public class FunctionGraph extends BaseSurface {
 
 	public void setFunction(@Nonnull Function function) {
 		// todo serso: might be called on GL thread, requires synchronization
-		if (this.function != function) {
+		if (!this.function.equals(function)) {
 			this.function = function;
 			setDirty();
 		}
@@ -67,9 +67,10 @@ public class FunctionGraph extends BaseSurface {
 		return new FunctionGraph(dimensions.graph.width, dimensions.graph.height, widthVertices, heightVertices, function);
 	}
 
-	private static class Swapper implements DoubleBufferMesh.Swapper<FunctionGraph> {
+	private static class Swapper extends BaseMesh.Swapper<FunctionGraph> {
 		@Override
 		public void swap(@Nonnull FunctionGraph current, @Nonnull FunctionGraph next) {
+			super.swap(current, next);
 			next.setFunction(current.function);
 			next.setDimensions(current.dimensions);
 		}
