@@ -120,7 +120,7 @@ final class DefaultPlotter implements Plotter {
 	private void ensureFunctionsSize() {
 		Check.isMainThread();
 
-		final Dimensions dimensions = getDimensions().copy();
+		final Dimensions dimensions = getDimensions();
 
 		// for each functions we should assign mesh
 		// if there are not enough meshes => create new
@@ -255,10 +255,11 @@ final class DefaultPlotter implements Plotter {
 		}
 	}
 
+	@Override
 	@Nonnull
 	public Dimensions getDimensions() {
 		synchronized (lock) {
-			return dimensions;
+			return dimensions.copy();
 		}
 	}
 

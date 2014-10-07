@@ -40,7 +40,7 @@ final class PinchZoomTracker {
 			}
 		}
 
-		current.check();
+		current.adjust();
 		return current;
 	}
 

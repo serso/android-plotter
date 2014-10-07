@@ -155,8 +155,12 @@ public final class Dimensions {
 		public float height = GRAPH_SIZE;
 
 		public void multiplyBy(float value) {
-			width *= value;
-			height *= value;
+			multiplyBy(value, value);
+		}
+
+		public void multiplyBy(float w, float h) {
+			width *= w;
+			height *= h;
 		}
 
 		@Override

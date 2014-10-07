@@ -197,8 +197,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		//setDirty();
 	}
 
-	public void setRotation(float angleX, float angleY) {
-		rotation.setRotation(angleX, angleY);
+	public void rotate(float dx, float dy) {
+		rotation.setRotationSpeed(dx, dy);
+	}
+
+	public void setRotationSpeed(float speedX, float speedY) {
+		rotation.setRotationSpeed(speedX, speedY);
 	}
 
 	public void stopRotating() {
@@ -325,7 +329,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 
-		void setRotation(float angleX, float angleY) {
+		void setRotationSpeed(float angleX, float angleY) {
 			synchronized (rotation) {
 				rotation.speed.x = angleX;
 				rotation.speed.y = angleY;
@@ -444,13 +448,27 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		public void zoomBy(@Nonnull ZoomLevels levels) {
-			final float level = levels.getLevel();
+			if(!levels.isChanged()) {
+				return;
+			}
 
-			synchronized (zoomer) {
-				if (zoomer.zoomBy(level)) {
-					view.requestRender();
+			//if (levels.x != 1f && levels.y != 1f) {
+			if (true) {
+				final float level = levels.getLevel();
+
+				synchronized (zoomer) {
+					if (zoomer.zoomBy(level)) {
+						view.requestRender();
+					}
+					Log.d(TAG, "Zooming by level=" + levels + ". " + zoomer);
 				}
-				Log.d(TAG, "Zooming by level=" + levels + ". " + zoomer);
+			} else {
+				final Plotter plotter = getPlotter();
+				if (plotter != null) {
+					final Dimensions dimensions = plotter.getDimensions();
+					dimensions.graph.multiplyBy(levels.x, levels.y);
+					plotter.setDimensions(dimensions);
+				}
 			}
 		}
 

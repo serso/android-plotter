@@ -129,6 +129,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 		@Nonnull
 		private final PointF lastTouch = new PointF();
+		private boolean lastTouchMoved;
 
 		private long lastZoomTime = 0;
 
@@ -144,6 +145,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			renderer.stopRotating();
 			lastTouch.x = x;
 			lastTouch.y = y;
+			lastTouchMoved = false;
 		}
 
 		@Override
@@ -153,11 +155,16 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			}
 			final float dx = x - lastTouch.x;
 			final float dy = y - lastTouch.y;
-			if (dx > 1f || dx < -1f || dy > 1f || dy < -1f) {
-				renderer.setRotation(dy, dx);
+			lastTouchMoved = moreThanEps(dx, dy, 3f);
+			if (moreThanEps(dx, dy, 1f)) {
+				renderer.rotate(dy, dx);
 				lastTouch.x = x;
 				lastTouch.y = y;
 			}
+		}
+
+		private boolean moreThanEps(float dx, float dy, float eps) {
+			return dx > eps || dx < -eps || dy > eps || dy < -eps;
 		}
 
 		@Override
@@ -165,9 +172,18 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			if (isZooming()) {
 				return;
 			}
-			final float vx = handler.getXVelocity();
-			final float vy = handler.getYVelocity();
-			renderer.setRotation(vy / 100f, vx / 100f);
+
+			final float vx;
+			final float vy;
+			if (lastTouchMoved) {
+				vx = handler.getXVelocity() / 100f;
+				vy = handler.getYVelocity() / 100f;
+			} else {
+				vx = 0;
+				vy = 0;
+			}
+
+			renderer.setRotationSpeed(vy, vx);
 			renderer.startRotating();
 		}
 
