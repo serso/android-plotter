@@ -6,7 +6,7 @@
 #*********************************************************************
 #
 -assumenosideeffects class org.solovyev.android.plotter.Check {
-    static **(...);
+    static void *(...);
 }
 
 
