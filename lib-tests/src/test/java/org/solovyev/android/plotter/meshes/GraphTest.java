@@ -83,7 +83,7 @@ public class GraphTest {
 			graph.append(i, i);
 		}
 
-		for (int i = 11; i < 1000; i++) {
+		for (int i = 10; i < 1000; i++) {
 			graph.prepend(-i, -i);
 		}
 
