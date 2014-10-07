@@ -242,12 +242,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		zoomer.reset();
 	}
 
-	public void zoomBy(float level) {
+	public void zoomBy(@Nonnull ZoomLevels level) {
 		zoomer.zoomBy(level);
-	}
-
-	public void zoomBy(float x, float y) {
-		zoomer.zoomBy(x, y);
 	}
 
 	public void setPinchZoom(boolean pinchZoom) {
@@ -447,21 +443,15 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 
-		public void zoomBy(float level) {
+		public void zoomBy(@Nonnull ZoomLevels levels) {
+			final float level = levels.getLevel();
+
 			synchronized (zoomer) {
 				if (zoomer.zoomBy(level)) {
 					view.requestRender();
 				}
-				Log.d(TAG, "Zooming by level=" + level + ". " + zoomer);
+				Log.d(TAG, "Zooming by level=" + levels + ". " + zoomer);
 			}
-		}
-
-		public void zoomBy(float x, float y) {
-			/*synchronized (zoomer) {
-				if (zoomer.zoomBy(level)) {
-					view.requestRender();
-				}
-			}*/
 		}
 
 		public void setPinchZoom(boolean pinchZoom) {

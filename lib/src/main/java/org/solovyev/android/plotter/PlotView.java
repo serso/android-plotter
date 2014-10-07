@@ -190,11 +190,10 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		@Override
 		public void onTouchZoomMove(float x1, float y1, float x2, float y2) {
 			setZooming(true);
-			final PointF levels = zoomTracker.update(x1, y1, x2, y2);
-			if (levels.x != 1f || levels.y != 1f) {
+			final ZoomLevels levels = zoomTracker.update(x1, y1, x2, y2);
+			if (levels.isChanged()) {
 				zoomTracker.reset(x1, y1, x2, y2);
-				renderer.zoomBy(levels.x > 1f ? Math.max(levels.x, levels.y) : Math.min(levels.x, levels.y));
-				//renderer.zoomBy(levels.x, levels.y);
+				renderer.zoomBy(levels);
 			}
 		}
 

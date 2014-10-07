@@ -14,7 +14,7 @@ final class PinchZoomTracker {
 	private final PointF distance = new PointF();
 
 	@Nonnull
-	private final PointF current = new PointF();
+	private final ZoomLevels current = new ZoomLevels();
 
 	void reset(float x1, float y1,
 			   float x2, float y2) {
@@ -23,29 +23,24 @@ final class PinchZoomTracker {
 	}
 
 	@Nonnull
-	PointF update(float x1, float y1, float x2, float y2) {
-		current.x = 1f;
-		current.y = 1f;
+	ZoomLevels update(float x1, float y1, float x2, float y2) {
+		current.reset();
 
 		if (distance.x > MIN_DISTANCE) {
-			final float d = distance(x1, x2);
-			if (d > EPS) {
-				current.x = distance.x / d;
+			final float dx = distance(x1, x2);
+			if (dx > EPS) {
+				current.x = distance.x / dx;
 			}
 		}
 
 		if (distance.y > MIN_DISTANCE) {
-			final float d = distance(y1, y2);
-			if (d > EPS) {
-				current.y = distance.y / d;
+			final float dy = distance(y1, y2);
+			if (dy > EPS) {
+				current.y = distance.y / dy;
 			}
 		}
 
-		if ((current.x > 1f && current.y < 1f) || (current.y > 1f && current.x < 1f)) {
-			current.x = 1f;
-			current.y = 1f;
-		}
-
+		current.check();
 		return current;
 	}
 
