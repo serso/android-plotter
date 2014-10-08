@@ -68,7 +68,7 @@ public abstract class BaseCurve extends BaseMesh {
 	@Override
 	protected void onPostDraw(@Nonnull GL11 gl) {
 		super.onPostDraw(gl);
-		gl.glDrawArrays(GL10.GL_LINES, 0, verticesBuffer.capacity());
+		gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, verticesBuffer.capacity());
 	}
 
 	void fillGraph(@Nonnull Graph graph) {
@@ -117,18 +117,27 @@ public abstract class BaseCurve extends BaseMesh {
 	void compute(float newXMin,
 				 float newXMax,
 				 @Nonnull Graph graph) {
-		final float xMin = graph.xMin();
-		final float xMax = graph.xMax();
+		float x;
+
+		final float xMin;
+		final float xMax;
+		if (!graph.isEmpty()) {
+			xMin = graph.xMin();
+			xMax = graph.xMax();
+		} else {
+			xMin = newXMin;
+			xMax = newXMin;
+		}
 
 		final float step = (newXMax - newXMin) / 10f;
 
-		float x = xMin - step;
+		x = graph.isEmpty() ? xMin : xMin - step;
 		while (x > newXMin) {
 			graph.prepend(x, y(x));
 			x -= step;
 		}
 
-		x = xMax + step;
+		x = graph.isEmpty() ? xMax : xMax + step;
 		while (x < newXMax) {
 			graph.append(x, y(x));
 			x += step;

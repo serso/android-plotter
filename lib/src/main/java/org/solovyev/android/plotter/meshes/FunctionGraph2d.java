@@ -60,15 +60,6 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 		return create(dimensions.graph.width, dimensions.graph.height, function);
 	}
 
-	private static class Swapper extends BaseMesh.Swapper<FunctionGraph2d> {
-		@Override
-		public void swap(@Nonnull FunctionGraph2d current, @Nonnull FunctionGraph2d next) {
-			super.swap(current, next);
-			next.setFunction(current.function);
-			next.setDimensions(current.dimensions);
-		}
-	}
-
 	@Override
 	public String toString() {
 		return function.toString();

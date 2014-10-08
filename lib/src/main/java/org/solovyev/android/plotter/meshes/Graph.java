@@ -127,6 +127,4 @@ class Graph {
 	public float xMax() {
 		return vertices[end - 3];
 	}
-
-
 }
