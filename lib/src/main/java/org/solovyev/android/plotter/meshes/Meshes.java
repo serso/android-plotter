@@ -32,29 +32,34 @@ public final class Meshes {
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(array.length * BYTES_IN_FLOAT);
 		buffer.order(ByteOrder.nativeOrder());
 		final FloatBuffer floatBuffer = buffer.asFloatBuffer();
-		return putBuffer(array, floatBuffer);
+		return putBuffer(array, 0, array.length, floatBuffer);
 	}
 
 	@Nonnull
-	public static FloatBuffer putBuffer(float[] array, @Nonnull FloatBuffer to) {
+	public static FloatBuffer putBuffer(float[] array, int start, int length, @Nonnull FloatBuffer to) {
 		if (to.capacity() != array.length) {
 			throw new IllegalArgumentException("Arrays should have save size");
 		}
 		to.position(0);
-		to.put(array);
+		to.put(array, start, length);
 		to.position(0);
 		return to;
 	}
 
 	@Nonnull
-	static FloatBuffer allocateOrPutBuffer(@Nonnull float[] indices, @Nullable FloatBuffer buffer) {
+	static FloatBuffer allocateOrPutBuffer(@Nonnull float[] indices, int start, int length, @Nullable FloatBuffer buffer) {
 		FloatBuffer newBuffer;
-		if (buffer != null && buffer.capacity() == indices.length) {
-			newBuffer = putBuffer(indices, buffer);
+		if (buffer != null && buffer.capacity() == length) {
+			newBuffer = putBuffer(indices, start, length, buffer);
 		} else {
 			newBuffer = allocateBuffer(indices);
 		}
 		return newBuffer;
+	}
+
+	@Nonnull
+	static FloatBuffer allocateOrPutBuffer(@Nonnull float[] indices, @Nullable FloatBuffer buffer) {
+		return allocateOrPutBuffer(indices, 0, indices.length, buffer);
 	}
 
 	@Nonnull

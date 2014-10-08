@@ -2,7 +2,7 @@ package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.Function0;
 
-public class WireFramePlane extends FunctionGraph {
+public class WireFramePlane extends FunctionGraph3d {
 
 	public WireFramePlane() {
 		this(1, 1, 2, 2);

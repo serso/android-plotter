@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 final class DefaultPlotter implements Plotter {
 
 	@Nonnull
-	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraph.SWAPPER);
+	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraphSwapper.INSTANCE);
 
 	@Nonnull
 	private final DoubleBufferGroup<Mesh> otherMeshes = DoubleBufferGroup.create(null);
@@ -29,7 +29,11 @@ final class DefaultPlotter implements Plotter {
 		@Nonnull
 		@Override
 		public FunctionGraph create() {
-			return FunctionGraph.create(5, 5, 30, 30, Function0.ZERO);
+			if (d3) {
+				return FunctionGraph3d.create(5, 5, 30, 30, Function0.ZERO);
+			} else {
+				return FunctionGraph2d.create(5, 5, Function0.ZERO);
+			}
 		}
 
 		@Override
@@ -73,6 +77,9 @@ final class DefaultPlotter implements Plotter {
 	@GuardedBy("lock")
 	@Nonnull
 	private Dimensions dimensions = new Dimensions();
+
+	@GuardedBy("lock")
+	private boolean d3 = false;
 
 	@Nonnull
 	private final Runnable dimensionsChangedRunnable = new Runnable() {
@@ -127,20 +134,21 @@ final class DefaultPlotter implements Plotter {
 		// if there are too many meshes => release them
 		int i = 0;
 		for (PlotFunction function : plotData.functions) {
+			final Color lineColor = Color.create(function.lineStyle.color);
 			if (i < functionMeshes.size()) {
 				final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.get(i);
 				final FunctionGraph next = dbm.getNext();
 				final FunctionGraph current = dbm.getOther(next);
 				next.setFunction(function.function);
-				next.setColor(function.lineStyle.color);
+				next.setColor(lineColor);
 				next.setDimensions(dimensions);
-				current.setColor(function.lineStyle.color);
+				current.setColor(lineColor);
 			} else {
 				final FunctionGraph mesh = pool.obtain();
 				mesh.setFunction(function.function);
-				mesh.setColor(function.lineStyle.color);
+				mesh.setColor(lineColor);
 				mesh.setDimensions(dimensions);
-				functionMeshes.add(DoubleBufferMesh.wrap(mesh, FunctionGraph.SWAPPER));
+				functionMeshes.add(DoubleBufferMesh.wrap(mesh, FunctionGraphSwapper.INSTANCE));
 			}
 			i++;
 		}
@@ -261,6 +269,22 @@ final class DefaultPlotter implements Plotter {
 		synchronized (lock) {
 			return dimensions.copy();
 		}
+	}
+
+	public boolean is3d() {
+		synchronized (lock) {
+			return d3;
+		}
+	}
+
+	public boolean is2d() {
+		synchronized (lock) {
+			return d3;
+		}
+	}
+
+	public void set3d(boolean d3) {
+		this.d3 = d3;
 	}
 
 	@Nonnull

@@ -60,7 +60,7 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	@Nonnull
-	Color getColor() {
+	public Color getColor() {
 		return color;
 	}
 
@@ -168,15 +168,19 @@ public abstract class BaseMesh implements Mesh {
 				gl.glColorPointer(Color.COMPONENTS, GL10.GL_FLOAT, 0, 0);
 			}
 
-			gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, indicesVbo);
-			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, 0);
-			gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, 0);
+			if (indicesCount > 0) {
+				gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, indicesVbo);
+				gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, 0);
+				gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, 0);
+			}
 		} else {
 			gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertices);
 			if (hasColors) {
 				gl.glColorPointer(Color.COMPONENTS, GL10.GL_FLOAT, 0, colors);
 			}
-			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, indices);
+			if (indicesCount > 0) {
+				gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, indices);
+			}
 		}
 		onPostDraw(gl);
 

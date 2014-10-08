@@ -10,7 +10,7 @@ class Graph {
 	int capacity = 4 * 3;
 	float[] vertices = new float[capacity];
 
-	Graph() {
+	private Graph() {
 	}
 
 	@Nonnull
@@ -125,7 +125,7 @@ class Graph {
 	}
 
 	public float xMax() {
-		return vertices[end];
+		return vertices[end - 3];
 	}
 
 

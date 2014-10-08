@@ -2,24 +2,23 @@ package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
-import org.solovyev.android.plotter.Function;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
+import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 public abstract class BaseCurve extends BaseMesh {
 
 	@Nonnull
 	protected volatile Dimensions dimensions;
-	private final float[] vertices;
-	private final short[] indices;
 
 	// create on the background thread and accessed from GL thread
 	private volatile FloatBuffer verticesBuffer;
-	private volatile ShortBuffer indicesBuffer;
+
+	@Nonnull
+	private final Graph graph = Graph.create();
 
 	protected BaseCurve(float width, float height) {
 		this(makeDimensions(width, height));
@@ -34,8 +33,6 @@ public abstract class BaseCurve extends BaseMesh {
 
 	protected BaseCurve(@Nonnull Dimensions dimensions) {
 		this.dimensions = dimensions;
-		this.vertices = new float[0];
-		this.indices = new short[0];
 	}
 
 	public void setDimensions(@Nonnull Dimensions dimensions) {
@@ -46,13 +43,17 @@ public abstract class BaseCurve extends BaseMesh {
 		}
 	}
 
+	@Nonnull
+	public Dimensions getDimensions() {
+		return dimensions;
+	}
+
 	@Override
 	public void onInit() {
 		super.onInit();
 
-		fillArrays(vertices, indices);
-		verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
-		indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+		fillGraph(graph);
+		verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
 	}
 
 	@Override
@@ -60,19 +61,17 @@ public abstract class BaseCurve extends BaseMesh {
 		super.onInitGl(gl, config);
 
 		Check.isNotNull(verticesBuffer);
-		Check.isNotNull(indicesBuffer);
 
 		setVertices(verticesBuffer);
-		setIndices(indicesBuffer, IndicesOrder.LINES);
 	}
 
-	void fillArrays(@Nonnull float[] vertices, @Nonnull short[] indices) {
-
+	@Override
+	protected void onPostDraw(@Nonnull GL11 gl) {
+		super.onPostDraw(gl);
+		gl.glDrawArrays(GL10.GL_LINES, 0, verticesBuffer.capacity());
 	}
 
-	protected abstract float z(float x, float y, int xi, int yi);
-
-	void compute(@Nonnull Function f, @Nonnull Graph graph) {
+	void fillGraph(@Nonnull Graph graph) {
 		final float newXMin = dimensions.getXMin();
 		final float newXMax = newXMin + dimensions.graph.width;
 
@@ -110,27 +109,28 @@ public abstract class BaseCurve extends BaseMesh {
 			}
 		}
 
-		compute(f, newXMin, newXMax, graph);
+		compute(newXMin, newXMax, graph);
 	}
 
-	void compute(@Nonnull Function f,
-				 float newXMin,
+	protected abstract float y(float x);
+
+	void compute(float newXMin,
 				 float newXMax,
 				 @Nonnull Graph graph) {
 		final float xMin = graph.xMin();
 		final float xMax = graph.xMax();
 
-		final float step = (newXMax - newXMin) / 100f;
+		final float step = (newXMax - newXMin) / 10f;
 
 		float x = xMin - step;
 		while (x > newXMin) {
-			graph.prepend(x, f.evaluate(x));
+			graph.prepend(x, y(x));
 			x -= step;
 		}
 
 		x = xMax + step;
 		while (x < newXMax) {
-			graph.append(x, f.evaluate(x));
+			graph.append(x, y(x));
 			x += step;
 		}
 	}

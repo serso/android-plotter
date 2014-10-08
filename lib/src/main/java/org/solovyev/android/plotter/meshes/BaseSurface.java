@@ -54,6 +54,11 @@ public abstract class BaseSurface extends BaseMesh {
 		return dimensions;
 	}
 
+	@Nonnull
+	public Dimensions getDimensions() {
+		return dimensions;
+	}
+
 	protected BaseSurface(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices) {
 		this.dimensions = dimensions;
 		this.widthVertices = widthVertices;
