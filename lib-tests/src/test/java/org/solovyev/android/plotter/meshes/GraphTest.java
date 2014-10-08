@@ -12,11 +12,11 @@ import javax.annotation.Nonnull;
 public class GraphTest {
 
 	@Nonnull
-	private BaseCurve.Graph graph;
+	private Graph graph;
 
 	@Before
 	public void setUp() throws Exception {
-		graph = BaseCurve.Graph.create();
+		graph = Graph.create();
 		graph.append(1, 1);
 		graph.append(2, 2);
 		graph.append(3, 3);
@@ -99,7 +99,7 @@ public class GraphTest {
 		verify(graph, expected);
 	}
 
-	private void verify(@Nonnull BaseCurve.Graph graph, float... values) {
+	private void verify(@Nonnull Graph graph, float... values) {
 		Assert.assertEquals(3 * values.length, graph.length());
 		for (int i = 0; i < values.length; i++) {
 			final int v = graph.start + 3 * i;
