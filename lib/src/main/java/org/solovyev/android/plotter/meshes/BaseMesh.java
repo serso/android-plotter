@@ -175,6 +175,7 @@ public abstract class BaseMesh implements Mesh {
 			}
 		} else {
 			gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertices);
+
 			if (hasColors) {
 				gl.glColorPointer(Color.COMPONENTS, GL10.GL_FLOAT, 0, colors);
 			}

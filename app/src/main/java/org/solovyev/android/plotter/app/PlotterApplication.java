@@ -27,13 +27,13 @@ public class PlotterApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		plotter.add(new Function2("sin(x)+sin(y)-2") {
+		/*plotter.add(new Function2("sin(x)+sin(y)-2") {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.sin(y)) - 2f;
 			}
 		});
-		plotter.add(Function0.ZERO);
+		plotter.add(Function0.ZERO);*/
 		final PlotFunction paraboloid = PlotFunction.create(new Function2(PARABOLOID) {
 			@Override
 			public float evaluate(float x, float y) {
@@ -42,12 +42,14 @@ public class PlotterApplication extends Application {
 		});
 		paraboloid.lineStyle.color = Color.RED.toInt();
 		plotter.add(paraboloid);
+/*
 		plotter.add(new Function1("x*x") {
 			@Override
 			public float evaluate(float x) {
 				return x * x;
 			}
 		});
+*/
 
 		final int size = Dimensions.GRAPH_SIZE;
 		plotter.add(Arrays.<Mesh>asList(new WireFrameCube(size, size, size)));
