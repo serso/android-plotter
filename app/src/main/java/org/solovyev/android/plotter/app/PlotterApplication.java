@@ -34,22 +34,20 @@ public class PlotterApplication extends Application {
 			}
 		});
 		plotter.add(Function0.ZERO);*/
-		final PlotFunction paraboloid = PlotFunction.create(new Function2(PARABOLOID) {
+		/*final PlotFunction paraboloid = PlotFunction.create(new Function2(PARABOLOID) {
 			@Override
 			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
 		});
 		paraboloid.lineStyle.color = Color.RED.toInt();
-		plotter.add(paraboloid);
-/*
+		plotter.add(paraboloid);*/
 		plotter.add(new Function1("x*x") {
 			@Override
 			public float evaluate(float x) {
 				return x * x;
 			}
 		});
-*/
 
 		final int size = Dimensions.GRAPH_SIZE;
 		plotter.add(Arrays.<Mesh>asList(new WireFrameCube(size, size, size)));

@@ -111,7 +111,7 @@ class Graph {
 	}
 
 	public void moveEndTo(float x) {
-		while (start < end && vertices[end] > x) {
+		while (start < end && vertices[end - 3] > x) {
 			end -= 3;
 		}
 

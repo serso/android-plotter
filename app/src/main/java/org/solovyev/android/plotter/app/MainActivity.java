@@ -23,7 +23,9 @@ public class MainActivity extends Activity {
 		public void run() {
 			final PlotData plotData = plotter.getPlotData();
 			final PlotFunction function = plotData.get(PlotterApplication.PARABOLOID);
-			Check.isNotNull(function);
+			if(function == null) {
+				return;
+			}
 			final Color color = Color.create(function.lineStyle.color);
 			if (color.equals(Color.BLACK) || color.equals(Color.RED)) {
 				direction = -direction;
