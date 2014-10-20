@@ -35,6 +35,12 @@
 			a:layout_width="wrap_content"
 			a:layout_height="wrap_content"
 			a:text="+"/>
+
+		<Button
+			a:id="@+id/plot_mode_button"
+			a:layout_width="wrap_content"
+			a:layout_height="wrap_content"
+			a:text="2D/3D"/>
 	</LinearLayout>
 
 </LinearLayout>

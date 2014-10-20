@@ -65,6 +65,14 @@ public class MainActivity extends Activity {
 				plotView.zoom(true);
 			}
 		});
+		final View plotModeButton = findViewById(R.id.plot_mode_button);
+		plotModeButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				plotter.set3d(!plotter.is3d());
+			}
+		});
+
 
 		plotView.post(colorUpdater);
 	}

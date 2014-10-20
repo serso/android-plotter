@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.microedition.khronos.opengles.GL11;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @ThreadSafe
@@ -105,5 +106,10 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
 	@Nonnull
 	public M remove(int i) {
 		return list.remove(i);
+	}
+
+	@Override
+	public Iterator<M> iterator() {
+		return list.iterator();
 	}
 }

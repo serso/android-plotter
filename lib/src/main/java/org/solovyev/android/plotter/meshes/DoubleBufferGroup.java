@@ -5,6 +5,7 @@ import org.solovyev.android.plotter.MeshConfig;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL11;
+import java.util.Iterator;
 
 public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBufferMesh<M>> {
 
@@ -78,5 +79,10 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
 	@Override
 	public boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		return group.initGl(gl, config);
+	}
+
+	@Override
+	public Iterator<DoubleBufferMesh<M>> iterator() {
+		return group.iterator();
 	}
 }

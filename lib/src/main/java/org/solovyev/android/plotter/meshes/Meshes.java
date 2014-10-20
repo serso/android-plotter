@@ -63,36 +63,41 @@ public final class Meshes {
 	}
 
 	@Nonnull
-	static FloatBuffer allocateOrPutBuffer(@Nonnull float[] indices, @Nullable FloatBuffer buffer) {
-		return allocateOrPutBuffer(indices, 0, indices.length, buffer);
+	static FloatBuffer allocateOrPutBuffer(@Nonnull float[] array, @Nullable FloatBuffer buffer) {
+		return allocateOrPutBuffer(array, 0, array.length, buffer);
 	}
 
 	@Nonnull
-	public static ShortBuffer allocateBuffer(short[] array) {
-		final ByteBuffer buffer = ByteBuffer.allocateDirect(array.length * BYTES_IN_SHORT);
+	public static ShortBuffer allocateBuffer(short[] array, int start, int length) {
+		final ByteBuffer buffer = ByteBuffer.allocateDirect(length * BYTES_IN_SHORT);
 		buffer.order(ByteOrder.nativeOrder());
 		final ShortBuffer shortBuffer = buffer.asShortBuffer();
-		return putBuffer(array, shortBuffer);
+		return putBuffer(array, start, length, shortBuffer);
 	}
 
 	@Nonnull
-	public static ShortBuffer putBuffer(short[] array, @Nonnull ShortBuffer to) {
-		if (to.capacity() != array.length) {
+	public static ShortBuffer putBuffer(short[] array, int start, int length, @Nonnull ShortBuffer to) {
+		if (to.capacity() != length) {
 			throw new IllegalArgumentException("Arrays should have save size");
 		}
 		to.position(0);
-		to.put(array);
+		to.put(array, start, length);
 		to.position(0);
 		return to;
 	}
 
 	@Nonnull
-	static ShortBuffer allocateOrPutBuffer(@Nonnull short[] indices, @Nullable ShortBuffer buffer) {
+	static ShortBuffer allocateOrPutBuffer(@Nonnull short[] array, @Nullable ShortBuffer buffer) {
+		return allocateOrPutBuffer(array, 0, array.length, buffer);
+	}
+
+	@Nonnull
+	static ShortBuffer allocateOrPutBuffer(@Nonnull short[] array, int start, int length, @Nullable ShortBuffer buffer) {
 		ShortBuffer newBuffer;
-		if (buffer != null && buffer.capacity() == indices.length) {
-			newBuffer = putBuffer(indices, buffer);
+		if (buffer != null && buffer.capacity() == length) {
+			newBuffer = putBuffer(array, start, length, buffer);
 		} else {
-			newBuffer = allocateBuffer(indices);
+			newBuffer = allocateBuffer(array, start, length);
 		}
 		return newBuffer;
 	}

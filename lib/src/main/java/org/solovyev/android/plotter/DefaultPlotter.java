@@ -271,6 +271,7 @@ final class DefaultPlotter implements Plotter {
 		}
 	}
 
+	@Override
 	public boolean is3d() {
 		synchronized (lock) {
 			return d3;
@@ -278,13 +279,33 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	public boolean is2d() {
-		synchronized (lock) {
-			return d3;
+		return !is3d();
+	}
+
+	@Override
+	public void set3d(boolean d3) {
+		Check.isMainThread();
+		if (set3d0(d3)) {
+			while (functionMeshes.size() > 0) {
+				final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.remove(functionMeshes.size() - 1);
+				pool.release(dbm.getNext());
+			}
+			pool.clear();
+			onFunctionsChanged();
+			synchronized (lock) {
+				view.set3d(d3);
+			}
 		}
 	}
 
-	public void set3d(boolean d3) {
-		this.d3 = d3;
+	private boolean set3d0(boolean d3) {
+		synchronized (lock) {
+			if (this.d3 != d3) {
+				this.d3 = d3;
+				return true;
+			}
+			return false;
+		}
 	}
 
 	@Nonnull
@@ -333,6 +354,10 @@ final class DefaultPlotter implements Plotter {
 				shouldUpdateFunctions = dimensionsChangedRunnable == runnable;
 			}
 			return true;
+		}
+
+		@Override
+		public void set3d(boolean d3) {
 		}
 	}
 }

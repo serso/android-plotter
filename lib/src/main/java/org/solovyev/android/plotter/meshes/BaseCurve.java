@@ -5,9 +5,9 @@ import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
-import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
 public abstract class BaseCurve extends BaseMesh {
 
@@ -16,6 +16,7 @@ public abstract class BaseCurve extends BaseMesh {
 
 	// create on the background thread and accessed from GL thread
 	private volatile FloatBuffer verticesBuffer;
+	private volatile ShortBuffer indicesBuffer;
 
 	@Nonnull
 	private final Graph graph = Graph.create();
@@ -54,6 +55,7 @@ public abstract class BaseCurve extends BaseMesh {
 
 		fillGraph(graph);
 		verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
+		indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
 	}
 
 	@Override
@@ -63,12 +65,7 @@ public abstract class BaseCurve extends BaseMesh {
 		Check.isNotNull(verticesBuffer);
 
 		setVertices(verticesBuffer);
-	}
-
-	@Override
-	protected void onPostDraw(@Nonnull GL11 gl) {
-		super.onPostDraw(gl);
-		gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, verticesBuffer.capacity());
+		setIndices(indicesBuffer, IndicesOrder.LINE_STRIP);
 	}
 
 	void fillGraph(@Nonnull Graph graph) {
@@ -114,10 +111,16 @@ public abstract class BaseCurve extends BaseMesh {
 
 	protected abstract float y(float x);
 
-	void compute(float newXMin,
-				 float newXMax,
+	void compute(final float newXMin,
+				 final float newXMax,
 				 @Nonnull Graph graph) {
 		float x;
+
+		final float step = Math.abs((newXMax - newXMin) / 50f);
+		if (graph.accuracy / step > 1.2f) {
+			graph.accuracy = step;
+			graph.clear();
+		}
 
 		final float xMin;
 		final float xMax;
@@ -128,8 +131,6 @@ public abstract class BaseCurve extends BaseMesh {
 			xMin = newXMin;
 			xMax = newXMin;
 		}
-
-		final float step = (newXMax - newXMin) / 10f;
 
 		x = graph.isEmpty() ? xMin : xMin - step;
 		while (x > newXMin) {

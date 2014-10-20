@@ -4,11 +4,18 @@ import javax.annotation.Nonnull;
 
 class Graph {
 
+	float accuracy = 1f;
+
 	int start = 0;
 	int end = 0;
 
 	int capacity = 4 * 3;
+
+	@Nonnull
 	float[] vertices = new float[capacity];
+
+	@Nonnull
+	private short[] indices = new short[capacity / 3];
 
 	private Graph() {
 	}
@@ -126,5 +133,20 @@ class Graph {
 
 	public float xMax() {
 		return vertices[end - 3];
+	}
+
+	short[] getIndices() {
+		final int indicesCount = getIndicesCount();
+		if (indices.length < indicesCount) {
+			indices = new short[indicesCount];
+		}
+		for (short i = 0; i < indicesCount; i++) {
+			indices[i] = i;
+		}
+		return indices;
+	}
+
+	int getIndicesCount() {
+		return length() / 3;
 	}
 }

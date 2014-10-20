@@ -39,4 +39,8 @@ public interface Plotter {
 	Dimensions getDimensions();
 
 	void updateDimensions(float zoom);
+
+	boolean is3d();
+
+	void set3d(boolean d3);
 }

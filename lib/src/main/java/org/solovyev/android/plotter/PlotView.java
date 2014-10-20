@@ -119,6 +119,18 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		renderer.resetZoom();
 	}
 
+	@Override
+	public void set3d(boolean d3) {
+		if (!d3) {
+			renderer.stopRotating();
+			renderer.setRotationSpeed(0, 0);
+			renderer.rotateTo(0, 0);
+		} else {
+			renderer.setRotationSpeed(0, 0.5f);
+			renderer.startRotating();
+		}
+	}
+
 	private class TouchListener implements TouchHandler.Listener {
 
 		@Nonnull

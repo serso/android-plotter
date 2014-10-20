@@ -6,4 +6,5 @@ public interface Pool<M extends Mesh> {
 	@Nonnull
 	M obtain();
 	void release(@Nonnull M mesh);
+	void clear();
 }

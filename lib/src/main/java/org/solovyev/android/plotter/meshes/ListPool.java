@@ -35,6 +35,13 @@ public final class ListPool<M extends Mesh> implements Pool<M> {
 		list.add(mesh);
 	}
 
+	@Override
+	public void clear() {
+		while (!list.isEmpty()) {
+			callback.release(list.remove(list.size() - 1));
+		}
+	}
+
 	public static interface Callback<M extends Mesh> {
 		@Nonnull
 		M create();

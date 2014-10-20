@@ -16,6 +16,7 @@
 package org.solovyev.android.plotter;
 
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -201,6 +202,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		rotation.setRotationSpeed(dx, dy);
 	}
 
+	public void rotateTo(float x, float y) {
+		rotation.setRotationTo(x, y);
+	}
+
 	public void setRotationSpeed(float speedX, float speedY) {
 		rotation.setRotationSpeed(speedX, speedY);
 	}
@@ -257,7 +262,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private static final class Rotation {
 
 		private static final float MIN_ROTATION = 0.5f;
-		private static final Angle DEFAULT_ANGLE = new Angle(-75, 0);
+		private static final Angle DEFAULT_ANGLE = new Angle(0, 0);
 		private static final Angle DEFAULT_SPEED = new Angle(0f, 0.5f);
 
 		@Nonnull
@@ -348,6 +353,20 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				rotation = new Rotation(bundle);
 				looping = rotation.shouldRotate();
 			}
+		}
+
+		public void setRotationTo(float x, float y) {
+			synchronized (rotation) {
+				rotation.angle.x = x;
+				rotation.angle.y = y;
+				if (x == 0 && y == 0) {
+					Matrix.setIdentityM(rotation.matrix, 0);
+				} else {
+					final float[] newMatrix = rotation.angle.getMatrix();
+					System.arraycopy(newMatrix, 0, rotation.matrix, 0, newMatrix.length);
+				}
+			}
+			view.requestRender();
 		}
 	}
 

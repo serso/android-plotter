@@ -142,8 +142,8 @@ public abstract class BaseSurface extends BaseMesh {
 				final float z = z(x, y, xi, yi);
 
 				vertices[vertex++] = x;
-				vertices[vertex++] = y;
 				vertices[vertex++] = z;
+				vertices[vertex++] = y;
 			}
 		}
 	}

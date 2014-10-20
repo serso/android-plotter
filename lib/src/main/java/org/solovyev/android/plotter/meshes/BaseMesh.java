@@ -27,24 +27,24 @@ public abstract class BaseMesh implements Mesh {
 	protected GL11 gl;
 	protected MeshConfig config;
 
-	protected FloatBuffer vertices;
-	protected int verticesCount = -1;
+	private FloatBuffer vertices;
+	private int verticesCount = -1;
 
-	protected ShortBuffer indices;
-	protected int indicesCount = -1;
+	private ShortBuffer indices;
+	private int indicesCount = -1;
 	@Nonnull
-	protected IndicesOrder indicesOrder = IndicesOrder.TRIANGLES;
+	private IndicesOrder indicesOrder = IndicesOrder.TRIANGLES;
 
-	protected FloatBuffer colors;
-	protected int colorsCount = -1;
+	private FloatBuffer colors;
+	private int colorsCount = -1;
 
 	/**
 	 * Vertex buffer objects
 	 */
 	protected boolean useVbo;
-	protected int verticesVbo = NULL;
-	protected int indicesVbo = NULL;
-	protected int colorsVbo = NULL;
+	private int verticesVbo = NULL;
+	private int indicesVbo = NULL;
+	private int colorsVbo = NULL;
 
 	// can be set from any thread
 	@Nonnull
@@ -168,20 +168,17 @@ public abstract class BaseMesh implements Mesh {
 				gl.glColorPointer(Color.COMPONENTS, GL10.GL_FLOAT, 0, 0);
 			}
 
-			if (indicesCount > 0) {
-				gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, indicesVbo);
-				gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, 0);
-				gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, 0);
-			}
+			gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, indicesVbo);
+			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, 0);
+			gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, 0);
 		} else {
 			gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertices);
 
 			if (hasColors) {
 				gl.glColorPointer(Color.COMPONENTS, GL10.GL_FLOAT, 0, colors);
 			}
-			if (indicesCount > 0) {
-				gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, indices);
-			}
+
+			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, indices);
 		}
 		onPostDraw(gl);
 
