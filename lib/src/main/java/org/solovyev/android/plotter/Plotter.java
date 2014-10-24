@@ -1,10 +1,7 @@
 package org.solovyev.android.plotter;
 
-import org.solovyev.android.plotter.meshes.Mesh;
-
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
-import java.util.List;
 
 /**
  * Contains information about functions to be plotted and meshes to be drawn. This class doesn't do plotting but
@@ -14,9 +11,6 @@ import java.util.List;
  * all meshes (including functions' graphs) are initialized prior to draw.
  */
 public interface Plotter {
-
-	void add(@Nonnull Mesh mesh);
-	void add(@Nonnull List<Mesh> meshes);
 
 	void add(@Nonnull Function function);
 	void add(@Nonnull PlotFunction function);

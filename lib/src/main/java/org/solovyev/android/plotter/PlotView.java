@@ -27,6 +27,8 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 	private boolean attached;
 
+	private boolean d3;
+
 	public PlotView(Context context) {
 		super(context);
 		init();
@@ -121,6 +123,8 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 	@Override
 	public void set3d(boolean d3) {
+		Check.isMainThread();
+		this.d3 = d3;
 		if (!d3) {
 			renderer.stopRotating();
 			renderer.setRotationSpeed(0, 0);
@@ -169,7 +173,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			final float dy = y - lastTouch.y;
 			lastTouchMoved = moreThanEps(dx, dy, 3f);
 			if (moreThanEps(dx, dy, 1f)) {
-				renderer.rotate(dy, dx);
+				if (d3) {
+					renderer.rotate(dy, dx);
+				}
 				lastTouch.x = x;
 				lastTouch.y = y;
 			}
@@ -195,8 +201,10 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 				vy = 0;
 			}
 
-			renderer.setRotationSpeed(vy, vx);
-			renderer.startRotating();
+			if (d3) {
+				renderer.setRotationSpeed(vy, vx);
+				renderer.startRotating();
+			}
 		}
 
 		private boolean isZooming() {
@@ -206,7 +214,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		private void setZooming(boolean zooming) {
 			lastZoomTime = uptimeMillis();
 			renderer.setPinchZoom(zooming);
-			renderer.startRotating();
+			if (d3) {
+				renderer.startRotating();
+			}
 		}
 
 		@Override

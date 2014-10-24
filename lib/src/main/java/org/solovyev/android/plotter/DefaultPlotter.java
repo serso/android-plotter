@@ -3,11 +3,11 @@ package org.solovyev.android.plotter;
 import org.solovyev.android.plotter.meshes.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -29,7 +29,7 @@ final class DefaultPlotter implements Plotter {
 		@Nonnull
 		@Override
 		public FunctionGraph create() {
-			if (d3) {
+			if (is3d()) {
 				return FunctionGraph3d.create(5, 5, 30, 30, Function0.ZERO);
 			} else {
 				return FunctionGraph2d.create(5, 5, Function0.ZERO);
@@ -79,27 +79,27 @@ final class DefaultPlotter implements Plotter {
 	private Dimensions dimensions = new Dimensions();
 
 	@GuardedBy("lock")
-	private boolean d3 = false;
+	private boolean d3 = true;
 
 	@Nonnull
 	private final Runnable dimensionsChangedRunnable = new Runnable() {
 		@Override
 		public void run() {
-			onFunctionsChanged();
+			onDimensionsChanged();
 		}
 	};
 
-	@Override
+	DefaultPlotter() {
+		set3d(false);
+	}
+
 	public void add(@Nonnull Mesh mesh) {
 		otherMeshes.addMesh(mesh);
 		setDirty();
 	}
 
-	@Override
-	public void add(@Nonnull List<Mesh> meshes) {
-		for (Mesh mesh : meshes) {
-			otherMeshes.addMesh(mesh);
-		}
+	public void add(@Nonnull DoubleBufferMesh<? extends Mesh> mesh) {
+		otherMeshes.add((DoubleBufferMesh<Mesh>) mesh);
 		setDirty();
 	}
 
@@ -169,6 +169,20 @@ final class DefaultPlotter implements Plotter {
 		onFunctionsChanged();
 	}
 
+	private void onDimensionsChanged() {
+		Check.isMainThread();
+
+		final Dimensions dimensions = getDimensions();
+
+		for (DoubleBufferMesh<Mesh> dbm : otherMeshes) {
+			final Mesh mesh = dbm.getNext();
+			if (mesh instanceof DimensionsAware) {
+				((DimensionsAware) mesh).setDimensions(dimensions);
+			}
+		}
+		onFunctionsChanged();
+	}
+
 	private void onFunctionsChanged() {
 		ensureFunctionsSize();
 		setDirty();
@@ -213,6 +227,11 @@ final class DefaultPlotter implements Plotter {
 			if (emptyView.shouldUpdateFunctions) {
 				emptyView.shouldUpdateFunctions = false;
 				dimensionsChangedRunnable.run();
+			}
+
+			if (emptyView.requested3d != null) {
+				view.set3d(emptyView.requested3d);
+				emptyView.requested3d = null;
 			}
 		}
 	}
@@ -291,10 +310,24 @@ final class DefaultPlotter implements Plotter {
 				pool.release(dbm.getNext());
 			}
 			pool.clear();
-			onFunctionsChanged();
+			otherMeshes.clear();
+			makeSetting(d3);
+			onDimensionsChanged();
 			synchronized (lock) {
 				view.set3d(d3);
 			}
+		}
+	}
+
+	private void makeSetting(boolean d3) {
+		final int size = Dimensions.GRAPH_SIZE;
+		otherMeshes.clear();
+		final Dimensions dimensions = getDimensions();
+		add(DoubleBufferMesh.wrap(Axis.x(dimensions), DimensionsAwareSwapper.INSTANCE));
+		add(DoubleBufferMesh.wrap(Axis.y(dimensions), DimensionsAwareSwapper.INSTANCE));
+		if (d3) {
+			add(new WireFrameCube(size, size, size));
+			add(DoubleBufferMesh.wrap(Axis.z(dimensions), DimensionsAwareSwapper.INSTANCE));
 		}
 	}
 
@@ -334,6 +367,8 @@ final class DefaultPlotter implements Plotter {
 	private final class EmptyPlottingView implements PlottingView {
 		private boolean shouldRender;
 		private boolean shouldUpdateFunctions;
+		@Nullable
+		private Boolean requested3d;
 
 		@Override
 		public void requestRender() {
@@ -358,6 +393,7 @@ final class DefaultPlotter implements Plotter {
 
 		@Override
 		public void set3d(boolean d3) {
+			requested3d = d3;
 		}
 	}
 }

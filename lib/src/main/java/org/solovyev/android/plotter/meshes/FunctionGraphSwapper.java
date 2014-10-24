@@ -12,8 +12,7 @@ public final class FunctionGraphSwapper implements DoubleBufferMesh.Swapper<Func
 
 	@Override
 	public void swap(@Nonnull FunctionGraph current, @Nonnull FunctionGraph next) {
-		next.setColor(current.getColor());
+		DimensionsAwareSwapper.INSTANCE.swap(current, next);
 		next.setFunction(current.getFunction());
-		next.setDimensions(current.getDimensions());
 	}
 }

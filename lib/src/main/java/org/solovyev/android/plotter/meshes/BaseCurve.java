@@ -9,7 +9,7 @@ import javax.microedition.khronos.opengles.GL11;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-public abstract class BaseCurve extends BaseMesh {
+public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	protected volatile Dimensions dimensions;
@@ -36,6 +36,7 @@ public abstract class BaseCurve extends BaseMesh {
 		this.dimensions = dimensions;
 	}
 
+	@Override
 	public void setDimensions(@Nonnull Dimensions dimensions) {
 		// todo serso: might be called on GL thread, requires synchronization
 		if (!this.dimensions.equals(dimensions)) {
@@ -44,6 +45,7 @@ public abstract class BaseCurve extends BaseMesh {
 		}
 	}
 
+	@Override
 	@Nonnull
 	public Dimensions getDimensions() {
 		return dimensions;
@@ -69,8 +71,9 @@ public abstract class BaseCurve extends BaseMesh {
 	}
 
 	void fillGraph(@Nonnull Graph graph) {
-		final float newXMin = dimensions.getXMin();
-		final float newXMax = newXMin + dimensions.graph.width;
+		final float add = dimensions.graph.width;
+		final float newXMin = dimensions.getXMin() - add;
+		final float newXMax = newXMin + dimensions.graph.width + 2 * add;
 
 		// prepare graph
 		if (!graph.isEmpty()) {

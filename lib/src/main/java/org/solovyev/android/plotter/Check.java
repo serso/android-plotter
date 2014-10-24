@@ -94,7 +94,7 @@ public final class Check {
 		}
 	}
 
-	static void isTrue(boolean expression, @Nonnull String message) {
+	public static void isTrue(boolean expression, @Nonnull String message) {
 		if (!expression) {
 			throw new AssertionException(message);
 		}

@@ -1,12 +1,12 @@
 package org.solovyev.android.plotter.app;
 
 import android.app.Application;
-import org.solovyev.android.plotter.*;
-import org.solovyev.android.plotter.meshes.Mesh;
-import org.solovyev.android.plotter.meshes.WireFrameCube;
+import org.solovyev.android.plotter.Function1;
+import org.solovyev.android.plotter.Function2;
+import org.solovyev.android.plotter.Plot;
+import org.solovyev.android.plotter.Plotter;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 
 public class PlotterApplication extends Application {
 
@@ -49,8 +49,13 @@ public class PlotterApplication extends Application {
 			}
 		});
 
-		final int size = Dimensions.GRAPH_SIZE;
-		plotter.add(Arrays.<Mesh>asList(new WireFrameCube(size, size, size)));
+		plotter.add(new Function2("x+y") {
+			@Override
+			public float evaluate(float x, float y) {
+				return x + y;
+			}
+		});
+
 		/*
 		otherMeshes.add(new WireFramePlane(5, 5, 30, 30));
 		otherMeshes.add(FunctionGraph.create(new Function2() {
