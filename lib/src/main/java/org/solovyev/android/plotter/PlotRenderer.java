@@ -56,8 +56,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	private static final float DISTANCE = 4f;
 
-	private int width;
-	private int height;
+	@Nonnull
+	private Dimensions.View viewDimensions = new Dimensions.View();
 
 	private volatile boolean looping = rotation.shouldRotate();
 
@@ -73,7 +73,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		synchronized (lock) {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
-			this.plotter.updateDimensions(zoomLevel);
+			this.plotter.updateDimensions(zoomLevel, viewDimensions);
 		}
 	}
 
@@ -176,7 +176,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private void initFrustum(@Nonnull GL10 gl, float distance) {
 		Check.isGlThread();
 
-		if (height == 0 || width == 0) {
+		if (viewDimensions.isEmpty()) {
 			return;
 		}
 
@@ -185,14 +185,22 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		final float near = distance * (1 / 3f);
 		final float far = distance * 3f;
 		final float w = near / 5f;
-		final float h = w * height / width;
+		final float h = w * viewDimensions.height / viewDimensions.width;
 		gl.glFrustumf(-w, w, -h, h, near, far);
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		this.width = width;
-		this.height = height;
+		this.viewDimensions.width = width;
+		this.viewDimensions.height = height;
+		// todo serso: fix exception
+		final Plotter plotter = getPlotter();
+		if (plotter != null) {
+			final Dimensions dimensions = plotter.getDimensions();
+			dimensions.view.width = width;
+			dimensions.view.height = height;
+			//plotter.setDimensions(dimensions);
+		}
 		gl.glViewport(0, 0, width, height);
 		zoomer.onSurfaceChanged(gl);
 		//setDirty();
@@ -397,7 +405,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
 						if (!pinchZoom) {
-							plotter.updateDimensions(zoomer.getLevel());
+							plotter.updateDimensions(zoomer.getLevel(), viewDimensions);
 						}
 						startRotating();
 					} else {
@@ -440,7 +448,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			}
 			final Plotter plotter = getPlotter();
 			if (plotter != null) {
-				plotter.updateDimensions(zoomLevel);
+				plotter.updateDimensions(zoomLevel, viewDimensions);
 			}
 		}
 
@@ -500,7 +508,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					} else {
 						final Plotter plotter = getPlotter();
 						if (plotter != null) {
-							plotter.updateDimensions(zoomer.getLevel());
+							plotter.updateDimensions(zoomer.getLevel(), viewDimensions);
 						}
 						Log.d(TAG, "Ending pinch zoom");
 					}

@@ -271,12 +271,16 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
-	public void updateDimensions(float zoom) {
+	public void updateDimensions(float zoom, @Nonnull Dimensions.View view) {
 		synchronized (lock) {
-			if (dimensions.zoom != zoom) {
+			if (dimensions.zoom != zoom || dimensions.view.width != view.width || dimensions.view.height != view.height) {
 				final Dimensions newDimensions = dimensions.copy();
-				newDimensions.graph.multiplyBy(zoom / newDimensions.zoom);
-				newDimensions.zoom = zoom;
+				if (dimensions.zoom != zoom) {
+					newDimensions.graph.multiplyBy(zoom / newDimensions.zoom);
+					newDimensions.zoom = zoom;
+				}
+				newDimensions.view.width = view.width;
+				newDimensions.view.height = view.height;
 				updateDimensions(newDimensions);
 			}
 		}

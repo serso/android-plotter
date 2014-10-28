@@ -63,6 +63,9 @@ public final class Dimensions {
 	@Nonnull
 	public final Graph graph = new Graph();
 
+	@Nonnull
+	public final View view = new View();
+
 	public float zoom = 1f;
 
 	// X
@@ -99,6 +102,8 @@ public final class Dimensions {
 		that.camera.y = this.camera.y;
 		that.graph.width = this.graph.width;
 		that.graph.height = this.graph.height;
+		that.view.width = this.view.width;
+		that.view.height = this.view.height;
 
 		return that;
 	}
@@ -113,6 +118,7 @@ public final class Dimensions {
 		if (Float.compare(that.zoom, zoom) != 0) return false;
 		if (!camera.equals(that.camera)) return false;
 		if (!graph.equals(that.graph)) return false;
+		if (!view.equals(that.view)) return false;
 
 		return true;
 	}
@@ -147,6 +153,35 @@ public final class Dimensions {
 			int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
 			result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
 			return result;
+		}
+	}
+
+	public static final class View {
+		public int width;
+		public int height;
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof View)) return false;
+
+			View view = (View) o;
+
+			if (height != view.height) return false;
+			if (width != view.width) return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = width;
+			result = 31 * result + height;
+			return result;
+		}
+
+		public boolean isEmpty() {
+			return width == 0 || height == 0;
 		}
 	}
 
