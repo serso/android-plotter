@@ -70,10 +70,13 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	protected void onInit() {
 		super.onInit();
 
-		initializer.init();
-
-		verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
-		indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+		if (!dimensions.graph.isEmpty()) {
+			initializer.init();
+			verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
+			indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+		} else {
+			setDirty();
+		}
 	}
 
 	@Override

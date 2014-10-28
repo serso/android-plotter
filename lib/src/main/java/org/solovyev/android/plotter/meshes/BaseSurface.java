@@ -30,7 +30,7 @@ import java.nio.ShortBuffer;
 24v   25|   26v   27|   28v   29|
   +---->^----->---->^----->---->^
  */
-public abstract class BaseSurface extends BaseMesh {
+public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	protected volatile Dimensions dimensions;
@@ -50,7 +50,7 @@ public abstract class BaseSurface extends BaseMesh {
 	@Nonnull
 	private static Dimensions makeDimensions(float width, float height) {
 		final Dimensions dimensions = new Dimensions();
-		dimensions.setGraphDimensions(width, height);
+		dimensions.graph.set(width, height);
 		return dimensions;
 	}
 
@@ -79,9 +79,13 @@ public abstract class BaseSurface extends BaseMesh {
 	public void onInit() {
 		super.onInit();
 
-		fillArrays(vertices, indices);
-		verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
-		indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+		if (!dimensions.graph.isEmpty()) {
+			fillArrays(vertices, indices);
+			verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
+			indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+		} else {
+			setDirty();
+		}
 	}
 
 	@Override

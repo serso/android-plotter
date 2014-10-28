@@ -25,7 +25,6 @@ package org.solovyev.android.plotter;
 import javax.annotation.Nonnull;
 
 public final class Dimensions {
-	public static final int GRAPH_SIZE = 1;
 
 	//                    |<--------------gw-------------->|
 	//                   xMin                                xMax
@@ -80,16 +79,6 @@ public final class Dimensions {
 		return camera.y - graph.height / 2;
 	}
 
-	public boolean setGraphDimensions(float width, float height) {
-		if (graph.width != width || graph.height != height) {
-			graph.width = width;
-			graph.height = height;
-			return true;
-		}
-
-		return false;
-	}
-
 	@Nonnull
 	public Dimensions copy() {
 		return copy(new Dimensions());
@@ -131,7 +120,12 @@ public final class Dimensions {
 		return result;
 	}
 
+	public void updateGraph() {
+		graph.update(view);
+	}
+
 	public static final class Camera {
+		static final float DISTANCE = 4f;
 		public float x = 0;
 		public float y = 0;
 
@@ -156,9 +150,53 @@ public final class Dimensions {
 		}
 	}
 
+	public static final class Frustum {
+		public final float width;
+		public final float height;
+		public final float near;
+		public final float far;
+		public final float distance;
+
+		Frustum(float distance, @Nonnull View dimensions) {
+			this.distance = distance;
+			this.near = distance / 3f;
+			this.far = distance * 3f;
+			this.width = 2 * near / 5f;
+			this.height = this.width * dimensions.height / dimensions.width;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			Frustum frustum = (Frustum) o;
+
+			if (Float.compare(frustum.distance, distance) != 0) return false;
+			if (Float.compare(frustum.far, far) != 0) return false;
+			if (Float.compare(frustum.height, height) != 0) return false;
+			if (Float.compare(frustum.near, near) != 0) return false;
+			if (Float.compare(frustum.width, width) != 0) return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
+			result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
+			result = 31 * result + (near != +0.0f ? Float.floatToIntBits(near) : 0);
+			result = 31 * result + (far != +0.0f ? Float.floatToIntBits(far) : 0);
+			result = 31 * result + (distance != +0.0f ? Float.floatToIntBits(distance) : 0);
+			return result;
+		}
+	}
+
 	public static final class View {
 		public int width;
 		public int height;
+		@Nonnull
+		public Frustum frustum = new Frustum(0, this);
 
 		@Override
 		public boolean equals(Object o) {
@@ -169,6 +207,7 @@ public final class Dimensions {
 
 			if (height != view.height) return false;
 			if (width != view.width) return false;
+			if (!frustum.equals(view.frustum)) return false;
 
 			return true;
 		}
@@ -180,14 +219,28 @@ public final class Dimensions {
 			return result;
 		}
 
+		@Nonnull
+		public Frustum setFrustumDistance(float distance) {
+			if (frustum.distance != distance) {
+				frustum = new Frustum(distance, this);
+			}
+			return frustum;
+		}
+
 		public boolean isEmpty() {
 			return width == 0 || height == 0;
+		}
+
+		public void set(int width, int height) {
+			this.width = width;
+			this.height = height;
+			this.frustum = new Frustum(this.frustum.distance, this);
 		}
 	}
 
 	public static final class Graph {
-		public float width = GRAPH_SIZE;
-		public float height = GRAPH_SIZE;
+		public float width;
+		public float height;
 
 		public void multiplyBy(float value) {
 			multiplyBy(value, value);
@@ -216,6 +269,26 @@ public final class Dimensions {
 			int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
 			result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
 			return result;
+		}
+
+		public boolean set(float width, float height) {
+			if (this.width != width || this.height != height) {
+				this.width = width;
+				this.height = height;
+				return true;
+			}
+
+			return false;
+		}
+
+		public boolean isEmpty() {
+			return width == 0f || height == 0f;
+		}
+
+		public void update(@Nonnull View view) {
+			final float ratio = view.frustum.near / view.frustum.far;
+			width = 1;//view.width * ratio;
+			height = 1;//view.height * ratio;
 		}
 	}
 }

@@ -54,8 +54,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private final ZoomerHolder zoomer = new ZoomerHolder();
 
-	private static final float DISTANCE = 4f;
-
 	@Nonnull
 	private Dimensions.View viewDimensions = new Dimensions.View();
 
@@ -159,7 +157,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glMatrixMode(GL10.GL_MODELVIEW);
 			gl.glLoadIdentity();
 
-			gl.glTranslatef(0, 0, -DISTANCE * zoomLevel);
+			gl.glTranslatef(0, 0, -Dimensions.Camera.DISTANCE * zoomLevel);
 
 			rotation.onFrame(gl10);
 
@@ -182,28 +180,30 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		gl.glMatrixMode(GL10.GL_PROJECTION);
 		gl.glLoadIdentity();
-		final float near = distance * (1 / 3f);
-		final float far = distance * 3f;
-		final float w = near / 5f;
-		final float h = w * viewDimensions.height / viewDimensions.width;
-		gl.glFrustumf(-w, w, -h, h, near, far);
+		final Dimensions.Frustum f = viewDimensions.setFrustumDistance(distance);
+		gl.glFrustumf(-f.width / 2, f.width / 2, -f.height / 2, f.height / 2, f.near, f.far);
 	}
 
 	@Override
-	public void onSurfaceChanged(GL10 gl, int width, int height) {
-		this.viewDimensions.width = width;
-		this.viewDimensions.height = height;
-		// todo serso: fix exception
-		final Plotter plotter = getPlotter();
-		if (plotter != null) {
-			final Dimensions dimensions = plotter.getDimensions();
-			dimensions.view.width = width;
-			dimensions.view.height = height;
-			//plotter.setDimensions(dimensions);
-		}
+	public void onSurfaceChanged(GL10 gl, final int width, final int height) {
+		this.viewDimensions.set(width, height);
 		gl.glViewport(0, 0, width, height);
 		zoomer.onSurfaceChanged(gl);
-		//setDirty();
+
+		view.post(new Runnable() {
+			@Override
+			public void run() {
+				final Plotter plotter = getPlotter();
+				if (plotter != null) {
+					final Dimensions dimensions = plotter.getDimensions();
+					dimensions.view.width = width;
+					dimensions.view.height = height;
+					dimensions.view.frustum = viewDimensions.frustum;
+					dimensions.updateGraph();
+					plotter.setDimensions(dimensions);
+				}
+			}
+		});
 	}
 
 	public void rotate(float dx, float dy) {
@@ -400,7 +400,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					synchronized (lock) {
 						frustumZoomer = zoomer;
 					}
-					initFrustum(gl, DISTANCE * zoomer.getLevel());
+					initFrustum(gl, Dimensions.Camera.DISTANCE * zoomer.getLevel());
 
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
@@ -417,7 +417,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 						// frustum is not initialized yet => let's do it
 						if (frustumZoomer != zoomer) {
 							frustumZoomer = zoomer;
-							initFrustum(gl, DISTANCE * zoomer.getLevel());
+							initFrustum(gl, Dimensions.Camera.DISTANCE * zoomer.getLevel());
 						}
 					}
 				}
@@ -428,7 +428,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		void onSurfaceChanged(GL10 gl) {
 			synchronized (zoomer) {
-				initFrustum(gl, DISTANCE * zoomer.getLevel());
+				initFrustum(gl, Dimensions.Camera.DISTANCE * zoomer.getLevel());
 			}
 		}
 

@@ -28,7 +28,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	private static Dimensions makeDimensions(float width, float height) {
 		final Dimensions dimensions = new Dimensions();
-		dimensions.setGraphDimensions(width, height);
+		dimensions.graph.set(width, height);
 		return dimensions;
 	}
 
@@ -55,9 +55,13 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	public void onInit() {
 		super.onInit();
 
-		fillGraph(graph);
-		verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
-		indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
+		if (!dimensions.graph.isEmpty()) {
+			fillGraph(graph);
+			verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
+			indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
+		} else {
+			setDirty();
+		}
 	}
 
 	@Override
