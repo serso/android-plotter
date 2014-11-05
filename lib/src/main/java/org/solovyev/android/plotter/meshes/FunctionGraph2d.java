@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.Function;
 
 import javax.annotation.Nonnull;
@@ -14,6 +15,11 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 		this.function = function;
 	}
 
+	private FunctionGraph2d(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+		super(dimensions);
+		this.function = function;
+	}
+
 	@Nonnull
 	public static FunctionGraph2d create(@Nonnull Function function) {
 		return create(5f, 5f, function);
@@ -22,6 +28,11 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 	@Nonnull
 	public static FunctionGraph2d create(float width, float height, @Nonnull Function function) {
 		return new FunctionGraph2d(width, height, function);
+	}
+
+	@Nonnull
+	public static FunctionGraph2d create(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+		return new FunctionGraph2d(dimensions, function);
 	}
 
 	@Override
@@ -57,7 +68,7 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return create(dimensions.graph.width, dimensions.graph.height, function);
+		return create(dimensions, function);
 	}
 
 	@Override

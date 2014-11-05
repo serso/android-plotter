@@ -276,8 +276,7 @@ final class DefaultPlotter implements Plotter {
 			if (dimensions.zoom != zoom || dimensions.view.width != view.width || dimensions.view.height != view.height) {
 				final Dimensions newDimensions = dimensions.copy();
 				if (dimensions.zoom != zoom) {
-					newDimensions.graph.multiplyBy(zoom / newDimensions.zoom);
-					newDimensions.zoom = zoom;
+					newDimensions.setZoom(zoom);
 				}
 				newDimensions.view.width = view.width;
 				newDimensions.view.height = view.height;

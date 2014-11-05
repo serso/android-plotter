@@ -75,12 +75,12 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	}
 
 	void fillGraph(@Nonnull Graph graph) {
-		final float add = dimensions.graph.width;
-		final float newXMin = dimensions.getXMin() - add;
+		final float add = 0;//dimensions.graph.width;
+		final float newXMin = dimensions.graph.getXMin(dimensions.camera) - add;
 		final float newXMax = newXMin + dimensions.graph.width + 2 * add;
 
 		// prepare graph
-		if (!graph.isEmpty()) {
+		if (false && !graph.isEmpty()) {
 			if (newXMin >= graph.xMin()) {
 				// |------[---erased---|------data----|---erased--]------ old data
 				// |-------------------[------data----]------------------ new data
@@ -113,18 +113,20 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 			}
 		}
 
-		compute(newXMin, newXMax, graph);
+		compute(newXMin, newXMax, graph, dimensions.graph);
 	}
 
 	protected abstract float y(float x);
 
 	void compute(final float newXMin,
 				 final float newXMax,
-				 @Nonnull Graph graph) {
+				 @Nonnull Graph graph,
+				 @Nonnull Dimensions.Graph g) {
 		float x;
 
 		final float step = Math.abs((newXMax - newXMin) / 50f);
-		if (graph.accuracy / step > 1.2f) {
+		final float ratio = graph.accuracy / step;
+		if (true) {
 			graph.accuracy = step;
 			graph.clear();
 		}
@@ -141,13 +143,13 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
 		x = graph.isEmpty() ? xMin : xMin - step;
 		while (x > newXMin) {
-			graph.prepend(x, y(x));
+			graph.prepend(g.toScreenX(x), g.toScreenY(y(x)));
 			x -= step;
 		}
 
 		x = graph.isEmpty() ? xMax : xMax + step;
 		while (x < newXMax) {
-			graph.append(x, y(x));
+			graph.append(g.toScreenX(x), g.toScreenY(y(x)));
 			x += step;
 		}
 	}

@@ -196,9 +196,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
 					final Dimensions dimensions = plotter.getDimensions();
-					dimensions.view.width = width;
-					dimensions.view.height = height;
-					dimensions.view.frustum = viewDimensions.frustum;
+					dimensions.view.set(width, height);
 					dimensions.updateGraph();
 					plotter.setDimensions(dimensions);
 				}

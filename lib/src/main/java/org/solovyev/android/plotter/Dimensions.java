@@ -55,7 +55,6 @@ public final class Dimensions {
 	* */
 
 
-	// current position of camera in graph coordinates
 	@Nonnull
 	public final Camera camera = new Camera();
 
@@ -66,18 +65,6 @@ public final class Dimensions {
 	public final View view = new View();
 
 	public float zoom = 1f;
-
-	// X
-
-	public float getXMin() {
-		return camera.x - graph.width / 2;
-	}
-
-	// Y
-
-	public float getYMin() {
-		return camera.y - graph.height / 2;
-	}
 
 	@Nonnull
 	public Dimensions copy() {
@@ -91,6 +78,8 @@ public final class Dimensions {
 		that.camera.y = this.camera.y;
 		that.graph.width = this.graph.width;
 		that.graph.height = this.graph.height;
+		that.graph.zoom.x = this.graph.zoom.x;
+		that.graph.zoom.y = this.graph.zoom.y;
 		that.view.width = this.view.width;
 		that.view.height = this.view.height;
 
@@ -121,7 +110,12 @@ public final class Dimensions {
 	}
 
 	public void updateGraph() {
-		graph.update(view);
+		graph.update(this);
+	}
+
+	public void setZoom(float level) {
+		zoom = level;
+		graph.update(this);
 	}
 
 	public static final class Camera {
@@ -150,6 +144,40 @@ public final class Dimensions {
 		}
 	}
 
+	public static final class Zoom {
+		public float x = 1f;
+		public float y = 1f;
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (!(o instanceof Zoom)) return false;
+
+			Zoom zoom = (Zoom) o;
+
+			if (Float.compare(zoom.x, x) != 0) return false;
+			if (Float.compare(zoom.y, y) != 0) return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int result = (x != +0.0f ? Float.floatToIntBits(x) : 0);
+			result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
+			return result;
+		}
+
+		public float getLevel() {
+			return x;
+		}
+
+		void setLevel(float level) {
+			float ratio = level / getLevel();
+			x = level;
+			y = y * ratio;
+		}
+	}
 	public static final class Frustum {
 		public final float width;
 		public final float height;
@@ -157,12 +185,12 @@ public final class Dimensions {
 		public final float far;
 		public final float distance;
 
-		Frustum(float distance, @Nonnull View dimensions) {
+		Frustum(float distance, float aspectRatio) {
 			this.distance = distance;
 			this.near = distance / 3f;
 			this.far = distance * 3f;
 			this.width = 2 * near / 5f;
-			this.height = this.width * dimensions.height / dimensions.width;
+			this.height = width * aspectRatio;
 		}
 
 		@Override
@@ -193,10 +221,10 @@ public final class Dimensions {
 	}
 
 	public static final class View {
-		public int width;
-		public int height;
+		public float width;
+		public float height;
 		@Nonnull
-		public Frustum frustum = new Frustum(0, this);
+		public Frustum frustum = new Frustum(0, 1);
 
 		@Override
 		public boolean equals(Object o) {
@@ -205,8 +233,8 @@ public final class Dimensions {
 
 			View view = (View) o;
 
-			if (height != view.height) return false;
-			if (width != view.width) return false;
+			if (Float.compare(view.height, height) != 0) return false;
+			if (Float.compare(view.width, width) != 0) return false;
 			if (!frustum.equals(view.frustum)) return false;
 
 			return true;
@@ -214,15 +242,20 @@ public final class Dimensions {
 
 		@Override
 		public int hashCode() {
-			int result = width;
-			result = 31 * result + height;
+			int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
+			result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
+			result = 31 * result + frustum.hashCode();
 			return result;
 		}
 
 		@Nonnull
 		public Frustum setFrustumDistance(float distance) {
 			if (frustum.distance != distance) {
-				frustum = new Frustum(distance, this);
+				if (frustum.distance != 0) {
+					width *= distance / frustum.distance;
+					height *= distance / frustum.distance;
+				}
+				frustum = new Frustum(distance, height / width);
 			}
 			return frustum;
 		}
@@ -232,19 +265,23 @@ public final class Dimensions {
 		}
 
 		public void set(int width, int height) {
-			this.width = width;
-			this.height = height;
-			this.frustum = new Frustum(this.frustum.distance, this);
+			final float aspectRatio = (float) height / (float) width;
+			this.frustum = new Frustum(this.frustum.distance, aspectRatio);
+			this.width = 1.5f;
+			this.height = this.width * aspectRatio;
+		}
+
+		private float getAspectRatio() {
+			return height / width;
 		}
 	}
 
 	public static final class Graph {
+		@Nonnull
+		public final Zoom zoom = new Zoom();
+
 		public float width;
 		public float height;
-
-		public void multiplyBy(float value) {
-			multiplyBy(value, value);
-		}
 
 		public void multiplyBy(float w, float h) {
 			width *= w;
@@ -254,19 +291,21 @@ public final class Dimensions {
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
+			if (!(o instanceof Graph)) return false;
 
-			Graph that = (Graph) o;
+			Graph graph = (Graph) o;
 
-			if (Float.compare(that.height, height) != 0) return false;
-			if (Float.compare(that.width, width) != 0) return false;
+			if (Float.compare(graph.height, height) != 0) return false;
+			if (Float.compare(graph.width, width) != 0) return false;
+			if (!zoom.equals(graph.zoom)) return false;
 
 			return true;
 		}
 
 		@Override
 		public int hashCode() {
-			int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
+			int result = zoom.hashCode();
+			result = 31 * result + (width != +0.0f ? Float.floatToIntBits(width) : 0);
 			result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
 			return result;
 		}
@@ -285,10 +324,38 @@ public final class Dimensions {
 			return width == 0f || height == 0f;
 		}
 
-		public void update(@Nonnull View view) {
-			final float ratio = view.frustum.near / view.frustum.far;
-			width = 1;//view.width * ratio;
-			height = 1;//view.height * ratio;
+		public void update(@Nonnull Dimensions dimensions) {
+			final float requestedWidth = 20;
+			final float requestedHeight = 20;
+			final float aspectRatio = dimensions.view.getAspectRatio();
+			width = requestedWidth * dimensions.zoom;
+			height = requestedHeight * dimensions.zoom * aspectRatio;
+			zoom.x = dimensions.zoom / width;
+			zoom.y = dimensions.zoom / height;
+		}
+
+		public float getXMin(@Nonnull Camera camera) {
+			return toGraphX(camera.x) - width / 2;
+		}
+
+		private float toGraphX(float x) {
+			return x / zoom.x;
+		}
+
+		private float toGraphY(float y) {
+			return y / zoom.y;
+		}
+
+		public float getYMin(@Nonnull Camera camera) {
+			return toGraphY(camera.y) - height / 2;
+		}
+
+		public float toScreenX(float x) {
+			return x * zoom.x;
+		}
+
+		public float toScreenY(float y) {
+			return y * zoom.y;
 		}
 	}
 }

@@ -106,9 +106,9 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	}
 
 	void fillArrays(@Nonnull float[] vertices, @Nonnull short[] indices) {
-		final float xMin = dimensions.getXMin();
+		final float xMin = dimensions.graph.getXMin(dimensions.camera);
 		final float xMax = xMin + dimensions.graph.width;
-		final float yMin = dimensions.getYMin();
+		final float yMin = dimensions.graph.getYMin(dimensions.camera);
 
 		final float dx = dimensions.graph.width / (widthVertices - 1);
 		final float dy = dimensions.graph.height / (heightVertices - 1);

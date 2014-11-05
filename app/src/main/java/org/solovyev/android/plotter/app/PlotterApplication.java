@@ -49,12 +49,19 @@ public class PlotterApplication extends Application {
 			}
 		});
 
-		plotter.add(new Function2("x+y") {
+		plotter.add(new Function2("sin(x) + sin(y)") {
+			@Override
+			public float evaluate(float x, float y) {
+				return (float) (Math.sin(x) + Math.sin(y));
+			}
+		});
+
+		/*plotter.add(new Function2("x+y") {
 			@Override
 			public float evaluate(float x, float y) {
 				return x + y;
 			}
-		});
+		});*/
 
 		/*
 		otherMeshes.add(new WireFramePlane(5, 5, 30, 30));

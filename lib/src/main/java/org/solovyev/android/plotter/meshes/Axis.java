@@ -70,7 +70,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	protected void onInit() {
 		super.onInit();
 
-		if (!dimensions.graph.isEmpty()) {
+		if (!dimensions.view.isEmpty()) {
 			initializer.init();
 			verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
 			indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
@@ -117,10 +117,17 @@ public class Axis extends BaseMesh implements DimensionsAware {
 			vertex = 0;
 			index = 0;
 
-			final float tickedAxisLength = dimensions.graph.width;
-			final float axisLength = 1.2f * tickedAxisLength;
-			final float arrowLength = axisLength / 30;
-			final float arrowWidth = axisLength / 40;
+			final float axisLength;
+			if (direction == Direction.Y) {
+				axisLength = dimensions.view.height;
+			} else {
+				axisLength = dimensions.view.width;
+			}
+			final float tickedAxisLength = axisLength / 1.2f;
+
+			final float minAxis = Math.min(dimensions.view.width, dimensions.view.height);
+			final float arrowLength = minAxis / 30;
+			final float arrowWidth = minAxis / 40;
 			final float tickWidth = arrowWidth / 2;
 
 			initLine(axisLength);
