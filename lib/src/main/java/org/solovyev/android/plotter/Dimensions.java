@@ -357,5 +357,9 @@ public final class Dimensions {
 		public float toScreenY(float y) {
 			return y * zoom.y;
 		}
+
+		public float toScreenZ(float z) {
+			return toScreenY(z);
+		}
 	}
 }

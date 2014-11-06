@@ -10,7 +10,7 @@ import java.nio.ShortBuffer;
 
 public class Axis extends BaseMesh implements DimensionsAware {
 
-	private static final int TICKS = 20;
+	static final int TICKS = 19;
 
 	private static enum Direction {
 		X(new int[]{1, 0, 0},
@@ -123,9 +123,8 @@ public class Axis extends BaseMesh implements DimensionsAware {
 			} else {
 				axisLength = dimensions.view.width;
 			}
-			final float tickedAxisLength = axisLength / 1.2f;
-
 			final float minAxis = Math.min(dimensions.view.width, dimensions.view.height);
+			final float tickedAxisLength = minAxis - 4 * (minAxis) / (TICKS + 4 - 1);
 			final float arrowLength = minAxis / 30;
 			final float arrowWidth = minAxis / 40;
 			final float tickWidth = arrowWidth / 2;

@@ -326,6 +326,11 @@ final class DefaultPlotter implements Plotter {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
 		final float size = dimensions.graph.width;
+		add(DoubleBufferMesh.wrap(AxisGrid.yz(dimensions), DimensionsAwareSwapper.INSTANCE));
+		if (d3) {
+			add(DoubleBufferMesh.wrap(AxisGrid.xy(dimensions), DimensionsAwareSwapper.INSTANCE));
+			add(DoubleBufferMesh.wrap(AxisGrid.xz(dimensions), DimensionsAwareSwapper.INSTANCE));
+		}
 		add(DoubleBufferMesh.wrap(Axis.x(dimensions), DimensionsAwareSwapper.INSTANCE));
 		add(DoubleBufferMesh.wrap(Axis.y(dimensions), DimensionsAwareSwapper.INSTANCE));
 		if (d3) {

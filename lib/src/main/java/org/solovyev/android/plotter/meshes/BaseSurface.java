@@ -5,6 +5,7 @@ import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.nio.FloatBuffer;
@@ -31,6 +32,11 @@ import java.nio.ShortBuffer;
   +---->^----->---->^----->---->^
  */
 public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
+
+	protected static enum Axes {
+		XZ,
+		YZ;
+	}
 
 	@Nonnull
 	protected volatile Dimensions dimensions;
@@ -113,6 +119,8 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 		final float dx = dimensions.graph.width / (widthVertices - 1);
 		final float dy = dimensions.graph.height / (heightVertices - 1);
 
+		final Axes invertedAxes = getInvertedAxes();
+
 		int vertex = 0;
 		for (int yi = 0; yi < heightVertices; yi++) {
 			final float y = yMin + yi * dy;
@@ -145,12 +153,36 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 				final float z = z(x, y, xi, yi);
 
-				vertices[vertex++] = x;
-				vertices[vertex++] = z;
-				vertices[vertex++] = y;
+				final float sz = dimensions.graph.toScreenZ(z);
+				final float sx = dimensions.graph.toScreenX(x);
+				final float sy = dimensions.graph.toScreenY(y);
+
+				if (invertedAxes != null) {
+					switch (invertedAxes) {
+						case XZ:
+							vertices[vertex++] = sz;
+							vertices[vertex++] = sx;
+							vertices[vertex++] = sy;
+							break;
+						case YZ:
+							vertices[vertex++] = sx;
+							vertices[vertex++] = sy;
+							vertices[vertex++] = sz;
+							break;
+					}
+				} else {
+					vertices[vertex++] = sx;
+					vertices[vertex++] = sz;
+					vertices[vertex++] = sy;
+				}
 			}
 		}
 	}
 
 	protected abstract float z(float x, float y, int xi, int yi);
+
+	@Nullable
+	Axes getInvertedAxes() {
+		return null;
+	}
 }
