@@ -39,7 +39,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	}
 
 	@Nonnull
-	protected volatile Dimensions dimensions;
+	protected volatile SurfaceDimensions dimensions;
 	protected final int widthVertices;
 	protected final int heightVertices;
 	private final float[] vertices;
@@ -49,8 +49,8 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	private volatile FloatBuffer verticesBuffer;
 	private volatile ShortBuffer indicesBuffer;
 
-	protected BaseSurface(float width, float height, int widthVertices, int heightVertices) {
-		this(makeDimensions(width, height), widthVertices, heightVertices);
+	protected BaseSurface(float width, float height, int widthVertices, int heightVertices, boolean graph) {
+		this(makeDimensions(width, height), widthVertices, heightVertices, graph);
 	}
 
 	@Nonnull
@@ -62,10 +62,14 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	public Dimensions getDimensions() {
-		return dimensions;
+		return dimensions.dimensions;
 	}
 
-	protected BaseSurface(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices) {
+	protected BaseSurface(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices, boolean graph) {
+		this(new SurfaceDimensions(dimensions, graph), widthVertices, heightVertices);
+	}
+
+	protected BaseSurface(@Nonnull SurfaceDimensions dimensions, int widthVertices, int heightVertices) {
 		this.dimensions = dimensions;
 		this.widthVertices = widthVertices;
 		this.heightVertices = heightVertices;
@@ -75,8 +79,8 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 	public void setDimensions(@Nonnull Dimensions dimensions) {
 		// todo serso: might be called on GL thread, requires synchronization
-		if (!this.dimensions.equals(dimensions)) {
-			this.dimensions = dimensions;
+		if (!this.dimensions.dimensions.equals(dimensions)) {
+			this.dimensions = new SurfaceDimensions(dimensions, this.dimensions.graph);
 			setDirty();
 		}
 	}
@@ -85,7 +89,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	public void onInit() {
 		super.onInit();
 
-		if (!dimensions.graph.isEmpty()) {
+		if (!dimensions.isEmpty()) {
 			fillArrays(vertices, indices);
 			verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
 			indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
@@ -112,14 +116,16 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	}
 
 	void fillArrays(@Nonnull float[] vertices, @Nonnull short[] indices) {
-		final float xMin = dimensions.graph.getXMin(dimensions.camera);
-		final float xMax = xMin + dimensions.graph.width;
-		final float yMin = dimensions.graph.getYMin(dimensions.camera);
+		final float xMin = dimensions.xMin;
+		final float xMax = dimensions.xMax;
+		final float yMin = dimensions.yMin;
 
-		final float dx = dimensions.graph.width / (widthVertices - 1);
-		final float dy = dimensions.graph.height / (heightVertices - 1);
+		final float dx = dimensions.width / (widthVertices - 1);
+		final float dy = dimensions.height / (heightVertices - 1);
 
 		final Axes invertedAxes = getInvertedAxes();
+
+		final float[] point = new float[3];
 
 		int vertex = 0;
 		for (int yi = 0; yi < heightVertices; yi++) {
@@ -153,9 +159,15 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 				final float z = z(x, y, xi, yi);
 
-				final float sz = dimensions.graph.toScreenZ(z);
-				final float sx = dimensions.graph.toScreenX(x);
-				final float sy = dimensions.graph.toScreenY(y);
+				point[0] = x;
+				point[1] = y;
+				point[2] = z;
+
+				dimensions.scale(point);
+
+				final float sx = point[0];
+				final float sy = point[1];
+				final float sz = point[2];
 
 				if (invertedAxes != null) {
 					switch (invertedAxes) {
@@ -184,5 +196,48 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	@Nullable
 	Axes getInvertedAxes() {
 		return null;
+	}
+
+	protected static final class SurfaceDimensions {
+		@Nonnull
+		final Dimensions dimensions;
+		final float xMin;
+		final float xMax;
+		final float yMin;
+		final float width;
+		final float height;
+		final boolean graph;
+
+		protected SurfaceDimensions(@Nonnull Dimensions dimensions, boolean graph) {
+			this.dimensions = dimensions;
+			this.graph = graph;
+			if (graph) {
+				this.xMin = dimensions.graph.getXMin(dimensions.camera);
+				this.xMax = this.xMin + dimensions.graph.width;
+				this.yMin = dimensions.graph.getYMin(dimensions.camera);
+				this.width = dimensions.graph.width;
+				this.height = dimensions.graph.height;
+			} else {
+				final float minAxis = Math.min(dimensions.view.width, dimensions.view.height);
+				final float tickedAxisLength = minAxis - 4 * (minAxis) / (Axis.TICKS + 4 - 1);
+				this.xMin = -tickedAxisLength / 2;
+				this.xMax = tickedAxisLength / 2;
+				this.yMin = -tickedAxisLength / 2;
+				this.width = tickedAxisLength;
+				this.height = tickedAxisLength;
+			}
+		}
+
+		public boolean isEmpty() {
+			return dimensions.graph.isEmpty();
+		}
+
+		public void scale(float[] point) {
+			if (graph) {
+				point[0] = dimensions.graph.toScreenX(point[0]);
+				point[1] = dimensions.graph.toScreenY(point[1]);
+				point[2] = dimensions.graph.toScreenZ(point[2]);
+			}
+		}
 	}
 }

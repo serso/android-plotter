@@ -1,11 +1,10 @@
 package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.Dimensions;
-import org.solovyev.android.plotter.Function0;
 
 import javax.annotation.Nonnull;
 
-public class WireFramePlane extends FunctionGraph3d {
+public class WireFramePlane extends BaseSurface {
 
 	public WireFramePlane() {
 		this(1, 1, 2, 2);
@@ -16,11 +15,11 @@ public class WireFramePlane extends FunctionGraph3d {
 	}
 
 	public WireFramePlane(float width, float height, int widthVertices, int heightVertices) {
-		super(width, height, widthVertices, heightVertices, Function0.ZERO);
+		super(width, height, widthVertices, heightVertices, true);
 	}
 
 	public WireFramePlane(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices) {
-		super(dimensions, widthVertices, heightVertices, Function0.ZERO);
+		super(dimensions, widthVertices, heightVertices, true);
 	}
 
 	@Nonnull
@@ -31,6 +30,11 @@ public class WireFramePlane extends FunctionGraph3d {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new WireFramePlane(dimensions.graph.width, dimensions.graph.height, widthVertices, heightVertices);
+		return new WireFramePlane(dimensions.dimensions.graph.width, dimensions.dimensions.graph.height, widthVertices, heightVertices);
+	}
+
+	@Override
+	protected float z(float x, float y, int xi, int yi) {
+		return 0;
 	}
 }

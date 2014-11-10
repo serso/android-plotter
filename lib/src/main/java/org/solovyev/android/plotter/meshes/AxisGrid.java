@@ -2,20 +2,24 @@ package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
-import org.solovyev.android.plotter.Function0;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class AxisGrid extends FunctionGraph3d {
+public class AxisGrid extends BaseSurface {
 
 	@Nullable
 	private Axes axes;
 
 	private AxisGrid(@Nonnull Dimensions dimensions, @Nullable Axes axes) {
-		super(dimensions, Axis.TICKS, Axis.TICKS, Function0.ZERO);
+		super(dimensions, Axis.TICKS, Axis.TICKS, false);
 		this.axes = axes;
 		setColor(Color.DKGRAY);
+	}
+
+	private AxisGrid(@Nonnull SurfaceDimensions dimensions, @Nullable Axes axes) {
+		super(dimensions, Axis.TICKS, Axis.TICKS);
+		this.axes = axes;
 	}
 
 	@Nonnull
@@ -37,6 +41,11 @@ public class AxisGrid extends FunctionGraph3d {
 	@Override
 	protected BaseMesh makeCopy() {
 		return new AxisGrid(dimensions, axes);
+	}
+
+	@Override
+	protected float z(float x, float y, int xi, int yi) {
+		return 0;
 	}
 
 	@Nullable

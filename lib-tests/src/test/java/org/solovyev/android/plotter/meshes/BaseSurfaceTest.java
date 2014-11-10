@@ -46,7 +46,7 @@ public class BaseSurfaceTest {
 	}
 
 	private short[] fillIndices(final int w, final int h) {
-		final BaseSurface s = new BaseSurface(w - 1, h - 1, w, h) {
+		final BaseSurface s = new BaseSurface(w - 1, h - 1, w, h, true) {
 			@Override
 			protected float z(float x, float y, int xi, int yi) {
 				return 0;
