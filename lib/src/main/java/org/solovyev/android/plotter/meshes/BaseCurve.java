@@ -125,7 +125,8 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		float x;
 		final Dimensions.Graph g = d.graph;
 
-		final float step = Math.abs((newXMax - newXMin) / 50f);
+		final float density = d.scene.view.width() / 10f;
+		final float step = Math.abs((newXMax - newXMin) / density);
 		final float ratio = graph.accuracy / step;
 		if (true) {
 			graph.accuracy = step;

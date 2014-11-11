@@ -186,4 +186,11 @@ public class Axis extends BaseMesh implements DimensionsAware {
 			indices[index++] = 1;
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "Axis{" +
+				"direction=" + direction +
+				'}';
+	}
 }

@@ -82,6 +82,7 @@ public final class Dimensions {
 		that.graph.rect.set(this.graph.rect);
 		that.graph.zoom.set(this.graph.zoom);
 		that.scene.rect.set(this.scene.rect);
+		that.scene.view.set(this.scene.view);
 
 		return that;
 	}
@@ -165,6 +166,8 @@ public final class Dimensions {
 		public final RectF rect = new RectF();
 		@Nonnull
 		public Frustum frustum = new Frustum(0, 1);
+		@Nonnull
+		public final RectF view  = new RectF();
 
 		@Override
 		public boolean equals(Object o) {
@@ -175,6 +178,7 @@ public final class Dimensions {
 
 			if (!frustum.equals(scene.frustum)) return false;
 			if (!rect.equals(scene.rect)) return false;
+			if (!view.equals(scene.view)) return false;
 
 			return true;
 		}
@@ -183,6 +187,7 @@ public final class Dimensions {
 		public int hashCode() {
 			int result = rect.hashCode();
 			result = 31 * result + frustum.hashCode();
+			result = 31 * result + view.hashCode();
 			return result;
 		}
 
@@ -203,6 +208,9 @@ public final class Dimensions {
 		}
 
 		public void setViewDimensions(int width, int height) {
+			this.view.right = width;
+			this.view.bottom = height;
+
 			final float aspectRatio = (float) height / (float) width;
 			this.frustum = new Frustum(this.frustum.distance, aspectRatio);
 			this.rect.right = 1.5f;

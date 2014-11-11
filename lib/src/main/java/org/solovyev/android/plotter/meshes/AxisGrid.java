@@ -53,4 +53,11 @@ public class AxisGrid extends BaseSurface {
 	Axes getInvertedAxes() {
 		return axes;
 	}
+
+	@Override
+	public String toString() {
+		return "AxisGrid{" +
+				"axes=" + axes +
+				'}';
+	}
 }
