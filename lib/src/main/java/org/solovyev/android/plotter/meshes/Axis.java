@@ -119,11 +119,11 @@ public class Axis extends BaseMesh implements DimensionsAware {
 
 			final float axisLength;
 			if (direction == Direction.Y) {
-				axisLength = dimensions.scene.height;
+				axisLength = dimensions.scene.height();
 			} else {
-				axisLength = dimensions.scene.width;
+				axisLength = dimensions.scene.width();
 			}
-			final float minAxis = Math.min(dimensions.scene.width, dimensions.scene.height);
+			final float minAxis = Math.min(dimensions.scene.width(), dimensions.scene.height());
 			final float tickedAxisLength = minAxis - 4 * (minAxis) / (TICKS + 4 - 1);
 			final float arrowLength = minAxis / 30;
 			final float arrowWidth = minAxis / 40;

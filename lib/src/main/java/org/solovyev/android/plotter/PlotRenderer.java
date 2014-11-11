@@ -157,7 +157,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glMatrixMode(GL10.GL_MODELVIEW);
 			gl.glLoadIdentity();
 
-			gl.glTranslatef(0, 0, -Dimensions.Camera.DISTANCE * zoomLevel);
+			gl.glTranslatef(0, 0, -Dimensions.DISTANCE * zoomLevel);
 
 			rotation.onFrame(gl10);
 
@@ -398,7 +398,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					synchronized (lock) {
 						frustumZoomer = zoomer;
 					}
-					initFrustum(gl, Dimensions.Camera.DISTANCE * zoomer.getLevel());
+					initFrustum(gl, Dimensions.DISTANCE * zoomer.getLevel());
 
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
@@ -415,7 +415,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 						// frustum is not initialized yet => let's do it
 						if (frustumZoomer != zoomer) {
 							frustumZoomer = zoomer;
-							initFrustum(gl, Dimensions.Camera.DISTANCE * zoomer.getLevel());
+							initFrustum(gl, Dimensions.DISTANCE * zoomer.getLevel());
 						}
 					}
 				}
@@ -426,7 +426,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		void onSurfaceChanged(GL10 gl) {
 			synchronized (zoomer) {
-				initFrustum(gl, Dimensions.Camera.DISTANCE * zoomer.getLevel());
+				initFrustum(gl, Dimensions.DISTANCE * zoomer.getLevel());
 			}
 		}
 

@@ -213,12 +213,12 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 			this.graph = graph;
 			if (graph) {
 				this.xMin = dimensions.graph.getXMin(dimensions.camera);
-				this.xMax = this.xMin + dimensions.graph.width;
+				this.xMax = this.xMin + dimensions.graph.width();
 				this.yMin = dimensions.graph.getYMin(dimensions.camera);
-				this.width = dimensions.graph.width;
-				this.height = dimensions.graph.height;
+				this.width = dimensions.graph.width();
+				this.height = dimensions.graph.height();
 			} else {
-				final float minAxis = Math.min(dimensions.scene.width, dimensions.scene.height);
+				final float minAxis = Math.min(dimensions.scene.width(), dimensions.scene.height());
 				final float tickedAxisLength = minAxis - 4 * (minAxis) / (Axis.TICKS + 4 - 1);
 				this.xMin = -tickedAxisLength / 2;
 				this.xMax = tickedAxisLength / 2;

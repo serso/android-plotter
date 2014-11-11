@@ -273,13 +273,13 @@ final class DefaultPlotter implements Plotter {
 	@Override
 	public void updateDimensions(float zoom, @Nonnull Dimensions.Scene scene) {
 		synchronized (lock) {
-			if (dimensions.zoom != zoom || dimensions.scene.width != scene.width || dimensions.scene.height != scene.height) {
+			if (dimensions.zoom != zoom || dimensions.scene.width() != scene.width() || dimensions.scene.height() != scene.height()) {
 				final Dimensions newDimensions = dimensions.copy();
 				if (dimensions.zoom != zoom) {
 					newDimensions.setZoom(zoom);
 				}
-				newDimensions.scene.width = scene.width;
-				newDimensions.scene.height = scene.height;
+				newDimensions.scene.rect.right = scene.width();
+				newDimensions.scene.rect.bottom = scene.height();
 				updateDimensions(newDimensions);
 			}
 		}
@@ -325,7 +325,7 @@ final class DefaultPlotter implements Plotter {
 	private void makeSetting(boolean d3) {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
-		final float size = dimensions.graph.width;
+		final float size = dimensions.graph.width();
 		add(DoubleBufferMesh.wrap(AxisGrid.yz(dimensions), DimensionsAwareSwapper.INSTANCE));
 		if (d3) {
 			add(DoubleBufferMesh.wrap(AxisGrid.xy(dimensions), DimensionsAwareSwapper.INSTANCE));
