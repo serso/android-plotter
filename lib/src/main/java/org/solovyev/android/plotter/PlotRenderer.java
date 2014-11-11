@@ -55,7 +55,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final ZoomerHolder zoomer = new ZoomerHolder();
 
 	@Nonnull
-	private Dimensions.View viewDimensions = new Dimensions.View();
+	private Dimensions.Scene sceneDimensions = new Dimensions.Scene();
 
 	private volatile boolean looping = rotation.shouldRotate();
 
@@ -71,7 +71,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		synchronized (lock) {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
-			this.plotter.updateDimensions(zoomLevel, viewDimensions);
+			this.plotter.updateDimensions(zoomLevel, sceneDimensions);
 		}
 	}
 
@@ -174,19 +174,19 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private void initFrustum(@Nonnull GL10 gl, float distance) {
 		Check.isGlThread();
 
-		if (viewDimensions.isEmpty()) {
+		if (sceneDimensions.isEmpty()) {
 			return;
 		}
 
 		gl.glMatrixMode(GL10.GL_PROJECTION);
 		gl.glLoadIdentity();
-		final Dimensions.Frustum f = viewDimensions.setFrustumDistance(distance);
+		final Dimensions.Frustum f = sceneDimensions.setFrustumDistance(distance);
 		gl.glFrustumf(-f.width / 2, f.width / 2, -f.height / 2, f.height / 2, f.near, f.far);
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, final int width, final int height) {
-		this.viewDimensions.set(width, height);
+		this.sceneDimensions.setViewDimensions(width, height);
 		gl.glViewport(0, 0, width, height);
 		zoomer.onSurfaceChanged(gl);
 
@@ -196,7 +196,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
 					final Dimensions dimensions = plotter.getDimensions();
-					dimensions.view.set(width, height);
+					dimensions.scene.setViewDimensions(width, height);
 					dimensions.updateGraph();
 					plotter.setDimensions(dimensions);
 				}
@@ -403,7 +403,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
 						if (!pinchZoom) {
-							plotter.updateDimensions(zoomer.getLevel(), viewDimensions);
+							plotter.updateDimensions(zoomer.getLevel(), sceneDimensions);
 						}
 						startRotating();
 					} else {
@@ -446,7 +446,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			}
 			final Plotter plotter = getPlotter();
 			if (plotter != null) {
-				plotter.updateDimensions(zoomLevel, viewDimensions);
+				plotter.updateDimensions(zoomLevel, sceneDimensions);
 			}
 		}
 
@@ -506,7 +506,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					} else {
 						final Plotter plotter = getPlotter();
 						if (plotter != null) {
-							plotter.updateDimensions(zoomer.getLevel(), viewDimensions);
+							plotter.updateDimensions(zoomer.getLevel(), sceneDimensions);
 						}
 						Log.d(TAG, "Ending pinch zoom");
 					}

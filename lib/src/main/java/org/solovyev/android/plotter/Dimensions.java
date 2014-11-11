@@ -62,7 +62,7 @@ public final class Dimensions {
 	public final Graph graph = new Graph();
 
 	@Nonnull
-	public final View view = new View();
+	public final Scene scene = new Scene();
 
 	public float zoom = 1f;
 
@@ -80,8 +80,8 @@ public final class Dimensions {
 		that.graph.height = this.graph.height;
 		that.graph.zoom.x = this.graph.zoom.x;
 		that.graph.zoom.y = this.graph.zoom.y;
-		that.view.width = this.view.width;
-		that.view.height = this.view.height;
+		that.scene.width = this.scene.width;
+		that.scene.height = this.scene.height;
 
 		return that;
 	}
@@ -96,7 +96,7 @@ public final class Dimensions {
 		if (Float.compare(that.zoom, zoom) != 0) return false;
 		if (!camera.equals(that.camera)) return false;
 		if (!graph.equals(that.graph)) return false;
-		if (!view.equals(that.view)) return false;
+		if (!scene.equals(that.scene)) return false;
 
 		return true;
 	}
@@ -220,7 +220,7 @@ public final class Dimensions {
 		}
 	}
 
-	public static final class View {
+	public static final class Scene {
 		public float width;
 		public float height;
 		@Nonnull
@@ -229,13 +229,13 @@ public final class Dimensions {
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
-			if (!(o instanceof View)) return false;
+			if (!(o instanceof Scene)) return false;
 
-			View view = (View) o;
+			Scene scene = (Scene) o;
 
-			if (Float.compare(view.height, height) != 0) return false;
-			if (Float.compare(view.width, width) != 0) return false;
-			if (!frustum.equals(view.frustum)) return false;
+			if (Float.compare(scene.height, height) != 0) return false;
+			if (Float.compare(scene.width, width) != 0) return false;
+			if (!frustum.equals(scene.frustum)) return false;
 
 			return true;
 		}
@@ -264,7 +264,7 @@ public final class Dimensions {
 			return width == 0 || height == 0;
 		}
 
-		public void set(int width, int height) {
+		public void setViewDimensions(int width, int height) {
 			final float aspectRatio = (float) height / (float) width;
 			this.frustum = new Frustum(this.frustum.distance, aspectRatio);
 			this.width = 1.5f;
@@ -327,7 +327,7 @@ public final class Dimensions {
 		public void update(@Nonnull Dimensions dimensions) {
 			final float requestedWidth = 20;
 			final float requestedHeight = 20;
-			final float aspectRatio = dimensions.view.getAspectRatio();
+			final float aspectRatio = dimensions.scene.getAspectRatio();
 			width = requestedWidth * dimensions.zoom;
 			height = requestedHeight * dimensions.zoom * aspectRatio;
 			zoom.x = dimensions.zoom / width;

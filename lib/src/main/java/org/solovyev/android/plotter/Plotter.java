@@ -32,7 +32,7 @@ public interface Plotter {
 	@Nonnull
 	Dimensions getDimensions();
 
-	void updateDimensions(float zoom, @Nonnull Dimensions.View view);
+	void updateDimensions(float zoom, @Nonnull Dimensions.Scene scene);
 
 	boolean is3d();
 

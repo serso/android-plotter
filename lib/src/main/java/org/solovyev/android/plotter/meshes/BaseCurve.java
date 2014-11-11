@@ -113,7 +113,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 			}
 		}
 
-		compute(newXMin, newXMax, graph, dimensions.graph);
+		compute(newXMin, newXMax, graph, dimensions);
 	}
 
 	protected abstract float y(float x);
@@ -121,8 +121,9 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	void compute(final float newXMin,
 				 final float newXMax,
 				 @Nonnull Graph graph,
-				 @Nonnull Dimensions.Graph g) {
+				 @Nonnull Dimensions d) {
 		float x;
+		final Dimensions.Graph g = d.graph;
 
 		final float step = Math.abs((newXMax - newXMin) / 50f);
 		final float ratio = graph.accuracy / step;

@@ -70,7 +70,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	protected void onInit() {
 		super.onInit();
 
-		if (!dimensions.view.isEmpty()) {
+		if (!dimensions.scene.isEmpty()) {
 			initializer.init();
 			verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
 			indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
@@ -119,11 +119,11 @@ public class Axis extends BaseMesh implements DimensionsAware {
 
 			final float axisLength;
 			if (direction == Direction.Y) {
-				axisLength = dimensions.view.height;
+				axisLength = dimensions.scene.height;
 			} else {
-				axisLength = dimensions.view.width;
+				axisLength = dimensions.scene.width;
 			}
-			final float minAxis = Math.min(dimensions.view.width, dimensions.view.height);
+			final float minAxis = Math.min(dimensions.scene.width, dimensions.scene.height);
 			final float tickedAxisLength = minAxis - 4 * (minAxis) / (TICKS + 4 - 1);
 			final float arrowLength = minAxis / 30;
 			final float arrowWidth = minAxis / 40;
