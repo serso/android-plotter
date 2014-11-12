@@ -101,4 +101,44 @@ public final class Meshes {
 		}
 		return newBuffer;
 	}
+
+	static float getTickStep(float graphWidth, int ticks) {
+		final float rawTickStep = graphWidth / (ticks - 1);
+		final int power = getPower(rawTickStep);
+
+		final float tickStepUp = (float) Math.pow(10f, power + 1) / 2;
+		final float tickStepMiddle = (float) Math.pow(10f, power);
+		final float tickStepDown = tickStepMiddle / 2;
+
+		final float diffDown = Math.abs(tickStepDown - rawTickStep);
+		final float diffMiddle = Math.abs(tickStepMiddle - rawTickStep);
+		final float diffUp = Math.abs(tickStepUp - rawTickStep);
+
+		if (diffUp < diffMiddle && diffUp < diffDown) {
+			return tickStepUp;
+		}
+
+		if (diffDown < diffMiddle && diffDown < diffUp) {
+			return tickStepDown;
+		}
+
+		return tickStepMiddle;
+	}
+
+	static int getPower(float value) {
+		float i = 1;
+		int power = 0;
+		if (value > 1) {
+			while (i < value) {
+				i *= 10f;
+				power++;
+			}
+		} else {
+			while (i > value) {
+				i /= 10f;
+				power--;
+			}
+		}
+		return power;
+	}
 }

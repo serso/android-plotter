@@ -294,7 +294,7 @@ public final class Dimensions {
 			return toGraphY(camera.y) - height() / 2;
 		}
 
-		private float toGraphX(float x) {
+		public float toGraphX(float x) {
 			return x / zoom.x;
 		}
 
