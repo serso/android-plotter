@@ -39,7 +39,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	}
 
 	@Nonnull
-	protected volatile SurfaceDimensions dimensions;
+	protected volatile MeshDimensions dimensions;
 	protected final int widthVertices;
 	protected final int heightVertices;
 	private final float[] vertices;
@@ -62,14 +62,14 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	public Dimensions getDimensions() {
-		return dimensions.dimensions;
+		return dimensions.d;
 	}
 
 	protected BaseSurface(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices, boolean graph) {
-		this(new SurfaceDimensions(dimensions, graph), widthVertices, heightVertices);
+		this(new MeshDimensions(dimensions, graph), widthVertices, heightVertices);
 	}
 
-	protected BaseSurface(@Nonnull SurfaceDimensions dimensions, int widthVertices, int heightVertices) {
+	protected BaseSurface(@Nonnull MeshDimensions dimensions, int widthVertices, int heightVertices) {
 		this.dimensions = dimensions;
 		this.widthVertices = widthVertices;
 		this.heightVertices = heightVertices;
@@ -79,8 +79,8 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 	public void setDimensions(@Nonnull Dimensions dimensions) {
 		// todo serso: might be called on GL thread, requires synchronization
-		if (!this.dimensions.dimensions.equals(dimensions)) {
-			this.dimensions = new SurfaceDimensions(dimensions, this.dimensions.graph);
+		if (!this.dimensions.d.equals(dimensions)) {
+			this.dimensions = new MeshDimensions(dimensions, this.dimensions.graph);
 			setDirty();
 		}
 	}
@@ -196,48 +196,5 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	@Nullable
 	Axes getInvertedAxes() {
 		return null;
-	}
-
-	protected static final class SurfaceDimensions {
-		@Nonnull
-		final Dimensions dimensions;
-		final float xMin;
-		final float xMax;
-		final float yMin;
-		final float width;
-		final float height;
-		final boolean graph;
-
-		protected SurfaceDimensions(@Nonnull Dimensions dimensions, boolean graph) {
-			this.dimensions = dimensions;
-			this.graph = graph;
-			if (graph) {
-				this.xMin = dimensions.graph.getXMin(dimensions.camera);
-				this.xMax = this.xMin + dimensions.graph.width();
-				this.yMin = dimensions.graph.getYMin(dimensions.camera);
-				this.width = dimensions.graph.width();
-				this.height = dimensions.graph.height();
-			} else {
-				final float minAxis = Math.min(dimensions.scene.width(), dimensions.scene.height());
-				final float tickedAxisLength = minAxis - 4 * (minAxis) / (Axis.TICKS + 4 - 1);
-				this.xMin = -tickedAxisLength / 2;
-				this.xMax = tickedAxisLength / 2;
-				this.yMin = -tickedAxisLength / 2;
-				this.width = tickedAxisLength;
-				this.height = tickedAxisLength;
-			}
-		}
-
-		public boolean isEmpty() {
-			return dimensions.graph.isEmpty();
-		}
-
-		public void scale(float[] point) {
-			if (graph) {
-				point[0] = dimensions.graph.toScreenX(point[0]);
-				point[1] = dimensions.graph.toScreenY(point[1]);
-				point[2] = dimensions.graph.toScreenZ(point[2]);
-			}
-		}
 	}
 }

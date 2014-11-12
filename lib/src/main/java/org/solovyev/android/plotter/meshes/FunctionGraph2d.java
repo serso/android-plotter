@@ -68,7 +68,7 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return create(dimensions, function);
+		return create(dimensions.d, function);
 	}
 
 	@Override

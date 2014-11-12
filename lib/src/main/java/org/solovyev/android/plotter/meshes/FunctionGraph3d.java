@@ -68,7 +68,7 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new FunctionGraph3d(dimensions.dimensions.graph.width(), dimensions.dimensions.graph.height(), widthVertices, heightVertices, function);
+		return new FunctionGraph3d(dimensions.d.graph.width(), dimensions.d.graph.height(), widthVertices, heightVertices, function);
 	}
 
 	@Override

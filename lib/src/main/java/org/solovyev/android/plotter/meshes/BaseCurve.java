@@ -12,7 +12,7 @@ import java.nio.ShortBuffer;
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
-	protected volatile Dimensions dimensions;
+	protected volatile MeshDimensions dimensions;
 
 	// create on the background thread and accessed from GL thread
 	private volatile FloatBuffer verticesBuffer;
@@ -33,14 +33,14 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	}
 
 	protected BaseCurve(@Nonnull Dimensions dimensions) {
-		this.dimensions = dimensions;
+		this.dimensions = new MeshDimensions(dimensions, true);
 	}
 
 	@Override
 	public void setDimensions(@Nonnull Dimensions dimensions) {
 		// todo serso: might be called on GL thread, requires synchronization
-		if (!this.dimensions.equals(dimensions)) {
-			this.dimensions = dimensions;
+		if (!this.dimensions.d.equals(dimensions)) {
+			this.dimensions = new MeshDimensions(dimensions, true);
 			setDirty();
 		}
 	}
@@ -48,14 +48,14 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	@Override
 	@Nonnull
 	public Dimensions getDimensions() {
-		return dimensions;
+		return dimensions.d;
 	}
 
 	@Override
 	public void onInit() {
 		super.onInit();
 
-		if (!dimensions.graph.isEmpty()) {
+		if (!dimensions.isEmpty()) {
 			fillGraph(graph);
 			verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
 			indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
@@ -76,8 +76,8 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
 	void fillGraph(@Nonnull Graph graph) {
 		final float add = 0;//dimensions.graph.width;
-		final float newXMin = dimensions.graph.getXMin(dimensions.camera) - add;
-		final float newXMax = newXMin + dimensions.graph.width() + 2 * add;
+		final float newXMin = dimensions.xMin - add;
+		final float newXMax = dimensions.xMax + 2 * add;
 
 		// prepare graph
 		if (false && !graph.isEmpty()) {
@@ -113,19 +113,18 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 			}
 		}
 
-		compute(newXMin, newXMax, graph, dimensions);
+		compute(newXMin, newXMax, graph);
 	}
 
 	protected abstract float y(float x);
 
 	void compute(final float newXMin,
 				 final float newXMax,
-				 @Nonnull Graph graph,
-				 @Nonnull Dimensions d) {
+				 @Nonnull Graph graph) {
 		float x;
-		final Dimensions.Graph g = d.graph;
+		final Dimensions.Graph g = dimensions.d.graph;
 
-		final float density = d.scene.view.width() / 10f;
+		final float density = dimensions.d.scene.view.width() / 10f;
 		final float step = Math.abs((newXMax - newXMin) / density);
 		final float ratio = graph.accuracy / step;
 		if (true) {

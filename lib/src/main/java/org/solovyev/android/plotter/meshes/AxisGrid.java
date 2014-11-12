@@ -17,7 +17,7 @@ public class AxisGrid extends BaseSurface {
 		setColor(Color.DKGRAY);
 	}
 
-	private AxisGrid(@Nonnull SurfaceDimensions dimensions, @Nullable Axes axes) {
+	private AxisGrid(@Nonnull MeshDimensions dimensions, @Nullable Axes axes) {
 		super(dimensions, Axis.TICKS, Axis.TICKS);
 		this.axes = axes;
 	}

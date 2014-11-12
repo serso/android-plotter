@@ -30,7 +30,7 @@ public class WireFramePlane extends BaseSurface {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new WireFramePlane(dimensions.dimensions.graph.width(), dimensions.dimensions.graph.height(), widthVertices, heightVertices);
+		return new WireFramePlane(dimensions.d.graph.width(), dimensions.d.graph.height(), widthVertices, heightVertices);
 	}
 
 	@Override

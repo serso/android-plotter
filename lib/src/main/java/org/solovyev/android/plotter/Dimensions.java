@@ -282,12 +282,16 @@ public final class Dimensions {
 			final float aspectRatio = dimensions.scene.getAspectRatio();
 			rect.right = requestedWidth * dimensions.zoom;
 			rect.bottom = requestedHeight * dimensions.zoom * aspectRatio;
-			zoom.x = dimensions.zoom / rect.width();
-			zoom.y = dimensions.zoom / rect.height();
+			zoom.x = dimensions.zoom / width();
+			zoom.y = dimensions.zoom / height();
 		}
 
 		public float getXMin(@Nonnull PointF camera) {
-			return toGraphX(camera.x) - rect.width() / 2;
+			return toGraphX(camera.x) - width() / 2;
+		}
+
+		public float getYMin(@Nonnull PointF camera) {
+			return toGraphY(camera.y) - height() / 2;
 		}
 
 		private float toGraphX(float x) {
@@ -296,10 +300,6 @@ public final class Dimensions {
 
 		private float toGraphY(float y) {
 			return y / zoom.y;
-		}
-
-		public float getYMin(@Nonnull PointF camera) {
-			return toGraphY(camera.y) - rect.height() / 2;
 		}
 
 		public float toScreenX(float x) {
