@@ -7,19 +7,15 @@ import javax.annotation.Nonnull;
 public class WireFramePlane extends BaseSurface {
 
 	public WireFramePlane() {
-		this(1, 1, 2, 2);
+		this(1, 1);
 	}
 
 	public WireFramePlane(float width, float height) {
-		this(width, height, 2, 2);
-	}
-
-	public WireFramePlane(float width, float height, int widthVertices, int heightVertices) {
-		super(width, height, widthVertices, heightVertices, true);
+		super(width, height, true);
 	}
 
 	public WireFramePlane(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices) {
-		super(dimensions, widthVertices, heightVertices, true);
+		super(dimensions, true);
 	}
 
 	@Nonnull
@@ -30,7 +26,7 @@ public class WireFramePlane extends BaseSurface {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new WireFramePlane(dimensions.d.graph.width(), dimensions.d.graph.height(), widthVertices, heightVertices);
+		return new WireFramePlane(dimensions.d.graph.width(), dimensions.d.graph.height());
 	}
 
 	@Override

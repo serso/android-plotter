@@ -12,13 +12,13 @@ public class AxisGrid extends BaseSurface {
 	private Axes axes;
 
 	private AxisGrid(@Nonnull Dimensions dimensions, @Nullable Axes axes) {
-		super(dimensions, Axis.TICKS, Axis.TICKS, false);
+		super(dimensions, false);
 		this.axes = axes;
-		setColor(Color.DKGRAY);
+		setColor(Color.create(0xFF333333));
 	}
 
 	private AxisGrid(@Nonnull MeshDimensions dimensions, @Nullable Axes axes) {
-		super(dimensions, Axis.TICKS, Axis.TICKS);
+		super(dimensions);
 		this.axes = axes;
 	}
 

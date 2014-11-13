@@ -40,17 +40,15 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	protected volatile MeshDimensions dimensions;
-	protected final int widthVertices;
-	protected final int heightVertices;
-	private final float[] vertices;
-	private final short[] indices;
+	@Nonnull
+	private final Arrays arrays = new Arrays();
 
 	// create on the background thread and accessed from GL thread
 	private volatile FloatBuffer verticesBuffer;
 	private volatile ShortBuffer indicesBuffer;
 
-	protected BaseSurface(float width, float height, int widthVertices, int heightVertices, boolean graph) {
-		this(makeDimensions(width, height), widthVertices, heightVertices, graph);
+	protected BaseSurface(float width, float height, boolean graph) {
+		this(makeDimensions(width, height), graph);
 	}
 
 	@Nonnull
@@ -65,16 +63,12 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 		return dimensions.d;
 	}
 
-	protected BaseSurface(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices, boolean graph) {
-		this(new MeshDimensions(dimensions, graph), widthVertices, heightVertices);
+	protected BaseSurface(@Nonnull Dimensions dimensions, boolean graph) {
+		this(new MeshDimensions(dimensions, graph));
 	}
 
-	protected BaseSurface(@Nonnull MeshDimensions dimensions, int widthVertices, int heightVertices) {
+	protected BaseSurface(@Nonnull MeshDimensions dimensions) {
 		this.dimensions = dimensions;
-		this.widthVertices = widthVertices;
-		this.heightVertices = heightVertices;
-		this.vertices = new float[this.heightVertices * this.widthVertices * 3];
-		this.indices = new short[this.heightVertices * this.widthVertices];
 	}
 
 	public void setDimensions(@Nonnull Dimensions dimensions) {
@@ -90,9 +84,10 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 		super.onInit();
 
 		if (!dimensions.isEmpty()) {
-			fillArrays(vertices, indices);
-			verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
-			indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+			arrays.init(3 * dimensions.totalVertices(), dimensions.totalVertices());
+			fillArrays(arrays.vertices, arrays.indices);
+			verticesBuffer = arrays.getVerticesBuffer(verticesBuffer);
+			indicesBuffer = arrays.getIndicesBuffer(indicesBuffer);
 		} else {
 			setDirty();
 		}
@@ -112,7 +107,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	@Override
 	protected void onPostDraw(@Nonnull GL11 gl) {
 		super.onPostDraw(gl);
-		gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, heightVertices * widthVertices);
+		gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, dimensions.totalVertices());
 	}
 
 	void fillArrays(@Nonnull float[] vertices, @Nonnull short[] indices) {
@@ -120,31 +115,31 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 		final float xMax = dimensions.xMax;
 		final float yMin = dimensions.yMin;
 
-		final float dx = dimensions.width / (widthVertices - 1);
-		final float dy = dimensions.height / (heightVertices - 1);
+		final float dx = dimensions.width / (dimensions.widthVertices - 1);
+		final float dy = dimensions.height / (dimensions.heightVertices - 1);
 
 		final Axes invertedAxes = getInvertedAxes();
 
 		final float[] point = new float[3];
 
 		int vertex = 0;
-		for (int yi = 0; yi < heightVertices; yi++) {
+		for (int yi = 0; yi < dimensions.heightVertices; yi++) {
 			final float y = yMin + yi * dy;
 			final boolean yEven = yi % 2 == 0;
 
-			for (int xi = 0; xi < widthVertices; xi++) {
+			for (int xi = 0; xi < dimensions.widthVertices; xi++) {
 				final boolean xEven = xi % 2 == 0;
-				int ii = xi * (heightVertices - 1) + xi;
-				int iv = yi * (widthVertices - 1) + yi;
+				int ii = xi * (dimensions.heightVertices - 1) + xi;
+				int iv = yi * (dimensions.widthVertices - 1) + yi;
 				if (xEven) {
 					ii += yi;
 				} else {
-					ii += (heightVertices - 1 - yi);
+					ii += (dimensions.heightVertices - 1 - yi);
 				}
 				if (yEven) {
 					iv += xi;
 				} else {
-					iv += (widthVertices - 1 - xi);
+					iv += (dimensions.widthVertices - 1 - xi);
 				}
 				indices[ii] = (short) iv;
 

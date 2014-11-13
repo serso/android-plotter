@@ -53,19 +53,38 @@ final class Scene {
 
 		@Nonnull
 		public static Ticks create(@Nonnull Dimensions.Graph graph, @Nonnull Axis axis) {
-			final float sidePaddingGpx = 2 * graph.toGraphX(axis.arrowLength);
+			final float sidePaddingSpx = 1.2f * axis.arrowLength;
+			final float sidePaddingGpx = graph.toGraphX(sidePaddingSpx);
 			final float tickWidthSpx = axis.arrowWidth / 3;
 
 			final float graphWidthGpx = graph.width() - 2 * sidePaddingGpx;
 			final float tickStepGpx = Meshes.getTickStep(graphWidthGpx, 10);
 
-			int ticksCount = (int) (axis.lengthX / graph.toScreenX(tickStepGpx)) + 1;
+			int ticksCount = (int) (axis.lengthX / graph.toScreenX(tickStepGpx));
+			if (ticksCount > 20) {
+				ticksCount /= 2;
+			}
+			if (ticksCount < 10) {
+				ticksCount *= 2;
+			}
+			if (ticksCount % 2 == 0) {
+				ticksCount++;
+			}
 			float ticksStepSpx = axis.lengthX / ticksCount;
 			float tickedAxisLengthSpx = (ticksCount - 1) * ticksStepSpx;
 
-			while (tickedAxisLengthSpx < axis.length) {
-				ticksCount++;
-				tickedAxisLengthSpx = (ticksCount - 1) * ticksStepSpx;
+			float maxTickedAxisLengthSpx = axis.length - 2 * sidePaddingSpx;
+			if (tickedAxisLengthSpx < maxTickedAxisLengthSpx) {
+				while (tickedAxisLengthSpx < maxTickedAxisLengthSpx) {
+					ticksCount += 2;
+					tickedAxisLengthSpx = (ticksCount - 1) * ticksStepSpx;
+				}
+				ticksCount -= 2;
+			} else if (tickedAxisLengthSpx > maxTickedAxisLengthSpx) {
+				while (tickedAxisLengthSpx > maxTickedAxisLengthSpx) {
+					ticksCount -= 2;
+					tickedAxisLengthSpx = (ticksCount - 1) * ticksStepSpx;
+				}
 			}
 			return new Ticks(ticksCount, ticksStepSpx, tickWidthSpx);
 		}

@@ -30,7 +30,7 @@ final class DefaultPlotter implements Plotter {
 		@Override
 		public FunctionGraph create() {
 			if (is3d()) {
-				return FunctionGraph3d.create(5, 5, 30, 30, Function0.ZERO);
+				return FunctionGraph3d.create(5, 5, Function0.ZERO);
 			} else {
 				return FunctionGraph2d.create(5, 5, Function0.ZERO);
 			}

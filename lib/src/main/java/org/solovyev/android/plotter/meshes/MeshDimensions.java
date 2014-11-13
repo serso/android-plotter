@@ -13,6 +13,8 @@ final class MeshDimensions {
 	final float width;
 	final float height;
 	final boolean graph;
+	final int widthVertices;
+	final int heightVertices;
 
 	protected MeshDimensions(@Nonnull Dimensions d, boolean graph) {
 		this.d = d;
@@ -23,14 +25,20 @@ final class MeshDimensions {
 			this.yMin = d.graph.getYMin(d.camera);
 			this.width = d.graph.width();
 			this.height = d.graph.height();
+			this.widthVertices = 20;
+			this.heightVertices = 20;
 		} else {
-			final float minAxis = Math.min(d.scene.width(), d.scene.height());
-			final float tickedAxisLength = minAxis - 4 * (minAxis) / (Axis.TICKS + 4 - 1);
-			this.xMin = -tickedAxisLength / 2;
-			this.xMax = tickedAxisLength / 2;
-			this.yMin = -tickedAxisLength / 2;
-			this.width = tickedAxisLength;
-			this.height = tickedAxisLength;
+			final Scene.Axis xAxis = Scene.Axis.create(d.scene, false);
+			final Scene.Axis yAxis = Scene.Axis.create(d.scene, true);
+			final Scene.Ticks xTicks = Scene.Ticks.create(d.graph, xAxis);
+			final Scene.Ticks yTicks = Scene.Ticks.create(d.graph, yAxis);
+			this.xMin = -xTicks.axisLength / 2;
+			this.xMax = xTicks.axisLength / 2;
+			this.yMin = -yTicks.axisLength / 2;
+			this.width = xTicks.axisLength;
+			this.height = yTicks.axisLength;
+			this.widthVertices = xTicks.count;
+			this.heightVertices = yTicks.count;
 		}
 	}
 
@@ -44,5 +52,9 @@ final class MeshDimensions {
 			point[1] = d.graph.toScreenY(point[1]);
 			point[2] = d.graph.toScreenZ(point[2]);
 		}
+	}
+
+	int totalVertices() {
+		return widthVertices * heightVertices;
 	}
 }

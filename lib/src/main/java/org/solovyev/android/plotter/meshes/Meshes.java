@@ -102,8 +102,8 @@ public final class Meshes {
 		return newBuffer;
 	}
 
-	static float getTickStep(float graphWidth, int ticks) {
-		final float rawTickStep = graphWidth / (ticks - 1);
+	static float getTickStep(float width, int ticks) {
+		final float rawTickStep = width / (ticks - 1);
 		final int power = getPower(rawTickStep);
 
 		final float tickStepUp = (float) Math.pow(10f, power + 1) / 2;

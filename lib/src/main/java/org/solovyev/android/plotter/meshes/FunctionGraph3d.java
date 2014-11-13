@@ -10,29 +10,29 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 	@Nonnull
 	private volatile Function function;
 
-	FunctionGraph3d(float width, float height, int widthVertices, int heightVertices, @Nonnull Function function) {
-		super(width, height, widthVertices, heightVertices, true);
+	FunctionGraph3d(float width, float height, @Nonnull Function function) {
+		super(width, height, true);
 		this.function = function;
 	}
 
-	FunctionGraph3d(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices, @Nonnull Function function) {
-		super(dimensions, widthVertices, heightVertices, true);
+	FunctionGraph3d(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+		super(dimensions, true);
 		this.function = function;
 	}
 
 	@Nonnull
-	public static FunctionGraph3d create(float width, float height, int widthVertices, int heightVertices, @Nonnull Function function) {
-		return new FunctionGraph3d(width, height, widthVertices, heightVertices, function);
+	public static FunctionGraph3d create(float width, float height, @Nonnull Function function) {
+		return new FunctionGraph3d(width, height, function);
 	}
 
 	@Nonnull
-	public static FunctionGraph3d create(@Nonnull Dimensions dimensions, int widthVertices, int heightVertices, @Nonnull Function function) {
-		return new FunctionGraph3d(dimensions, widthVertices, heightVertices, function);
+	public static FunctionGraph3d create(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+		return new FunctionGraph3d(dimensions, function);
 	}
 
 	@Nonnull
 	public static FunctionGraph3d create(@Nonnull Function function) {
-		return new FunctionGraph3d(5f, 5f, 10, 10, function);
+		return new FunctionGraph3d(5f, 5f, function);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new FunctionGraph3d(dimensions.d.graph.width(), dimensions.d.graph.height(), widthVertices, heightVertices, function);
+		return new FunctionGraph3d(dimensions.d.graph.width(), dimensions.d.graph.height(), function);
 	}
 
 	@Override
