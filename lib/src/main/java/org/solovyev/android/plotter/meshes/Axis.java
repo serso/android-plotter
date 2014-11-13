@@ -108,74 +108,57 @@ public class Axis extends BaseMesh implements DimensionsAware {
 
 	private class ArrayInitializer {
 
-		private int ticksCount;
-		private float ticksStep;
+		private Scene.Axis axis;
+		private Scene.Ticks ticks;
 
 		public void init() {
-			final float axisLength;
-			if (direction == Direction.Y) {
-				axisLength = dimensions.scene.height();
-			} else {
-				axisLength = dimensions.scene.width();
-			}
-			final float minAxisLength = Math.min(dimensions.scene.width(), dimensions.scene.height());
-			final float arrowLength = minAxisLength / 30;
-			final float graphWidth = dimensions.graph.width() - 4 * dimensions.graph.toGraphX(arrowLength);
-			final float ticksDensity = Meshes.getTickStep(graphWidth, 10);
-			ticksCount = (int) (dimensions.scene.width() / dimensions.graph.toScreenX(ticksDensity)) + 1;
-			ticksStep = dimensions.scene.width() / ticksCount;
+			final boolean y = direction == Direction.Y;
+			axis = Scene.Axis.create(dimensions.scene, y);
+			ticks = Scene.Ticks.create(dimensions.graph, axis);
+			arrays.init(3 * (2 + 2 + 2 * ticks.count), 2 + 2 * 2 + 2 * ticks.count);
 
-			float tickedAxisLength = (ticksCount - 1) * ticksStep;
-			while (tickedAxisLength < axisLength) {
-				ticksCount++;
-				tickedAxisLength = (ticksCount - 1) * ticksStep;
-			}
-			arrays.init(3 * (2 + 2 + 2 * ticksCount), 2 + 2 * 2 + 2 * ticksCount);
-			final float arrowWidth = minAxisLength / 40;
-			final float tickWidth = arrowWidth / 3;
-
-			initLine(axisLength);
-			initArrow(arrowLength, arrowWidth);
-			initTicks(tickedAxisLength, tickWidth);
+			initLine();
+			initArrow();
+			initTicks();
 		}
 
-		private void initTicks(float tickedAxisLength, float tickWidth) {
+		private void initTicks() {
 			final int[] dv = direction.vector;
 			final int[] da = direction.arrow;
-			float x = -dv[0] * (tickedAxisLength / 2 + ticksStep) + da[0] * tickWidth / 2;
-			float y = -dv[1] * (tickedAxisLength / 2 + ticksStep) + da[1] * tickWidth / 2;
-			float z = -dv[2] * (tickedAxisLength / 2 + ticksStep) + da[2] * tickWidth / 2;
-			for (int i = 0; i < ticksCount; i++) {
-				x += dv[0] * ticksStep;
-				y += dv[1] * ticksStep;
-				z += dv[2] * ticksStep;
+			float x = -dv[0] * (ticks.axisLength / 2 + ticks.step) + da[0] * ticks.width / 2;
+			float y = -dv[1] * (ticks.axisLength / 2 + ticks.step) + da[1] * ticks.width / 2;
+			float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
+			for (int i = 0; i < ticks.count; i++) {
+				x += dv[0] * ticks.step;
+				y += dv[1] * ticks.step;
+				z += dv[2] * ticks.step;
 
 				arrays.add(arrays.vertex / 3, x, y, z);
-				arrays.add(arrays.vertex / 3, x - da[0] * tickWidth, y - da[1] * tickWidth, z - da[2] * tickWidth);
+				arrays.add(arrays.vertex / 3, x - da[0] * ticks.width, y - da[1] * ticks.width, z - da[2] * ticks.width);
 			}
 		}
 
-		private void initArrow(float arrowLength, float arrowWidth) {
+		private void initArrow() {
 			final int[] dv = direction.vector;
 			final int[] da = direction.arrow;
 			arrays.add(0,
-					arrays.vertices[0] - dv[0] * arrowLength - da[0] * arrowWidth / 2,
-					arrays.vertices[1] - dv[1] * arrowLength - da[1] * arrowWidth / 2,
-					arrays.vertices[2] - dv[2] * arrowLength - da[2] * arrowWidth / 2);
+					arrays.vertices[0] - dv[0] * axis.arrowLength - da[0] * axis.arrowWidth / 2,
+					arrays.vertices[1] - dv[1] * axis.arrowLength - da[1] * axis.arrowWidth / 2,
+					arrays.vertices[2] - dv[2] * axis.arrowLength - da[2] * axis.arrowWidth / 2);
 			arrays.indices[arrays.index++] = 2;
 
 			arrays.add(0,
-					arrays.vertices[0] - dv[0] * arrowLength + da[0] * arrowWidth / 2,
-					arrays.vertices[1] - dv[1] * arrowLength + da[1] * arrowWidth / 2,
-					arrays.vertices[2] - dv[2] * arrowLength + da[2] * arrowWidth / 2);
+					arrays.vertices[0] - dv[0] * axis.arrowLength + da[0] * axis.arrowWidth / 2,
+					arrays.vertices[1] - dv[1] * axis.arrowLength + da[1] * axis.arrowWidth / 2,
+					arrays.vertices[2] - dv[2] * axis.arrowLength + da[2] * axis.arrowWidth / 2);
 			arrays.indices[arrays.index++] = 3;
 		}
 
-		private void initLine(float axisLength) {
+		private void initLine() {
 			arrays.add(0,
-					direction.vector[0] * axisLength / 2,
-					direction.vector[1] * axisLength / 2,
-					direction.vector[2] * axisLength / 2);
+					direction.vector[0] * axis.length / 2,
+					direction.vector[1] * axis.length / 2,
+					direction.vector[2] * axis.length / 2);
 
 			arrays.add(1,
 					-arrays.vertices[0],
