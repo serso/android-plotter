@@ -75,62 +75,37 @@ public final class Dimensions {
 		return result;
 	}
 
-	public void updateGraph() {
-		graph.update(this);
-	}
-
-	public void setZoom(float level) {
-		zoom = level;
-		graph.update(this);
-	}
-
-	public static final class Frustum {
-		public final float width;
-		public final float height;
-		public final float near;
-		public final float far;
-		public final float distance;
-
-		Frustum(float distance, float aspectRatio) {
-			this.distance = distance;
-			this.near = distance / 3f;
-			this.far = distance * 3f;
-			this.width = 2 * near / 5f;
-			this.height = width * aspectRatio;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-
-			Frustum frustum = (Frustum) o;
-
-			if (Float.compare(frustum.distance, distance) != 0) return false;
-			if (Float.compare(frustum.far, far) != 0) return false;
-			if (Float.compare(frustum.height, height) != 0) return false;
-			if (Float.compare(frustum.near, near) != 0) return false;
-			if (Float.compare(frustum.width, width) != 0) return false;
-
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
-			result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
-			result = 31 * result + (near != +0.0f ? Float.floatToIntBits(near) : 0);
-			result = 31 * result + (far != +0.0f ? Float.floatToIntBits(far) : 0);
-			result = 31 * result + (distance != +0.0f ? Float.floatToIntBits(distance) : 0);
+	public float setZoom(float level) {
+		if (zoom != level) {
+			final float result = zoom / level;
+			zoom = level;
 			return result;
 		}
+
+		return 1;
+	}
+
+	public void update(float zoom, int viewWidth, int viewHeight) {
+		if (shouldUpdate(zoom, viewWidth, viewHeight)) {
+			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
+			final float zoomChange = setZoom(zoom);
+			final boolean zoomChanged = zoomChange != 1;
+			Check.isTrue(viewChanged != zoomChanged, "Zoom and view must be updated separately");
+			if (zoomChanged) {
+				scene.rect.right /= zoomChange;
+				scene.rect.bottom /= zoomChange;
+			}
+			graph.update(this);
+		}
+	}
+
+	boolean shouldUpdate(float zoom, int viewWidth, int viewHeight) {
+		return this.zoom != zoom || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight;
 	}
 
 	public static final class Scene {
 		@Nonnull
 		public final RectF rect = new RectF();
-		@Nonnull
-		public Frustum frustum = new Frustum(0, 1);
 		@Nonnull
 		public final RectF view = new RectF();
 
@@ -141,7 +116,6 @@ public final class Dimensions {
 
 			Scene scene = (Scene) o;
 
-			if (!frustum.equals(scene.frustum)) return false;
 			if (!rect.equals(scene.rect)) return false;
 			if (!view.equals(scene.view)) return false;
 
@@ -151,35 +125,26 @@ public final class Dimensions {
 		@Override
 		public int hashCode() {
 			int result = rect.hashCode();
-			result = 31 * result + frustum.hashCode();
 			result = 31 * result + view.hashCode();
 			return result;
-		}
-
-		@Nonnull
-		public Frustum setFrustumDistance(float distance) {
-			if (frustum.distance != distance) {
-				if (frustum.distance != 0) {
-					rect.right *= distance / frustum.distance;
-					rect.bottom *= distance / frustum.distance;
-				}
-				frustum = new Frustum(distance, rect.height() / rect.width());
-			}
-			return frustum;
 		}
 
 		public boolean isEmpty() {
 			return rect.isEmpty();
 		}
 
-		public void setViewDimensions(int width, int height) {
-			this.view.right = width;
-			this.view.bottom = height;
+		public boolean setViewDimensions(int width, int height) {
+			if (this.view.right != width || this.view.bottom != height) {
+				this.view.right = width;
+				this.view.bottom = height;
 
-			final float aspectRatio = (float) height / (float) width;
-			this.frustum = new Frustum(this.frustum.distance, aspectRatio);
-			this.rect.right = 1.5f;
-			this.rect.bottom = this.rect.width() * aspectRatio;
+				final float aspectRatio = (float) height / (float) width;
+				this.rect.right = 1.5f;
+				this.rect.bottom = this.rect.width() * aspectRatio;
+				return true;
+			}
+
+			return false;
 		}
 
 		private float getAspectRatio() {

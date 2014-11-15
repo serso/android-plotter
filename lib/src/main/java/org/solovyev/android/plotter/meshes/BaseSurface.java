@@ -37,6 +37,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	protected volatile MeshDimensions dimensions;
+
 	@Nonnull
 	private final Arrays arrays = new Arrays();
 
@@ -77,6 +78,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 		super.onInit();
 
 		if (!dimensions.isEmpty()) {
+			dimensions.init();
 			arrays.init(3 * dimensions.totalVertices(), dimensions.totalVertices());
 			fillArrays(arrays.vertices, arrays.indices);
 			arrays.createBuffers();

@@ -75,6 +75,8 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	}
 
 	void fillGraph(@Nonnull Graph graph) {
+		dimensions.init();
+
 		final float add = 0;//dimensions.graph.width;
 		final float newXMin = dimensions.xMin - add;
 		final float newXMax = dimensions.xMax + 2 * add;

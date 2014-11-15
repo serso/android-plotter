@@ -7,18 +7,21 @@ import javax.annotation.Nonnull;
 final class MeshDimensions {
 	@Nonnull
 	final Dimensions d;
-	final float xMin;
-	final float xMax;
-	final float yMin;
-	final float width;
-	final float height;
-	final boolean graph;
-	final int widthVertices;
-	final int heightVertices;
+	float xMin;
+	float xMax;
+	float yMin;
+	float width;
+	float height;
+	boolean graph;
+	int widthVertices;
+	int heightVertices;
 
 	protected MeshDimensions(@Nonnull Dimensions d, boolean graph) {
 		this.d = d;
 		this.graph = graph;
+	}
+
+	public void init() {
 		if (graph) {
 			this.xMin = d.graph.getXMin();
 			this.xMax = this.xMin + d.graph.width();

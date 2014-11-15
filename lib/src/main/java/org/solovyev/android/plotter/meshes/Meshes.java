@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Plot;
 
 import javax.annotation.Nonnull;
@@ -103,6 +104,7 @@ public final class Meshes {
 	}
 
 	static float getTickStep(float width, int ticks) {
+		Check.isTrue(width > 0f, "Width must be positive");
 		final float rawTickStep = width / (ticks - 1);
 		final int power = getPower(rawTickStep);
 
