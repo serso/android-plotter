@@ -20,9 +20,9 @@ final class MeshDimensions {
 		this.d = d;
 		this.graph = graph;
 		if (graph) {
-			this.xMin = d.graph.getXMin(d.camera);
+			this.xMin = d.graph.getXMin();
 			this.xMax = this.xMin + d.graph.width();
-			this.yMin = d.graph.getYMin(d.camera);
+			this.yMin = d.graph.getYMin();
 			this.width = d.graph.width();
 			this.height = d.graph.height();
 			this.widthVertices = 20;

@@ -30,38 +30,6 @@ import javax.annotation.Nonnull;
 public final class Dimensions {
 	static final float DISTANCE = 4f;
 
-	//                    |<--------------gw-------------->|
-	//                   xMin                                xMax
-	// -------------------|------------------------------------|--------------------
-	//                    |<-------------vwPxs------------>|
-	//
-	/*
-	*
-	*
-	*        yMax   ------0------------------------------------|--> xPxs
-	*               ^     |
-	*               |     |
-	*               v     |                  y
-	*               H     |                  ^
-	*               e     |                  |
-	*               i     |                  |
-	*               g     |                  |
-	*               h     |------------------0-----------------|--> x
-	*               t     |                  |
-	*               |     |                  |
-	*               |     |                  |
-	*               v     |                  |
-	*        yMin   -------                  -
-	*                     |                  |
-	*                     v
-	*                    yPxs
-	*
-	* */
-
-
-	@Nonnull
-	public final PointF camera = new PointF();
-
 	@Nonnull
 	public final Graph graph = new Graph();
 
@@ -78,7 +46,6 @@ public final class Dimensions {
 	@Nonnull
 	public Dimensions copy(@Nonnull Dimensions that) {
 		that.zoom = this.zoom;
-		that.camera.set(this.camera);
 		that.graph.rect.set(this.graph.rect);
 		that.graph.zoom.set(this.graph.zoom);
 		that.scene.rect.set(this.scene.rect);
@@ -95,7 +62,6 @@ public final class Dimensions {
 		Dimensions that = (Dimensions) o;
 
 		if (Float.compare(that.zoom, zoom) != 0) return false;
-		if (!camera.equals(that.camera)) return false;
 		if (!graph.equals(that.graph)) return false;
 		if (!scene.equals(that.scene)) return false;
 
@@ -104,8 +70,7 @@ public final class Dimensions {
 
 	@Override
 	public int hashCode() {
-		int result = camera.hashCode();
-		result = 31 * result + graph.hashCode();
+		int result = graph.hashCode();
 		result = 31 * result + (zoom != +0.0f ? Float.floatToIntBits(zoom) : 0);
 		return result;
 	}
@@ -167,7 +132,7 @@ public final class Dimensions {
 		@Nonnull
 		public Frustum frustum = new Frustum(0, 1);
 		@Nonnull
-		public final RectF view  = new RectF();
+		public final RectF view = new RectF();
 
 		@Override
 		public boolean equals(Object o) {
@@ -286,12 +251,12 @@ public final class Dimensions {
 			zoom.y = dimensions.zoom / height();
 		}
 
-		public float getXMin(@Nonnull PointF camera) {
-			return toGraphX(camera.x) - width() / 2;
+		public float getXMin() {
+			return -width() / 2;
 		}
 
-		public float getYMin(@Nonnull PointF camera) {
-			return toGraphY(camera.y) - height() / 2;
+		public float getYMin() {
+			return -height() / 2;
 		}
 
 		public float toGraphX(float x) {
