@@ -1,6 +1,5 @@
 package org.solovyev.android.plotter.meshes;
 
-import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
@@ -8,8 +7,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 /*
  0     1     2     3     4     5
@@ -42,10 +39,6 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	protected volatile MeshDimensions dimensions;
 	@Nonnull
 	private final Arrays arrays = new Arrays();
-
-	// create on the background thread and accessed from GL thread
-	private volatile FloatBuffer verticesBuffer;
-	private volatile ShortBuffer indicesBuffer;
 
 	protected BaseSurface(float width, float height, boolean graph) {
 		this(makeDimensions(width, height), graph);
@@ -86,8 +79,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 		if (!dimensions.isEmpty()) {
 			arrays.init(3 * dimensions.totalVertices(), dimensions.totalVertices());
 			fillArrays(arrays.vertices, arrays.indices);
-			verticesBuffer = arrays.getVerticesBuffer(verticesBuffer);
-			indicesBuffer = arrays.getIndicesBuffer(indicesBuffer);
+			arrays.createBuffers();
 		} else {
 			setDirty();
 		}
@@ -97,11 +89,8 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		super.onInitGl(gl, config);
 
-		Check.isNotNull(verticesBuffer);
-		Check.isNotNull(indicesBuffer);
-
-		setVertices(verticesBuffer);
-		setIndices(indicesBuffer, IndicesOrder.LINE_STRIP);
+		setVertices(arrays.getVerticesBuffer());
+		setIndices(arrays.getIndicesBuffer(), IndicesOrder.LINE_STRIP);
 	}
 
 	@Override

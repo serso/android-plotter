@@ -3,11 +3,14 @@ package org.solovyev.android.plotter.meshes;
 import org.solovyev.android.plotter.Check;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 final class Arrays {
+
+	// create on the background thread and accessed from GL thread
+	private volatile FloatBuffer verticesBuffer;
+	private volatile ShortBuffer indicesBuffer;
 
 	float[] vertices;
 	short[] indices;
@@ -25,18 +28,6 @@ final class Arrays {
 
 	public boolean isCreated() {
 		return vertices != null && indices != null;
-	}
-
-	@Nonnull
-	public FloatBuffer getVerticesBuffer(@Nullable FloatBuffer verticesBuffer) {
-		Check.isTrue(isCreated(), "Arrays should be initialized");
-		return Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
-	}
-
-	@Nonnull
-	public ShortBuffer getIndicesBuffer(@Nullable ShortBuffer indicesBuffer) {
-		Check.isTrue(isCreated(), "Arrays should be initialized");
-		return Meshes.allocateOrPutBuffer(indices, indicesBuffer);
 	}
 
 	public void add(int i, float x, float y, float z) {
@@ -68,5 +59,25 @@ final class Arrays {
 		}
 
 		init();
+	}
+
+	public void createBuffers() {
+		Check.isTrue(isCreated(), "Arrays should be initialized");
+		verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
+		indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+	}
+
+	@Nonnull
+	public FloatBuffer getVerticesBuffer() {
+		Check.isTrue(isCreated(), "Arrays should be initialized");
+		Check.isNotNull(verticesBuffer);
+		return verticesBuffer;
+	}
+
+	@Nonnull
+	public ShortBuffer getIndicesBuffer() {
+		Check.isTrue(isCreated(), "Arrays should be initialized");
+		Check.isNotNull(indicesBuffer);
+		return indicesBuffer;
 	}
 }

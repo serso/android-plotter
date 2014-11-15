@@ -5,12 +5,8 @@ import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 public class Axis extends BaseMesh implements DimensionsAware {
-
-	public static final int TICKS = 19;
 
 	private static enum Direction {
 		X(new int[]{1, 0, 0},
@@ -40,10 +36,6 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	private final ArrayInitializer initializer = new ArrayInitializer();
 
-	// create on the background thread and accessed from GL thread
-	private volatile FloatBuffer verticesBuffer;
-	private volatile ShortBuffer indicesBuffer;
-
 	private Axis(@Nonnull Direction direction, @Nonnull Dimensions dimensions) {
 		this.direction = direction;
 		this.dimensions = dimensions;
@@ -70,8 +62,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
 
 		if (!dimensions.scene.isEmpty()) {
 			initializer.init();
-			verticesBuffer = arrays.getVerticesBuffer(verticesBuffer);
-			indicesBuffer = arrays.getIndicesBuffer(indicesBuffer);
+			arrays.createBuffers();
 		} else {
 			setDirty();
 		}
@@ -81,8 +72,8 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		super.onInitGl(gl, config);
 
-		setVertices(verticesBuffer);
-		setIndices(indicesBuffer, IndicesOrder.LINES);
+		setVertices(arrays.getVerticesBuffer());
+		setIndices(arrays.getIndicesBuffer(), IndicesOrder.LINES);
 	}
 
 	@Nonnull
