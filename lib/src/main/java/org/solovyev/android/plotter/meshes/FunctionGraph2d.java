@@ -10,24 +10,9 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 	@Nonnull
 	private volatile Function function;
 
-	private FunctionGraph2d(float width, float height, @Nonnull Function function) {
-		super(width, height);
-		this.function = function;
-	}
-
 	private FunctionGraph2d(@Nonnull Dimensions dimensions, @Nonnull Function function) {
 		super(dimensions);
 		this.function = function;
-	}
-
-	@Nonnull
-	public static FunctionGraph2d create(@Nonnull Function function) {
-		return create(5f, 5f, function);
-	}
-
-	@Nonnull
-	public static FunctionGraph2d create(float width, float height, @Nonnull Function function) {
-		return new FunctionGraph2d(width, height, function);
 	}
 
 	@Nonnull
@@ -68,7 +53,7 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return create(dimensions.d, function);
+		return create(dimensions, function);
 	}
 
 	@Override

@@ -10,19 +10,9 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 	@Nonnull
 	private volatile Function function;
 
-	FunctionGraph3d(float width, float height, @Nonnull Function function) {
-		super(width, height, true);
-		this.function = function;
-	}
-
 	FunctionGraph3d(@Nonnull Dimensions dimensions, @Nonnull Function function) {
-		super(dimensions, true);
+		super(dimensions);
 		this.function = function;
-	}
-
-	@Nonnull
-	public static FunctionGraph3d create(float width, float height, @Nonnull Function function) {
-		return new FunctionGraph3d(width, height, function);
 	}
 
 	@Nonnull
@@ -31,8 +21,9 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 	}
 
 	@Nonnull
-	public static FunctionGraph3d create(@Nonnull Function function) {
-		return new FunctionGraph3d(5f, 5f, function);
+	@Override
+	protected SurfaceInitializer createInitializer() {
+		return new SurfaceInitializer.GraphSurfaceInitializer(this, dimensions.graph);
 	}
 
 	@Override
@@ -68,7 +59,7 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new FunctionGraph3d(dimensions.d.graph.width(), dimensions.d.graph.height(), function);
+		return new FunctionGraph3d(dimensions, function);
 	}
 
 	@Override

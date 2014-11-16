@@ -45,8 +45,10 @@ final class Arrays {
 	}
 
 	public void init() {
-		index = 0;
 		vertex = 0;
+		index = 0;
+		verticesBuffer = null;
+		indicesBuffer = null;
 	}
 
 	public void init(int verticesCount, int indicesCount) {

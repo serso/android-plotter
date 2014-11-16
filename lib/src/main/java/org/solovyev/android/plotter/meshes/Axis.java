@@ -56,6 +56,11 @@ public class Axis extends BaseMesh implements DimensionsAware {
 		return new Axis(Direction.Z, dimensions);
 	}
 
+	@Nonnull
+	public DoubleBufferMesh<Axis> toDoubleBuffer() {
+		return DoubleBufferMesh.wrap(this, DimensionsAwareSwapper.INSTANCE);
+	}
+
 	@Override
 	protected void onInit() {
 		super.onInit();

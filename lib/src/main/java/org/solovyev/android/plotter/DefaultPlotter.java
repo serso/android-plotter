@@ -30,9 +30,9 @@ final class DefaultPlotter implements Plotter {
 		@Override
 		public FunctionGraph create() {
 			if (is3d()) {
-				return FunctionGraph3d.create(5, 5, Function0.ZERO);
+				return FunctionGraph3d.create(Dimensions.empty(), Function0.ZERO);
 			} else {
-				return FunctionGraph2d.create(5, 5, Function0.ZERO);
+				return FunctionGraph2d.create(Dimensions.empty(), Function0.ZERO);
 			}
 		}
 
@@ -322,16 +322,16 @@ final class DefaultPlotter implements Plotter {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
 		final float size = dimensions.graph.width();
-		add(DoubleBufferMesh.wrap(AxisGrid.yz(dimensions), DimensionsAwareSwapper.INSTANCE));
+		add(AxisGrid.yz(dimensions).toDoubleBuffer());
 		if (d3) {
-			add(DoubleBufferMesh.wrap(AxisGrid.xy(dimensions), DimensionsAwareSwapper.INSTANCE));
-			add(DoubleBufferMesh.wrap(AxisGrid.xz(dimensions), DimensionsAwareSwapper.INSTANCE));
+			add(AxisGrid.xy(dimensions).toDoubleBuffer());
+			add(AxisGrid.xz(dimensions).toDoubleBuffer());
 		}
-		add(DoubleBufferMesh.wrap(Axis.x(dimensions), DimensionsAwareSwapper.INSTANCE));
-		add(DoubleBufferMesh.wrap(Axis.y(dimensions), DimensionsAwareSwapper.INSTANCE));
+		add(Axis.x(dimensions).toDoubleBuffer());
+		add(Axis.y(dimensions).toDoubleBuffer());
 		if (d3) {
 			add(new WireFrameCube(size, size, size));
-			add(DoubleBufferMesh.wrap(Axis.z(dimensions), DimensionsAwareSwapper.INSTANCE));
+			add(Axis.z(dimensions).toDoubleBuffer());
 		}
 	}
 

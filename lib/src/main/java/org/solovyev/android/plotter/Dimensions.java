@@ -28,6 +28,9 @@ import android.graphics.RectF;
 import javax.annotation.Nonnull;
 
 public final class Dimensions {
+	@Nonnull
+	private static final Dimensions EMPTY = new Dimensions();
+
 	static final float DISTANCE = 4f;
 
 	@Nonnull
@@ -92,8 +95,10 @@ public final class Dimensions {
 			final boolean zoomChanged = zoomChange != 1;
 			Check.isTrue(viewChanged != zoomChanged, "Zoom and view must be updated separately");
 			if (zoomChanged) {
+				scene.rect.left /= zoomChange;
 				scene.rect.right /= zoomChange;
 				scene.rect.bottom /= zoomChange;
+				scene.rect.top /= zoomChange;
 			}
 			graph.update(this);
 		}
@@ -101,6 +106,10 @@ public final class Dimensions {
 
 	boolean shouldUpdate(float zoom, int viewWidth, int viewHeight) {
 		return this.zoom != zoom || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight;
+	}
+
+	public boolean isEmpty() {
+		return graph.isEmpty() || scene.isEmpty();
 	}
 
 	public static final class Scene {
@@ -133,14 +142,17 @@ public final class Dimensions {
 			return rect.isEmpty();
 		}
 
-		public boolean setViewDimensions(int width, int height) {
-			if (this.view.right != width || this.view.bottom != height) {
-				this.view.right = width;
-				this.view.bottom = height;
+		public boolean setViewDimensions(int viewWidth, int viewHeight) {
+			if (view.width() != viewWidth || view.height() != viewHeight) {
+				view.right = viewWidth;
+				view.bottom = viewHeight;
 
-				final float aspectRatio = (float) height / (float) width;
-				this.rect.right = 1.5f;
-				this.rect.bottom = this.rect.width() * aspectRatio;
+				final float aspectRatio = (float) viewHeight / (float) viewWidth;
+				rect.left = -1.5f / 2f;
+				rect.right = 1.5f + rect.left;
+				final float height = rect.width() * aspectRatio;
+				rect.top = -height / 2;
+				rect.bottom = height + rect.top;
 				return true;
 			}
 
@@ -193,9 +205,11 @@ public final class Dimensions {
 		}
 
 		public boolean set(float width, float height) {
-			if (this.rect.right != width || this.rect.bottom != height) {
-				this.rect.right = width;
-				this.rect.bottom = height;
+			if (rect.width() != width || rect.height() != height) {
+				rect.left = -width / 2;
+				rect.right = width + rect.left;
+				rect.top = -height / 2;
+				rect.bottom = height + rect.top;
 				return true;
 			}
 
@@ -203,25 +217,18 @@ public final class Dimensions {
 		}
 
 		public boolean isEmpty() {
-			return this.rect.isEmpty();
+			return rect.isEmpty();
 		}
 
 		public void update(@Nonnull Dimensions dimensions) {
 			final float requestedWidth = 20;
 			final float requestedHeight = 20;
 			final float aspectRatio = dimensions.scene.getAspectRatio();
-			rect.right = requestedWidth * dimensions.zoom;
-			rect.bottom = requestedHeight * dimensions.zoom * aspectRatio;
+			final float width = requestedWidth * dimensions.zoom;
+			final float height = requestedHeight * dimensions.zoom * aspectRatio;
+			set(width, height);
 			zoom.x = dimensions.zoom / width();
 			zoom.y = dimensions.zoom / height();
-		}
-
-		public float getXMin() {
-			return -width() / 2;
-		}
-
-		public float getYMin() {
-			return -height() / 2;
 		}
 
 		public float toGraphX(float x) {
@@ -251,5 +258,13 @@ public final class Dimensions {
 		public float height() {
 			return rect.height();
 		}
+	}
+
+	@Nonnull
+	public static Dimensions empty() {
+		EMPTY.scene.rect.setEmpty();
+		EMPTY.scene.view.setEmpty();
+		EMPTY.graph.rect.setEmpty();
+		return EMPTY;
 	}
 }

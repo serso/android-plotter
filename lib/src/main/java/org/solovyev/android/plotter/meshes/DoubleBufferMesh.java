@@ -35,16 +35,16 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 	private final M second;
 
 	@Nullable
-	private final Swapper<M> swapper;
+	private final Swapper<? super M> swapper;
 
-	private DoubleBufferMesh(@Nonnull M first, @Nonnull M second, @Nullable Swapper<M> swapper) {
+	private DoubleBufferMesh(@Nonnull M first, @Nonnull M second, @Nullable Swapper<? super M> swapper) {
 		this.first = first;
 		this.second = second;
 		this.swapper = swapper;
 	}
 
 	@Nonnull
-	public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh, @Nullable Swapper<M> swapper) {
+	public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh, @Nullable Swapper<? super M> swapper) {
 		return new DoubleBufferMesh<M>(mesh, (M) mesh.copy(), swapper);
 	}
 
