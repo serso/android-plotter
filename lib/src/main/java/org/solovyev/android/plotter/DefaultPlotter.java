@@ -322,10 +322,10 @@ final class DefaultPlotter implements Plotter {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
 		final float size = dimensions.graph.width();
-		add(AxisGrid.yz(dimensions).toDoubleBuffer());
+		add(AxisGrid.xz(dimensions).toDoubleBuffer());
 		if (d3) {
 			add(AxisGrid.xy(dimensions).toDoubleBuffer());
-			add(AxisGrid.xz(dimensions).toDoubleBuffer());
+			add(AxisGrid.yz(dimensions).toDoubleBuffer());
 		}
 		add(Axis.x(dimensions).toDoubleBuffer());
 		add(Axis.y(dimensions).toDoubleBuffer());
