@@ -244,6 +244,7 @@ final class DefaultPlotter implements Plotter {
 			emptyView.shouldRender = false;
 			emptyView.shouldUpdateFunctions = false;
 			view = emptyView;
+			updateDimensions(Dimensions.empty());
 		}
 	}
 

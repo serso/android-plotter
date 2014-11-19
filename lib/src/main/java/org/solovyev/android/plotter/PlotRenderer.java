@@ -75,7 +75,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		synchronized (lock) {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
-			this.plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height());
+			if (!viewDimensions.isEmpty()) {
+				this.plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height());
+			}
 		}
 	}
 
@@ -447,9 +449,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				Log.d(TAG, "Restoring state: " + zoomer);
 				zoomLevel = zoomer.getLevel();
 			}
-			final Plotter plotter = getPlotter();
-			if (plotter != null) {
-				plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height());
+
+			if (!viewDimensions.isEmpty()) {
+				final Plotter plotter = getPlotter();
+				if (plotter != null) {
+					plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height());
+				}
 			}
 		}
 

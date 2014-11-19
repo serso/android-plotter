@@ -93,8 +93,12 @@ public final class Dimensions {
 			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
 			final float zoomChange = setZoom(zoom);
 			final boolean zoomChanged = zoomChange != 1;
-			Check.isTrue(viewChanged != zoomChanged, "Zoom and view must be updated separately");
-			if (zoomChanged) {
+			if (viewChanged) {
+				scene.rect.left *= zoom;
+				scene.rect.right *= zoom;
+				scene.rect.bottom *= zoom;
+				scene.rect.top *= zoom;
+			} else if (zoomChanged) {
 				scene.rect.left /= zoomChange;
 				scene.rect.right /= zoomChange;
 				scene.rect.bottom /= zoomChange;
@@ -169,6 +173,14 @@ public final class Dimensions {
 
 		public float width() {
 			return rect.width();
+		}
+
+		@Override
+		public String toString() {
+			return "Scene{" +
+					"rect=" + rect +
+					", view=" + view +
+					'}';
 		}
 	}
 
@@ -258,6 +270,14 @@ public final class Dimensions {
 		public float height() {
 			return rect.height();
 		}
+
+		@Override
+		public String toString() {
+			return "Graph{" +
+					"zoom=" + zoom +
+					", rect=" + rect +
+					'}';
+		}
 	}
 
 	@Nonnull
@@ -266,5 +286,14 @@ public final class Dimensions {
 		EMPTY.scene.view.setEmpty();
 		EMPTY.graph.rect.setEmpty();
 		return EMPTY;
+	}
+
+	@Override
+	public String toString() {
+		return "Dimensions{" +
+				"graph=" + graph +
+				", scene=" + scene +
+				", zoom=" + zoom +
+				'}';
 	}
 }
