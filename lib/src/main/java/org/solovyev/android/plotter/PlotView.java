@@ -27,7 +27,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 	private boolean attached;
 
-	private boolean d3;
+	private boolean d3 = Plotter.D3;
 
 	public PlotView(Context context) {
 		super(context);
@@ -97,6 +97,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		if (in instanceof Bundle) {
 			final Bundle state = (Bundle) in;
 			in = state.getParcelable("super");
+			d3 = state.getBoolean("view.3d");
 			renderer.restoreState(state);
 		}
 
@@ -107,6 +108,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	public Parcelable onSaveInstanceState() {
 		final Bundle state = new Bundle();
 		state.putParcelable("super", super.onSaveInstanceState());
+		state.putBoolean("view.3d", d3);
 		renderer.saveState(state);
 		return state;
 	}
@@ -124,14 +126,16 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	@Override
 	public void set3d(boolean d3) {
 		Check.isMainThread();
-		this.d3 = d3;
-		if (!d3) {
-			renderer.stopRotating();
-			renderer.setRotationSpeed(0, 0);
-			renderer.rotateTo(0, 0);
-		} else {
-			renderer.setRotationSpeed(0, 0.5f);
-			renderer.startRotating();
+		if (this.d3 != d3) {
+			this.d3 = d3;
+			if (!d3) {
+				renderer.stopRotating();
+				renderer.setRotationSpeed(0, 0);
+				renderer.rotateTo(0, 0);
+			} else {
+				renderer.setRotationSpeed(0, 0.5f);
+				renderer.startRotating();
+			}
 		}
 	}
 

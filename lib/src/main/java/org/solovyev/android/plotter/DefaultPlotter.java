@@ -79,7 +79,7 @@ final class DefaultPlotter implements Plotter {
 	private Dimensions dimensions = new Dimensions();
 
 	@GuardedBy("lock")
-	private boolean d3 = true;
+	private boolean d3 = D3;
 
 	@Nonnull
 	private final Runnable dimensionsChangedRunnable = new Runnable() {

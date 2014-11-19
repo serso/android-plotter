@@ -11,6 +11,7 @@ import javax.microedition.khronos.opengles.GL11;
  * all meshes (including functions' graphs) are initialized prior to draw.
  */
 public interface Plotter {
+	public static final boolean D3 = true;
 
 	void add(@Nonnull Function function);
 	void add(@Nonnull PlotFunction function);
