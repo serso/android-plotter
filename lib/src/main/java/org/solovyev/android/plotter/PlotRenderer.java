@@ -15,12 +15,14 @@
  */
 package org.solovyev.android.plotter;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import com.android.texample.GLText;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -40,7 +42,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final Object lock = new Object();
 
 	@Nonnull
+	private final Context context;
+
+	@Nonnull
 	private final PlottingView view;
+
+	@Nonnull
+	private GLText glText;
 
 	@GuardedBy("lock")
 	@Nullable
@@ -63,7 +71,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	private volatile boolean looping = rotation.shouldRotate();
 
-	public PlotRenderer(@Nonnull PlottingView view) {
+	public PlotRenderer(@Nonnull Context context, @Nonnull PlottingView view) {
+		this.context = context;
 		this.view = view;
 	}
 
@@ -108,6 +117,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
 
 		gl.glShadeModel(GL10.GL_SMOOTH);
+
+		// Create the GLText
+		glText = new GLText(gl, context.getAssets());
+
+		// Load the font from file (set size + padding), creates the texture
+		// NOTE: after a successful call to this the font is ready for rendering!
+		glText.load("Roboto-Regular.ttf", 14, 2, 2);  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
 
 		tryInitGl(gl, false);
 	}
@@ -168,7 +184,26 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			rotation.onFrame(gl10);
 
 			plotter.initGl(gl, false);
+
+			gl.glEnable(GL10.GL_BLEND);
+			gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+
+			gl.glEnable(GL10.GL_TEXTURE_2D);
+			glText.begin(1.0f, 1.0f, 1.0f, 1.0f);         // Begin Text Rendering (Set Color WHITE)
+			glText.draw("Test String :)", 0, 0, 0);          // Draw Test String
+			glText.draw("Line 1", 50, 50, 0);                // Draw Test String
+			glText.draw("Line 2", 100, 100, 0);              // Draw Test String
+			glText.end();
+
+			glText.begin(1.0f, 0.0f, 0.0f, 1.0f);         // Begin Text Rendering (Set Color RED)
+			glText.draw("zoom out !", -200, 0, -800);        // Draw Test String
+			glText.draw("zoom in !", -50, -50, 600);        // Draw Test String
+			glText.end();
+			gl.glDisable(GL10.GL_TEXTURE_2D);
+
 			plotter.draw(gl);
+
+			gl.glDisable(GL10.GL_BLEND);
 		}
 
 		if (looping) {

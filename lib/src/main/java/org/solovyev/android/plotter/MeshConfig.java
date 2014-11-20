@@ -6,7 +6,6 @@ public final class MeshConfig {
 
 	public boolean useVbo = true;
 	public boolean cullFace = false;
-	public boolean alpha = true;
 
 	private MeshConfig() {
 	}
@@ -21,7 +20,6 @@ public final class MeshConfig {
 		final MeshConfig copy = new MeshConfig();
 		copy.useVbo = useVbo;
 		copy.cullFace = cullFace;
-		copy.alpha = alpha;
 		return copy;
 	}
 }

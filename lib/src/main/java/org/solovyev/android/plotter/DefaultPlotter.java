@@ -5,7 +5,6 @@ import org.solovyev.android.plotter.meshes.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
-import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
@@ -109,12 +108,6 @@ final class DefaultPlotter implements Plotter {
 			// fill the background
 			final int bg = plotData.axisStyle.backgroundColor;
 			gl.glClearColor(Color.red(bg), Color.green(bg), Color.blue(bg), Color.alpha(bg));
-
-			if (config.alpha) {
-				gl.glEnable(GL10.GL_BLEND);
-				gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-			}
-
 		}
 		allMeshes.initGl(gl, config);
 	}

@@ -32,13 +32,13 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	public PlotView(Context context) {
 		super(context);
 		init();
-		renderer = initGl(this);
+		renderer = initGl(context, this);
 	}
 
 	public PlotView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
-		renderer = initGl(this);
+		renderer = initGl(context, this);
 	}
 
 	private void init() {
@@ -46,13 +46,13 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	}
 
 	@Nonnull
-	private static PlotRenderer initGl(@Nonnull PlotView view) {
+	private static PlotRenderer initGl(@Nonnull Context context, @Nonnull PlotView view) {
 		view.setEGLConfigChooser(new MultisampleConfigChooser());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			preserveEglContextOnPause(view);
 		}
 
-		final PlotRenderer renderer = new PlotRenderer(view);
+		final PlotRenderer renderer = new PlotRenderer(context, view);
 		view.setRenderer(renderer);
 
 		view.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
