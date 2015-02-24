@@ -20,17 +20,17 @@
  * Site:  http://se.solovyev.org
  */
 
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion '20.0.0'
+    compileSdkVersion android_sdk_version()
+    buildToolsVersion android_build_tools_version()
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 20
+        minSdkVersion android_min_sdk_version()
+        targetSdkVersion android_sdk_version()
         versionCode version_code()
         versionName version_name()
     }
@@ -42,9 +42,10 @@ dependencies {
 }
 
 task androidJavadocs(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.plugin.getBootClasspath().join(File.pathSeparator))
-    configurations.compile.each { File file -> classpath += project.files(file.path) }
+    // todo serso: fix me
+    //source = android.sourceSets.main.java.srcDirs
+    //classpath += project.files(android.plugin.getBootClasspath().join(File.pathSeparator))
+    //configurations.compile.each { File file -> classpath += project.files(file.path) }
 }
 
 task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
@@ -84,7 +85,6 @@ signing {
 }
 
 group = "org.solovyev.android"
-archivesBaseName = "plotter"
 version = version_name()
 
 uploadArchives {
@@ -101,9 +101,9 @@ uploadArchives {
             }
 
             pom.project {
+                artifactId = 'plotter'
                 name 'Android Plotter'
                 packaging 'aar'
-                // optionally artifactId can be defined here
                 description 'Plotter library for Android'
                 url 'https://github.com/serso/android-plotter'
 

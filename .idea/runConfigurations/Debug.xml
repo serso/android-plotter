@@ -19,8 +19,6 @@
     <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
     <RunnerSettings RunnerId="AndroidDebugRunner" />
     <ConfigurationWrapper RunnerId="AndroidDebugRunner" />
-    <method>
-      <option name="Make" enabled="false" />
-    </method>
+    <method />
   </configuration>
 </component>

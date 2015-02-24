@@ -20,39 +20,42 @@
  * Site:  http://se.solovyev.org
  */
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion '20.0.0'
+    compileSdkVersion android_sdk_version()
+    buildToolsVersion android_build_tools_version()
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 20
+        minSdkVersion android_min_sdk_version()
+        targetSdkVersion android_sdk_version()
         versionCode version_code()
         versionName version_name()
     }
     buildTypes {
         release {
-            runProguard true
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.txt'
-            zipAlign true
+            zipAlignEnabled true
         }
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:20.0.0'
-    compile 'ch.acra:acra:4.5.0'
+    compile 'com.android.support:support-v4:21.0.3'
+    compile ('ch.acra:acra:4.5.0') {
+        exclude group: 'org.json'
+    }
     compile project(':lib')
 }
 
 task androidJavadocs(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.plugin.getBootClasspath().join(File.pathSeparator))
-    configurations.compile.each { File file -> classpath += project.files(file.path) }
+    // todo serso: fix me
+    //source = android.sourceSets.main.java.srcDirs
+    //classpath += project.files(android.plugin.getBootClasspath().join(File.pathSeparator))
+    //configurations.compile.each { File file -> classpath += project.files(file.path) }
 }
 
 task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
@@ -67,8 +70,8 @@ task androidSourcesJar(type: Jar) {
 
 artifacts {
     archives androidSourcesJar
-    archives file: file('build/apk/plotter-release.apk'), name: 'plotter-app', type: 'apk'
-    archives file: file('build/proguard/release/mapping.txt'), name: 'plotter-app', classifier: 'proguard', type: 'txt'
+    archives file: file('build/outputs/apk/plotter-release.apk'), name: 'plotter-app', classifier: 'signed', type: 'apk'
+    archives file: file('build/outputs/mapping/release/mapping.txt'), name: 'plotter-app', classifier: 'proguard', type: 'txt'
 }
 
 signing {
@@ -76,7 +79,6 @@ signing {
 }
 
 group = "org.solovyev.android"
-archivesBaseName = "plotter-app"
 version = version_name()
 
 uploadArchives {
@@ -93,9 +95,9 @@ uploadArchives {
             }
 
             pom.project {
+                artifactId = 'plotter-app'
                 name 'Android Plotter App'
                 packaging 'apk'
-                // optionally artifactId can be defined here
                 description 'Sample App for Android Plotter'
                 url 'https://github.com/serso/android-plotter'
 
