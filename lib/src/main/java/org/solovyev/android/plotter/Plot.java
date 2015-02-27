@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter;
 
+import android.content.Context;
 import android.os.Looper;
 
 import javax.annotation.Nonnull;
@@ -21,8 +22,8 @@ public final class Plot {
 	}
 
 	@Nonnull
-	public static Plotter newPlotter() {
-		return new DefaultPlotter();
+	public static Plotter newPlotter(@Nonnull Context context) {
+		return new DefaultPlotter(context);
 	}
 
 	static boolean isMainThread() {

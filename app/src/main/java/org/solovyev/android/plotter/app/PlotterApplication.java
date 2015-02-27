@@ -14,7 +14,7 @@ public class PlotterApplication extends Application {
 	private static PlotterApplication instance;
 
 	@Nonnull
-	private final Plotter plotter = Plot.newPlotter();
+	private Plotter plotter;
 
 	@Nonnull
 	public static final String PARABOLOID = "x*x+y*y";
@@ -42,6 +42,7 @@ public class PlotterApplication extends Application {
 		});
 		paraboloid.lineStyle.color = Color.RED.toInt();
 		plotter.add(paraboloid);*/
+		plotter = Plot.newPlotter(this);
 		plotter.add(new Function1("x*x") {
 			@Override
 			public float evaluate(float x) {

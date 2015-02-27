@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter;
 
+import android.content.Context;
+
 import org.solovyev.android.plotter.meshes.*;
 
 import javax.annotation.Nonnull;
@@ -88,7 +90,11 @@ final class DefaultPlotter implements Plotter {
 		}
 	};
 
-	DefaultPlotter() {
+	@Nonnull
+	private final Context context;
+
+	DefaultPlotter(@Nonnull Context context) {
+		this.context = context;
 		set3d(false);
 	}
 
@@ -316,6 +322,7 @@ final class DefaultPlotter implements Plotter {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
 		final float size = dimensions.graph.width();
+		add(new DrawableTexture(context.getResources(), R.drawable.icon));
 		add(AxisGrid.xz(dimensions).toDoubleBuffer());
 		if (d3) {
 			add(AxisGrid.xy(dimensions).toDoubleBuffer());

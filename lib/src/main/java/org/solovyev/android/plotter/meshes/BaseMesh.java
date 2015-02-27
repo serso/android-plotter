@@ -1,5 +1,8 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.graphics.Bitmap;
+import android.opengl.GLUtils;
+
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
@@ -9,6 +12,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
+
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -38,6 +42,9 @@ public abstract class BaseMesh implements Mesh {
 	private FloatBuffer colors;
 	private int colorsCount = -1;
 
+	private FloatBuffer textureVertices;
+	private int textureId = -1;
+
 	/**
 	 * Vertex buffer objects
 	 */
@@ -45,6 +52,7 @@ public abstract class BaseMesh implements Mesh {
 	private int verticesVbo = NULL;
 	private int indicesVbo = NULL;
 	private int colorsVbo = NULL;
+	private int textureVerticesVbo = NULL;
 
 	// can be set from any thread
 	@Nonnull
@@ -106,19 +114,22 @@ public abstract class BaseMesh implements Mesh {
 		final boolean usedVbo = useVbo;
 		useVbo = this.config.useVbo && supportsVbo(gl);
 		if (usedVbo) {
-			gl.glDeleteBuffers(3, new int[]{verticesVbo, colorsVbo, indicesVbo}, 0);
+			final int[] buffers = {verticesVbo, colorsVbo, indicesVbo, textureVerticesVbo};
+			gl.glDeleteBuffers(buffers.length, buffers, 0);
 		}
 
 		if (useVbo) {
-			final int[] out = new int[3];
-			gl.glGenBuffers(3, out, 0);
+			final int[] out = new int[4];
+			gl.glGenBuffers(out.length, out, 0);
 			verticesVbo = out[0];
 			colorsVbo = out[1];
 			indicesVbo = out[2];
+			textureVerticesVbo = out[3];
 		} else {
 			verticesVbo = NULL;
 			colorsVbo = NULL;
 			indicesVbo = NULL;
+			textureVerticesVbo = NULL;
 		}
 		onInitGl(gl, config);
 		return state.set(State.INIT_GL);
@@ -140,6 +151,7 @@ public abstract class BaseMesh implements Mesh {
 			return;
 		}
 		final boolean hasColors = colorsCount >= 0;
+		final boolean hasTexture = hasTexture();
 
 		// counter-clockwise winding
 		gl.glFrontFace(GL10.GL_CCW);
@@ -153,7 +165,10 @@ public abstract class BaseMesh implements Mesh {
 		if (hasColors) {
 			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 		}
-
+		if (hasTexture) {
+			gl.glEnable(GL10.GL_TEXTURE_2D);
+			gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
+		}
 		if (!hasColors) {
 			gl.glColor4f(color.red, color.green, color.blue, color.alpha);
 		}
@@ -167,7 +182,11 @@ public abstract class BaseMesh implements Mesh {
 				gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, colorsVbo);
 				gl.glColorPointer(Color.COMPONENTS, GL10.GL_FLOAT, 0, 0);
 			}
-
+			if (hasTexture) {
+				gl.glBindTexture(GL10.GL_TEXTURE_2D, textureId);
+				gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, textureVerticesVbo);
+				gl.glTexCoordPointer(2, GL10.GL_FLOAT, 0, 0);
+			}
 			gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, indicesVbo);
 			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, 0);
 			gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -177,11 +196,18 @@ public abstract class BaseMesh implements Mesh {
 			if (hasColors) {
 				gl.glColorPointer(Color.COMPONENTS, GL10.GL_FLOAT, 0, colors);
 			}
-
+			if (hasTexture) {
+				gl.glBindTexture(GL10.GL_TEXTURE_2D, textureId);
+				gl.glTexCoordPointer(2, GL10.GL_FLOAT, 0, textureVertices);
+			}
 			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, indices);
 		}
 		onPostDraw(gl);
 
+		if (hasTexture) {
+			gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
+			gl.glDisable(GL10.GL_TEXTURE_2D);
+		}
 		if (hasColors) {
 			gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
 		}
@@ -190,6 +216,10 @@ public abstract class BaseMesh implements Mesh {
 		if (config.cullFace) {
 			gl.glDisable(GL10.GL_CULL_FACE);
 		}
+	}
+
+	private boolean hasTexture() {
+		return textureId != -1;
 	}
 
 	protected void onPostDraw(@Nonnull GL11 gl) {
@@ -252,6 +282,37 @@ public abstract class BaseMesh implements Mesh {
 			bindVboBuffer(this.indices, indicesVbo, GL11.GL_ELEMENT_ARRAY_BUFFER);
 			this.indices = null;
 		}
+	}
+
+	private void setTextureVertices(float[] textureCoordinates) {
+		textureVertices = Meshes.allocateOrPutBuffer(textureCoordinates, textureVertices);
+		if (useVbo) {
+			bindVboBuffer(textureVertices, textureVerticesVbo, GL11.GL_ARRAY_BUFFER);
+			textureVertices = null;
+		}
+	}
+
+	protected final void loadTexture(@Nonnull GL10 gl, @Nonnull Bitmap bitmap) {
+		float textureCoordinates[] = {
+				0.0f, 1.0f,
+				1.0f, 1.0f,
+				0.0f, 0.0f,
+				1.0f, 0.0f};
+		setTextureVertices(textureCoordinates);
+
+		final int[] textures = new int[1];
+		gl.glGenTextures(1, textures, 0);
+		textureId = textures[0];
+
+		gl.glBindTexture(GL10.GL_TEXTURE_2D, textureId);
+
+		gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR);
+		gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
+
+		gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+		gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
+
+		GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
 	}
 
 	@Nonnull

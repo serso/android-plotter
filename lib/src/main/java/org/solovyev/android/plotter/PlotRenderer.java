@@ -22,6 +22,7 @@ import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+
 import com.android.texample.GLText;
 
 import javax.annotation.Nonnull;
@@ -188,7 +189,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glEnable(GL10.GL_BLEND);
 			gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
-			gl.glEnable(GL10.GL_TEXTURE_2D);
+/*			gl.glEnable(GL10.GL_TEXTURE_2D);
 			glText.begin(1.0f, 1.0f, 1.0f, 1.0f);         // Begin Text Rendering (Set Color WHITE)
 			glText.draw("Test String :)", 0, 0, 0);          // Draw Test String
 			glText.draw("Line 1", 50, 50, 0);                // Draw Test String
@@ -199,7 +200,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			glText.draw("zoom out !", -200, 0, -800);        // Draw Test String
 			glText.draw("zoom in !", -50, -50, 600);        // Draw Test String
 			glText.end();
-			gl.glDisable(GL10.GL_TEXTURE_2D);
+			gl.glDisable(GL10.GL_TEXTURE_2D);*/
 
 			plotter.draw(gl);
 

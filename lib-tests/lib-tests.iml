@@ -72,8 +72,8 @@
     <orderEntry type="library" exported="" scope="TEST" name="xercesMinimal-1.9.6.2" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="nekohtml-1.9.6.2" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="internal_impl-21.0.3" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="acra-4.5.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="support-annotations-21.0.3" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="acra-4.5.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="classes" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="jsr305-2.0.3" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="classes" level="project" />
