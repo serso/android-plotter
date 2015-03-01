@@ -23,8 +23,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.android.texample.GLText;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
@@ -47,9 +45,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Nonnull
 	private final PlottingView view;
-
-	@Nonnull
-	private GLText glText;
 
 	@GuardedBy("lock")
 	@Nullable
@@ -118,13 +113,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		gl.glHint(GL10.GL_PERSPECTIVE_CORRECTION_HINT, GL10.GL_FASTEST);
 
 		gl.glShadeModel(GL10.GL_SMOOTH);
-
-		// Create the GLText
-		glText = new GLText(gl, context.getAssets());
-
-		// Load the font from file (set size + padding), creates the texture
-		// NOTE: after a successful call to this the font is ready for rendering!
-		glText.load("Roboto-Regular.ttf", 14, 2, 2);  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
 
 		tryInitGl(gl, false);
 	}

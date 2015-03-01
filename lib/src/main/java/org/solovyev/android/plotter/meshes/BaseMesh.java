@@ -7,15 +7,15 @@ import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
+import java.nio.Buffer;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
-
-import java.nio.Buffer;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 public abstract class BaseMesh implements Mesh {
 
@@ -42,7 +42,7 @@ public abstract class BaseMesh implements Mesh {
 	private FloatBuffer colors;
 	private int colorsCount = -1;
 
-	private FloatBuffer textureVertices;
+	private FloatBuffer textureCoordinates;
 	private int textureId = -1;
 
 	/**
@@ -52,7 +52,7 @@ public abstract class BaseMesh implements Mesh {
 	private int verticesVbo = NULL;
 	private int indicesVbo = NULL;
 	private int colorsVbo = NULL;
-	private int textureVerticesVbo = NULL;
+	private int textureCoordinatesVbo = NULL;
 
 	// can be set from any thread
 	@Nonnull
@@ -114,7 +114,7 @@ public abstract class BaseMesh implements Mesh {
 		final boolean usedVbo = useVbo;
 		useVbo = this.config.useVbo && supportsVbo(gl);
 		if (usedVbo) {
-			final int[] buffers = {verticesVbo, colorsVbo, indicesVbo, textureVerticesVbo};
+			final int[] buffers = {verticesVbo, colorsVbo, indicesVbo, textureCoordinatesVbo};
 			gl.glDeleteBuffers(buffers.length, buffers, 0);
 		}
 
@@ -124,12 +124,12 @@ public abstract class BaseMesh implements Mesh {
 			verticesVbo = out[0];
 			colorsVbo = out[1];
 			indicesVbo = out[2];
-			textureVerticesVbo = out[3];
+			textureCoordinatesVbo = out[3];
 		} else {
 			verticesVbo = NULL;
 			colorsVbo = NULL;
 			indicesVbo = NULL;
-			textureVerticesVbo = NULL;
+			textureCoordinatesVbo = NULL;
 		}
 		onInitGl(gl, config);
 		return state.set(State.INIT_GL);
@@ -184,7 +184,7 @@ public abstract class BaseMesh implements Mesh {
 			}
 			if (hasTexture) {
 				gl.glBindTexture(GL10.GL_TEXTURE_2D, textureId);
-				gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, textureVerticesVbo);
+				gl.glBindBuffer(GL11.GL_ARRAY_BUFFER, textureCoordinatesVbo);
 				gl.glTexCoordPointer(2, GL10.GL_FLOAT, 0, 0);
 			}
 			gl.glBindBuffer(GL11.GL_ELEMENT_ARRAY_BUFFER, indicesVbo);
@@ -198,7 +198,7 @@ public abstract class BaseMesh implements Mesh {
 			}
 			if (hasTexture) {
 				gl.glBindTexture(GL10.GL_TEXTURE_2D, textureId);
-				gl.glTexCoordPointer(2, GL10.GL_FLOAT, 0, textureVertices);
+				gl.glTexCoordPointer(2, GL10.GL_FLOAT, 0, textureCoordinates);
 			}
 			gl.glDrawElements(indicesOrder.glMode, indicesCount, GL10.GL_UNSIGNED_SHORT, indices);
 		}
@@ -284,25 +284,24 @@ public abstract class BaseMesh implements Mesh {
 		}
 	}
 
-	private void setTextureVertices(float[] textureCoordinates) {
-		textureVertices = Meshes.allocateOrPutBuffer(textureCoordinates, textureVertices);
+	private void setTextureCoordinates(float[] textureCoordinates) {
+		this.textureCoordinates = Meshes.allocateOrPutBuffer(textureCoordinates, this.textureCoordinates);
 		if (useVbo) {
-			bindVboBuffer(textureVertices, textureVerticesVbo, GL11.GL_ARRAY_BUFFER);
-			textureVertices = null;
+			bindVboBuffer(this.textureCoordinates, textureCoordinatesVbo, GL11.GL_ARRAY_BUFFER);
+			this.textureCoordinates = null;
 		}
 	}
 
 	protected final void loadTexture(@Nonnull GL10 gl, @Nonnull Bitmap bitmap) {
+		final int[] textures = new int[1];
+		gl.glGenTextures(1, textures, 0);
+
 		float textureCoordinates[] = {
 				0.0f, 1.0f,
 				1.0f, 1.0f,
 				0.0f, 0.0f,
 				1.0f, 0.0f};
-		setTextureVertices(textureCoordinates);
-
-		final int[] textures = new int[1];
-		gl.glGenTextures(1, textures, 0);
-		textureId = textures[0];
+		setTexture(textures[0], textureCoordinates);
 
 		gl.glBindTexture(GL10.GL_TEXTURE_2D, textureId);
 
@@ -313,6 +312,11 @@ public abstract class BaseMesh implements Mesh {
 		gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
 
 		GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, bitmap, 0);
+	}
+
+	protected final void setTexture(int textureId, float[] textureCoordinates) {
+		this.textureId = textureId;
+		setTextureCoordinates(textureCoordinates);
 	}
 
 	@Nonnull

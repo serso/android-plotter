@@ -2,17 +2,34 @@ package org.solovyev.android.plotter;
 
 import android.content.Context;
 
-import org.solovyev.android.plotter.meshes.*;
+import org.solovyev.android.plotter.meshes.Axis;
+import org.solovyev.android.plotter.meshes.AxisGrid;
+import org.solovyev.android.plotter.meshes.DimensionsAware;
+import org.solovyev.android.plotter.meshes.DoubleBufferGroup;
+import org.solovyev.android.plotter.meshes.DoubleBufferMesh;
+import org.solovyev.android.plotter.meshes.FunctionGraph;
+import org.solovyev.android.plotter.meshes.FunctionGraph2d;
+import org.solovyev.android.plotter.meshes.FunctionGraph3d;
+import org.solovyev.android.plotter.meshes.FunctionGraphSwapper;
+import org.solovyev.android.plotter.meshes.Group;
+import org.solovyev.android.plotter.meshes.Label;
+import org.solovyev.android.plotter.meshes.ListGroup;
+import org.solovyev.android.plotter.meshes.ListPool;
+import org.solovyev.android.plotter.meshes.Mesh;
+import org.solovyev.android.plotter.meshes.Pool;
+import org.solovyev.android.plotter.meshes.WireFrameCube;
+import org.solovyev.android.plotter.text.FontAtlas;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
-import javax.microedition.khronos.opengles.GL11;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.microedition.khronos.opengles.GL11;
 
 final class DefaultPlotter implements Plotter {
 
@@ -93,8 +110,12 @@ final class DefaultPlotter implements Plotter {
 	@Nonnull
 	private final Context context;
 
+	@Nonnull
+	private final FontAtlas fontAtlas;
+
 	DefaultPlotter(@Nonnull Context context) {
 		this.context = context;
+		this.fontAtlas = new FontAtlas(context);
 		set3d(false);
 	}
 
@@ -111,6 +132,8 @@ final class DefaultPlotter implements Plotter {
 	@Override
 	public void initGl(@Nonnull GL11 gl, boolean firstTime) {
 		if (firstTime) {
+			fontAtlas.init(gl, "Roboto-Regular.ttf", 14, 2, 2);
+
 			// fill the background
 			final int bg = plotData.axisStyle.backgroundColor;
 			gl.glClearColor(Color.red(bg), Color.green(bg), Color.blue(bg), Color.alpha(bg));
@@ -322,7 +345,8 @@ final class DefaultPlotter implements Plotter {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
 		final float size = dimensions.graph.width();
-		add(new DrawableTexture(context.getResources(), R.drawable.icon));
+		//add(new DrawableTexture(context.getResources(), R.drawable.icon));
+		add(new Label(fontAtlas, "test"));
 		add(AxisGrid.xz(dimensions).toDoubleBuffer());
 		if (d3) {
 			add(AxisGrid.xy(dimensions).toDoubleBuffer());
