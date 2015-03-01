@@ -169,6 +169,11 @@ public class FontAtlas {
 
 	@Nonnull
 	public MeshData getMeshData(@Nonnull final String s, float x, float y, float z, float scale) {
+		return getMeshData(s, x, y, z, scale, false, false);
+	}
+
+	@Nonnull
+	public MeshData getMeshData(@Nonnull final String s, float x, float y, float z, float scale, boolean centerX, boolean centerY) {
 		final List<MeshData> meshDataList = new ArrayList<>(s.length());
 
 		//x += (cellWidth / 2.0f) - font.padding.x;
@@ -178,7 +183,7 @@ public class FontAtlas {
 			meshDataList.add(MeshData.createForChar(this, c, x, y, z, cellWidth * scale, cellHeight * scale));
 			x += font.charWidths[charToPosition(c)] * scale;
 		}
-		return new MeshData(meshDataList);
+		return new MeshData(meshDataList, centerX, centerY);
 	}
 
 	@Nonnull
@@ -190,6 +195,10 @@ public class FontAtlas {
 				bounds.left, bounds.top,
 				bounds.right, bounds.top,
 		};
+	}
+	
+	public float getFontHeight() {
+		return font.height;
 	}
 
 	private final static class Font {
@@ -268,19 +277,33 @@ public class FontAtlas {
 			this.textureCoordinates = textureCoordinates;
 		}
 
-		public MeshData(@Nonnull List<MeshData> meshDataList) {
+		public MeshData(@Nonnull List<MeshData> meshDataList, boolean centerX, boolean centerY) {
 			indicesOrder = meshDataList.get(0).indicesOrder;
 			textureId = meshDataList.get(0).textureId;
 
 			int indicesCount = 0;
 			int verticesCount = 0;
 			int textureCoordinatesCount = 0;
+			float minX = Integer.MAX_VALUE;
+			float maxX = Integer.MIN_VALUE;
+			float minY = Integer.MAX_VALUE;
+			float maxY = Integer.MIN_VALUE;
 			for (MeshData meshData : meshDataList) {
+				Check.isTrue(indicesOrder == meshData.indicesOrder, "Must be equal");
+				Check.isTrue(textureId == meshData.textureId, "Must be equal");
 				indicesCount += meshData.indices.length;
 				verticesCount += meshData.vertices.length;
 				textureCoordinatesCount += meshData.textureCoordinates.length;
-				Check.isTrue(indicesOrder == meshData.indicesOrder, "Must be equal");
-				Check.isTrue(textureId == meshData.textureId, "Must be equal");
+				if (centerX || centerY) {
+					for (int i = 0; i < meshData.vertices.length; i += 3) {
+						final float x = meshData.vertices[i];
+						minX = Math.min(minX, x);
+						maxX = Math.max(maxX, x);
+						final float y = meshData.vertices[i + 1];
+						minY = Math.min(minY, y);
+						maxY = Math.max(maxY, y);
+					}
+				}
 			}
 			indices = new short[indicesCount];
 			vertices = new float[verticesCount];
@@ -295,7 +318,17 @@ public class FontAtlas {
 				}
 				indicesCount += meshData.indices.length;
 
-				System.arraycopy(meshData.vertices, 0, vertices, verticesCount, meshData.vertices.length);
+				if (centerX || centerY) {
+					final float dx = centerX ? Math.abs(maxX - minX) / 2 : 0f;
+					final float dy = centerY ? Math.abs(maxY - minY) / 2 : 0f;
+					for (int i = 0; i < meshData.vertices.length; i += 3) {
+						vertices[verticesCount + i] = meshData.vertices[i] - dx;
+						vertices[verticesCount + i + 1] = meshData.vertices[i + 1] - dy;
+						vertices[verticesCount + i + 2] = meshData.vertices[i + 2];
+					}
+				} else {
+					System.arraycopy(meshData.vertices, 0, vertices, verticesCount, meshData.vertices.length);
+				}
 				verticesCount += meshData.vertices.length;
 
 				System.arraycopy(meshData.textureCoordinates, 0, textureCoordinates, textureCoordinatesCount, meshData.textureCoordinates.length);

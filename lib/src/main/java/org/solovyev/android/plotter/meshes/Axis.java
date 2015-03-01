@@ -8,24 +8,8 @@ import javax.microedition.khronos.opengles.GL11;
 
 public class Axis extends BaseMesh implements DimensionsAware {
 
-	private static enum Direction {
-		X(new int[]{1, 0, 0},
-				new int[]{0, 1, 0}),
-		Y(new int[]{0, 1, 0},
-				new int[]{1, 0, 0}),
-		Z(new int[]{0, 0, 1}, new int[]{0, 1, 0});
-
-		final int[] vector;
-		final int[] arrow;
-
-		Direction(int[] vector, int[] arrow) {
-			this.vector = vector;
-			this.arrow = arrow;
-		}
-	}
-
 	@Nonnull
-	private final Direction direction;
+	private final AxisDirection direction;
 
 	@Nonnull
 	private final Arrays arrays = new Arrays();
@@ -36,24 +20,24 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	private final ArrayInitializer initializer = new ArrayInitializer();
 
-	private Axis(@Nonnull Direction direction, @Nonnull Dimensions dimensions) {
+	private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions) {
 		this.direction = direction;
 		this.dimensions = dimensions;
 	}
 
 	@Nonnull
 	public static Axis x(@Nonnull Dimensions dimensions) {
-		return new Axis(Direction.X, dimensions);
+		return new Axis(AxisDirection.X, dimensions);
 	}
 
 	@Nonnull
 	public static Axis y(@Nonnull Dimensions dimensions) {
-		return new Axis(Direction.Y, dimensions);
+		return new Axis(AxisDirection.Y, dimensions);
 	}
 
 	@Nonnull
 	public static Axis z(@Nonnull Dimensions dimensions) {
-		return new Axis(Direction.Z, dimensions);
+		return new Axis(AxisDirection.Z, dimensions);
 	}
 
 	@Nonnull
@@ -108,7 +92,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
 		private Scene.Ticks ticks;
 
 		public void init() {
-			final boolean y = direction == Direction.Y;
+			final boolean y = direction == AxisDirection.Y;
 			axis = Scene.Axis.create(dimensions.scene, y);
 			ticks = Scene.Ticks.create(dimensions.graph, axis);
 			arrays.init(3 * (2 + 2 + 2 * ticks.count), 2 + 2 * 2 + 2 * ticks.count);

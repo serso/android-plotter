@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.solovyev.android.plotter.meshes.Axis;
 import org.solovyev.android.plotter.meshes.AxisGrid;
+import org.solovyev.android.plotter.meshes.AxisLabels;
 import org.solovyev.android.plotter.meshes.DimensionsAware;
 import org.solovyev.android.plotter.meshes.DoubleBufferGroup;
 import org.solovyev.android.plotter.meshes.DoubleBufferMesh;
@@ -12,7 +13,6 @@ import org.solovyev.android.plotter.meshes.FunctionGraph2d;
 import org.solovyev.android.plotter.meshes.FunctionGraph3d;
 import org.solovyev.android.plotter.meshes.FunctionGraphSwapper;
 import org.solovyev.android.plotter.meshes.Group;
-import org.solovyev.android.plotter.meshes.Label;
 import org.solovyev.android.plotter.meshes.ListGroup;
 import org.solovyev.android.plotter.meshes.ListPool;
 import org.solovyev.android.plotter.meshes.Mesh;
@@ -346,17 +346,19 @@ final class DefaultPlotter implements Plotter {
 		final Dimensions dimensions = getDimensions();
 		final float size = dimensions.graph.width();
 		//add(new DrawableTexture(context.getResources(), R.drawable.icon));
-		add(new Label(fontAtlas, "test"));
 		add(AxisGrid.xz(dimensions).toDoubleBuffer());
 		if (d3) {
 			add(AxisGrid.xy(dimensions).toDoubleBuffer());
 			add(AxisGrid.yz(dimensions).toDoubleBuffer());
 		}
 		add(Axis.x(dimensions).toDoubleBuffer());
+		add(AxisLabels.x(fontAtlas, dimensions).toDoubleBuffer());
 		add(Axis.y(dimensions).toDoubleBuffer());
+		add(AxisLabels.y(fontAtlas, dimensions).toDoubleBuffer());
 		if (d3) {
 			add(new WireFrameCube(size, size, size));
 			add(Axis.z(dimensions).toDoubleBuffer());
+			add(AxisLabels.z(fontAtlas, dimensions).toDoubleBuffer());
 		}
 	}
 

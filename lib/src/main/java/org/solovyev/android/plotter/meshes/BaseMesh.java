@@ -263,6 +263,10 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	private void bindVboBuffer(@Nonnull Buffer source, int sourceBytes, int destination, int type) {
+		if (destination != NULL) {
+			final int[] buffers = {destination};
+			gl.glDeleteBuffers(buffers.length, buffers, 0);
+		}
 		gl.glBindBuffer(type, destination);
 		gl.glBufferData(type, sourceBytes, source, GL11.GL_STATIC_DRAW);
 		gl.glBindBuffer(type, 0);
@@ -285,6 +289,7 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	private void setTextureCoordinates(float[] textureCoordinates) {
+		Check.isGlThread();
 		this.textureCoordinates = Meshes.allocateOrPutBuffer(textureCoordinates, this.textureCoordinates);
 		if (useVbo) {
 			bindVboBuffer(this.textureCoordinates, textureCoordinatesVbo, GL11.GL_ARRAY_BUFFER);
@@ -315,6 +320,7 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	protected final void setTexture(int textureId, float[] textureCoordinates) {
+		Check.isGlThread();
 		this.textureId = textureId;
 		setTextureCoordinates(textureCoordinates);
 	}
