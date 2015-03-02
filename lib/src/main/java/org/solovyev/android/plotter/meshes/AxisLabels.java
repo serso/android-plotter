@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.graphics.RectF;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.text.FontAtlas;
@@ -66,6 +68,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		final boolean isY = direction == AxisDirection.Y;
 		final Scene.Axis axis = Scene.Axis.create(dimensions.scene, isY);
 		final Scene.Ticks ticks = Scene.Ticks.create(dimensions.graph, axis);
+		final float fontVerticalOffset = calculateFontVerticalOffset(ticks);
 		final float fontScale = 3f * ticks.width / fontAtlas.getFontHeight();
 		final int[] dv = direction.vector;
 		final int[] da = direction.arrow;
@@ -78,7 +81,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 			// as digits usually occupy only lower part of the glyph cell visually text appears
 			// to be not centered. Let's fix this by offsetting Y coordinate. Note that this
 			// offset is unique for font used in the font atlas
-			y += ticks.width / 4;
+			y += fontVerticalOffset;
 		}
 		float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
 		for (int tick = 0; tick < ticks.count; tick++) {
@@ -92,13 +95,18 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 				continue;
 			}
 
-			final FontAtlas.MeshData meshData = fontAtlas.getMeshData(tickFormat.format(x), x, y, z, fontScale, !isY, isY);
+			final String label = tickFormat.format(x);
+			FontAtlas.MeshData meshData = fontAtlas.getMeshData(label, x, y, z, fontScale, !isY, isY);
 			if (!middle && direction != AxisDirection.Z && !meshDataList.isEmpty()) {
+				final RectF bounds = meshData.getBounds();
 				final FontAtlas.MeshData lastMeshData = meshDataList.get(meshDataList.size() - 1);
-				if (lastMeshData.getBounds().intersect(meshData.getBounds())) {
-					// todo serso: here actually we can put label on the other side of the axis
-					// new label intersects old, let's skip it
-					continue;
+				if (lastMeshData.getBounds().intersect(bounds)) {
+					if (direction == AxisDirection.X) {
+						meshData = fontAtlas.getMeshData(label, x, y - (ticks.width + bounds.height() - fontVerticalOffset), z, fontScale, !isY, isY);
+					} else {
+						// new label intersects old, let's skip it
+						continue;
+					}
 				}
 			}
 			meshDataList.add(meshData);
@@ -109,6 +117,10 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		setIndices(meshData.indices, meshData.indicesOrder);
 		setVertices(meshData.vertices);
 		setTexture(meshData.textureId, meshData.textureCoordinates);
+	}
+
+	private float calculateFontVerticalOffset(Scene.Ticks ticks) {
+		return ticks.width / 4;
 	}
 
 	@Nonnull
