@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.solovyev.android.plotter.meshes.Axis;
 import org.solovyev.android.plotter.meshes.AxisGrid;
@@ -32,6 +33,9 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL11;
 
 final class DefaultPlotter implements Plotter {
+
+	@Nonnull
+	private static final String TAG = Plot.getTag("Plotter");
 
 	@Nonnull
 	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraphSwapper.INSTANCE);
@@ -139,6 +143,28 @@ final class DefaultPlotter implements Plotter {
 			gl.glClearColor(Color.red(bg), Color.green(bg), Color.blue(bg), Color.alpha(bg));
 		}
 		allMeshes.initGl(gl, config);
+		if (existsNotInitializedMesh(allMeshes)) {
+			Log.d(TAG, "Exist not initialized meshes after iniGl, invoking init again...");
+			setDirty();
+		}
+	}
+
+	private boolean existsNotInitializedMesh(@Nonnull Group<Mesh> meshes) {
+		for (Mesh mesh : meshes) {
+			if (mesh instanceof Group) {
+				if (existsNotInitializedMesh((Group<Mesh>) mesh)) {
+					return true;
+				}
+				continue;
+			}
+			if (mesh instanceof DoubleBufferMesh) {
+				mesh = ((DoubleBufferMesh) mesh).getNext();
+			}
+			if (mesh.getState() != Mesh.State.INIT_GL) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

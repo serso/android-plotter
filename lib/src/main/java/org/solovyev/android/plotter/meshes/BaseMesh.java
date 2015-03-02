@@ -2,6 +2,7 @@ package org.solovyev.android.plotter.meshes;
 
 import android.graphics.Bitmap;
 import android.opengl.GLUtils;
+import android.util.Log;
 
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Color;
@@ -18,6 +19,9 @@ import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseMesh implements Mesh {
+
+	@Nonnull
+	private static final String TAG = Meshes.getTag("BaseMesh");
 
 	private static final int NULL = 0xDEADC0DE;
 
@@ -79,6 +83,7 @@ public abstract class BaseMesh implements Mesh {
 
 	protected final void setDirty() {
 		state.setDirty();
+		Log.d(TAG, this + ": state=" + state);
 	}
 
 	@Override
@@ -413,6 +418,11 @@ public abstract class BaseMesh implements Mesh {
 					return true;
 				}
 			}
+		}
+
+		@Override
+		public String toString() {
+			return state.toString() + "(" + String.valueOf(delayedState) + ")";
 		}
 	}
 

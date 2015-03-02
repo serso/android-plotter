@@ -64,7 +64,7 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 		final boolean initGl = next.initGl(gl, config);
 		if (initGl) {
 			swap(next);
-			return false;
+			return true;
 		}
 
 		// initGl must be called for current mesh also as GL instance might have changed
