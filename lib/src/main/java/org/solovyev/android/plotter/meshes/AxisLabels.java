@@ -21,7 +21,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	private volatile Dimensions dimensions;
-	
+
 	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
 		this.direction = direction;
 		this.fontAtlas = fontAtlas;
@@ -63,15 +63,25 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		final List<FontAtlas.MeshData> meshDataList = new ArrayList<>();
 		final DecimalFormat tickFormat = new DecimalFormat("##0.##E0");
 
-		final Scene.Axis axis = Scene.Axis.create(dimensions.scene, false);
+		final boolean isY = direction == AxisDirection.Y;
+		final Scene.Axis axis = Scene.Axis.create(dimensions.scene, isY);
 		final Scene.Ticks ticks = Scene.Ticks.create(dimensions.graph, axis);
 		final float fontScale = 3f * ticks.width / fontAtlas.getFontHeight();
-		final boolean centerX = direction != AxisDirection.Y;
-		final boolean centerY = direction == AxisDirection.Y;
+		final boolean centerX = !isY;
+		final boolean centerY = isY;
 		final int[] dv = direction.vector;
 		final int[] da = direction.arrow;
 		float x = -dv[0] * (ticks.axisLength / 2 + ticks.step) + da[0] * ticks.width / 2;
+		if (isY) {
+			x += ticks.width / 2;
+		}
 		float y = -dv[1] * (ticks.axisLength / 2 + ticks.step) + da[1] * ticks.width / 2;
+		if (isY) {
+			// as digits usually occupy only lower part of the glyph cell visually text appears
+			// to be not centered. Let's fix this by offsetting Y coordinate. Note that this
+			// offset is unique for font used in the font atlas
+			y += ticks.width / 4;
+		}
 		float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
 		for (int i = 0; i < ticks.count; i++) {
 			x += dv[0] * ticks.step;
@@ -80,7 +90,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 
 			meshDataList.add(fontAtlas.getMeshData(tickFormat.format(x), x, y, z, fontScale, centerX, centerY));
 		}
-		
+
 		final FontAtlas.MeshData meshData = new FontAtlas.MeshData(meshDataList, false, false);
 
 		setIndices(meshData.indices, meshData.indicesOrder);
