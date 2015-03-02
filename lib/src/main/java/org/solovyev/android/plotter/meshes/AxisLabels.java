@@ -67,8 +67,6 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		final Scene.Axis axis = Scene.Axis.create(dimensions.scene, isY);
 		final Scene.Ticks ticks = Scene.Ticks.create(dimensions.graph, axis);
 		final float fontScale = 3f * ticks.width / fontAtlas.getFontHeight();
-		final boolean centerX = !isY;
-		final boolean centerY = isY;
 		final int[] dv = direction.vector;
 		final int[] da = direction.arrow;
 		float x = -dv[0] * (ticks.axisLength / 2 + ticks.step) + da[0] * ticks.width / 2;
@@ -83,12 +81,27 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 			y += ticks.width / 4;
 		}
 		float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
-		for (int i = 0; i < ticks.count; i++) {
+		for (int tick = 0; tick < ticks.count; tick++) {
 			x += dv[0] * ticks.step;
 			y += dv[1] * ticks.step;
 			z += dv[2] * ticks.step;
 
-			meshDataList.add(fontAtlas.getMeshData(tickFormat.format(x), x, y, z, fontScale, centerX, centerY));
+			final boolean middle = tick == ticks.count / 2;
+			if (middle && direction != AxisDirection.X) {
+				// center is reserved for X coordinate
+				continue;
+			}
+
+			final FontAtlas.MeshData meshData = fontAtlas.getMeshData(tickFormat.format(x), x, y, z, fontScale, !isY, isY);
+			if (!middle && direction != AxisDirection.Z && !meshDataList.isEmpty()) {
+				final FontAtlas.MeshData lastMeshData = meshDataList.get(meshDataList.size() - 1);
+				if (lastMeshData.getBounds().intersect(meshData.getBounds())) {
+					// todo serso: here actually we can put label on the other side of the axis
+					// new label intersects old, let's skip it
+					continue;
+				}
+			}
+			meshDataList.add(meshData);
 		}
 
 		final FontAtlas.MeshData meshData = new FontAtlas.MeshData(meshDataList, false, false);

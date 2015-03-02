@@ -39,6 +39,7 @@ final class Scene {
 
 	static final class Ticks {
 
+		// always odd
 		final int count;
 		final float step;
 		final float width;

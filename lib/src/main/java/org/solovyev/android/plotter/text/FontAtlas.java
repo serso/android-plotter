@@ -282,10 +282,7 @@ public class FontAtlas {
 			int indicesCount = 0;
 			int verticesCount = 0;
 			int textureCoordinatesCount = 0;
-			float minX = Integer.MAX_VALUE;
-			float maxX = Integer.MIN_VALUE;
-			float minY = Integer.MAX_VALUE;
-			float maxY = Integer.MIN_VALUE;
+			final RectF bounds = makeEmptyBounds();
 			for (MeshData meshData : meshDataList) {
 				Check.isTrue(indicesOrder == meshData.indicesOrder, "Must be equal");
 				Check.isTrue(textureId == meshData.textureId, "Must be equal");
@@ -293,14 +290,7 @@ public class FontAtlas {
 				verticesCount += meshData.vertices.length;
 				textureCoordinatesCount += meshData.textureCoordinates.length;
 				if (centerX || centerY) {
-					for (int i = 0; i < meshData.vertices.length; i += 3) {
-						final float x = meshData.vertices[i];
-						minX = Math.min(minX, x);
-						maxX = Math.max(maxX, x);
-						final float y = meshData.vertices[i + 1];
-						minY = Math.min(minY, y);
-						maxY = Math.max(maxY, y);
-					}
+					meshData.union(bounds);
 				}
 			}
 			indices = new short[indicesCount];
@@ -317,8 +307,8 @@ public class FontAtlas {
 				indicesCount += meshData.indices.length;
 
 				if (centerX || centerY) {
-					final float dx = centerX ? Math.abs(maxX - minX) / 2 : 0f;
-					final float dy = centerY ? Math.abs(maxY - minY) / 2 : 0f;
+					final float dx = centerX ? Math.abs(bounds.right - bounds.left) / 2 : 0f;
+					final float dy = centerY ? Math.abs(bounds.top - bounds.bottom) / 2 : 0f;
 					for (int i = 0; i < meshData.vertices.length; i += 3) {
 						vertices[verticesCount + i] = meshData.vertices[i] - dx;
 						vertices[verticesCount + i + 1] = meshData.vertices[i + 1] - dy;
@@ -364,5 +354,29 @@ public class FontAtlas {
 					x + width, y + height, z};
 			return new MeshData(atlas.textureId, indices, IndicesOrder.TRIANGLES, vertices, atlas.getTextureCoordinates(c));
 		}
+
+		@Nonnull
+		private static RectF makeEmptyBounds() {
+			return new RectF(Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
+		}
+
+		@Nonnull
+		public RectF getBounds() {
+			return union(makeEmptyBounds());
+		}
+
+		@Nonnull
+		private RectF union(@Nonnull RectF bounds) {
+			for (int i = 0; i < vertices.length; i += 3) {
+				final float x = vertices[i];
+				bounds.left = Math.min(bounds.left, x);
+				bounds.right = Math.max(bounds.right, x);
+				final float y = vertices[i + 1];
+				bounds.top = Math.min(bounds.top, y);
+				bounds.bottom = Math.max(bounds.bottom, y);
+			}
+			return bounds;
+		}
 	}
+
 }
