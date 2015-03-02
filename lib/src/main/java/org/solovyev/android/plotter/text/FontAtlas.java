@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL10;
 
 public class FontAtlas {
@@ -266,6 +267,8 @@ public class FontAtlas {
 		public final int textureId;
 		@Nonnull
 		public final float[] textureCoordinates;
+		@Nullable
+		private RectF bounds;
 
 		private MeshData(int textureId, @Nonnull short[] indices, @Nonnull IndicesOrder indicesOrder, @Nonnull float[] vertices, @Nonnull float[] textureCoordinates) {
 			this.textureId = textureId;
@@ -362,7 +365,10 @@ public class FontAtlas {
 
 		@Nonnull
 		public RectF getBounds() {
-			return union(makeEmptyBounds());
+			if (bounds == null) {
+				bounds = union(makeEmptyBounds());
+			}
+			return bounds;
 		}
 
 		@Nonnull
