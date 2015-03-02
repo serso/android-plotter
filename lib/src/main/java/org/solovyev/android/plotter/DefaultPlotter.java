@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.util.Log;
 
 import org.solovyev.android.plotter.meshes.Axis;
@@ -136,7 +137,10 @@ final class DefaultPlotter implements Plotter {
 	@Override
 	public void initGl(@Nonnull GL11 gl, boolean firstTime) {
 		if (firstTime) {
-			fontAtlas.init(gl, "Roboto-Regular.ttf", 14, 2, 2);
+			final Resources resources = context.getResources();
+			final int fontSize = resources.getDimensionPixelSize(R.dimen.font_size);
+			final int fontSpacing = resources.getDimensionPixelSize(R.dimen.font_spacing);
+			fontAtlas.init(gl, "Roboto-Regular.ttf", fontSize, fontSpacing, fontSpacing);
 
 			// fill the background
 			final int bg = plotData.axisStyle.backgroundColor;

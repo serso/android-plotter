@@ -176,8 +176,6 @@ public class FontAtlas {
 	public MeshData getMeshData(@Nonnull final String s, float x, float y, float z, float scale, boolean centerX, boolean centerY) {
 		final List<MeshData> meshDataList = new ArrayList<>(s.length());
 
-		//x += (cellWidth / 2.0f) - font.padding.x;
-		//y += (cellHeight / 2.0f) - font.padding.y;
 		for (int i = 0; i < s.length(); i++) {
 			final char c = s.charAt(i);
 			meshDataList.add(MeshData.createForChar(this, c, x, y, z, cellWidth * scale, cellHeight * scale));

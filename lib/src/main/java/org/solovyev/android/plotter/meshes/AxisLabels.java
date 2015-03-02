@@ -65,6 +65,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 
 		final Scene.Axis axis = Scene.Axis.create(dimensions.scene, false);
 		final Scene.Ticks ticks = Scene.Ticks.create(dimensions.graph, axis);
+		final float fontScale = 3f * ticks.width / fontAtlas.getFontHeight();
 		final boolean centerX = direction != AxisDirection.Y;
 		final boolean centerY = direction == AxisDirection.Y;
 		final int[] dv = direction.vector;
@@ -77,7 +78,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 			y += dv[1] * ticks.step;
 			z += dv[2] * ticks.step;
 
-			meshDataList.add(fontAtlas.getMeshData(tickFormat.format(x), x, y, z, ticks.width / 7, centerX, centerY));
+			meshDataList.add(fontAtlas.getMeshData(tickFormat.format(x), x, y, z, fontScale, centerX, centerY));
 		}
 		
 		final FontAtlas.MeshData meshData = new FontAtlas.MeshData(meshDataList, false, false);
