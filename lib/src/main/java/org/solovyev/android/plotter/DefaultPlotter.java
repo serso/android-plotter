@@ -323,7 +323,7 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
-	public void updateDimensions(float zoom, int viewWidth, int viewHeight) {
+	public void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight) {
 		synchronized (lock) {
 			if (dimensions.shouldUpdate(zoom, viewWidth, viewHeight)) {
 				final Dimensions newDimensions = dimensions.copy();

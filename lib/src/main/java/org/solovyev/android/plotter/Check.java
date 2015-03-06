@@ -22,10 +22,11 @@
 
 package org.solovyev.android.plotter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static java.lang.Thread.currentThread;
 
@@ -91,6 +92,12 @@ public final class Check {
 	public static void equals(int expected, int actual) {
 		if (expected != actual) {
 			throw new AssertionException("Should be equal");
+		}
+	}
+
+	public static void isTrue(boolean expression) {
+		if (!expression) {
+			throw new AssertionException("");
 		}
 	}
 

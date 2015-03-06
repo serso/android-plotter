@@ -39,7 +39,8 @@ public final class Dimensions {
 	@Nonnull
 	public final Scene scene = new Scene();
 
-	public float zoom = 1f;
+	@Nonnull
+	public Zoom zoom = Zoom.one();
 
 	@Nonnull
 	public Dimensions copy() {
@@ -60,13 +61,13 @@ public final class Dimensions {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof Dimensions)) return false;
+		if (o == null || getClass() != o.getClass()) return false;
 
 		Dimensions that = (Dimensions) o;
 
-		if (Float.compare(that.zoom, zoom) != 0) return false;
 		if (!graph.equals(that.graph)) return false;
 		if (!scene.equals(that.scene)) return false;
+		if (!zoom.equals(that.zoom)) return false;
 
 		return true;
 	}
@@ -74,42 +75,44 @@ public final class Dimensions {
 	@Override
 	public int hashCode() {
 		int result = graph.hashCode();
-		result = 31 * result + (zoom != +0.0f ? Float.floatToIntBits(zoom) : 0);
+		result = 31 * result + scene.hashCode();
+		result = 31 * result + zoom.hashCode();
 		return result;
 	}
 
-	public float setZoom(float level) {
-		if (zoom != level) {
-			final float result = zoom / level;
+	@Nonnull
+	public Zoom setZoom(@Nonnull Zoom level) {
+		if (!zoom.equals(level)) {
+			final Zoom result = zoom.divideBy(level);
 			zoom = level;
 			return result;
 		}
 
-		return 1;
+		return Zoom.one();
 	}
 
-	public void update(float zoom, int viewWidth, int viewHeight) {
+	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight) {
 		if (shouldUpdate(zoom, viewWidth, viewHeight)) {
 			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
-			final float zoomChange = setZoom(zoom);
-			final boolean zoomChanged = zoomChange != 1;
+			final Zoom zoomChange = setZoom(zoom);
+			final boolean zoomChanged = !zoomChange.isOne();
 			if (viewChanged) {
-				scene.rect.left *= zoom;
-				scene.rect.right *= zoom;
-				scene.rect.bottom *= zoom;
-				scene.rect.top *= zoom;
+				scene.rect.left *= zoom.x;
+				scene.rect.right *= zoom.x;
+				scene.rect.bottom *= zoom.y;
+				scene.rect.top *= zoom.y;
 			} else if (zoomChanged) {
-				scene.rect.left /= zoomChange;
-				scene.rect.right /= zoomChange;
-				scene.rect.bottom /= zoomChange;
-				scene.rect.top /= zoomChange;
+				scene.rect.left /= zoomChange.x;
+				scene.rect.right /= zoomChange.x;
+				scene.rect.bottom /= zoomChange.y;
+				scene.rect.top /= zoomChange.y;
 			}
 			graph.update(this);
 		}
 	}
 
-	boolean shouldUpdate(float zoom, int viewWidth, int viewHeight) {
-		return this.zoom != zoom || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight;
+	boolean shouldUpdate(@Nonnull Zoom zoom, int viewWidth, int viewHeight) {
+		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight;
 	}
 
 	public boolean isEmpty() {
@@ -236,11 +239,11 @@ public final class Dimensions {
 			final float requestedWidth = 20;
 			final float requestedHeight = 20;
 			final float aspectRatio = dimensions.scene.getAspectRatio();
-			final float width = requestedWidth * dimensions.zoom;
-			final float height = requestedHeight * dimensions.zoom * aspectRatio;
+			final float width = requestedWidth * dimensions.zoom.x;
+			final float height = requestedHeight * dimensions.zoom.y * aspectRatio;
 			set(width, height);
-			zoom.x = dimensions.zoom / width();
-			zoom.y = dimensions.zoom / height();
+			zoom.x = dimensions.zoom.x / width();
+			zoom.y = dimensions.zoom.y / height();
 		}
 
 		public float toGraphX(float x) {

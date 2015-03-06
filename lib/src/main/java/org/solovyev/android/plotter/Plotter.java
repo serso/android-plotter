@@ -29,10 +29,14 @@ public interface Plotter {
 	void detachView(@Nonnull PlottingView view);
 
 	void setDimensions(@Nonnull Dimensions dimensions);
+
+	/**
+	 * @return a copy of dimensions
+	 */
 	@Nonnull
 	Dimensions getDimensions();
 
-	void updateDimensions(float zoom, int viewWidth, int viewHeight);
+	void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight);
 
 	boolean is3d();
 

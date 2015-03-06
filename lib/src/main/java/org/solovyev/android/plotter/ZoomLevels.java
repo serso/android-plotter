@@ -8,10 +8,10 @@ public class ZoomLevels {
 	public float y;
 
 	void adjust() {
-		if ((x > 1f && y < 1f) || (y > 1f && x < 1f)) {
+		/*if ((x > 1f && y < 1f) || (y > 1f && x < 1f)) {
 			reset();
 			return;
-		}
+		}*/
 
 		// adjustDifference();
 	}
@@ -45,12 +45,20 @@ public class ZoomLevels {
 	@Override
 	public String toString() {
 		return "ZoomLevels{" +
-				"x=" + x +
-				", y=" + y +
+				"x=" + round(x) +
+				", y=" + round(y) +
 				'}';
 	}
 
+	private float round(float value) {
+		return ((int) (1000 * value) / 1000f);
+	}
+
 	public float getLevel() {
+		if ((x > 1f && y < 1f) || (y > 1f && x < 1f)) {
+			return 1f;
+		}
+
 		if (x == 1f) {
 			return y;
 		}
@@ -64,5 +72,18 @@ public class ZoomLevels {
 	void reset() {
 		x = 1f;
 		y = 1f;
+	}
+
+	void update(float x, float y) {
+		setX(x);
+		setY(y);
+	}
+
+	void setY(float y) {
+		this.y = round(y);
+	}
+
+	void setX(float x) {
+		this.x = round(x);
 	}
 }

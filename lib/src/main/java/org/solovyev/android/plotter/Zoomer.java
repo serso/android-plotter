@@ -5,35 +5,35 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static android.os.SystemClock.uptimeMillis;
 
 final class Zoomer {
 
 	private static final long DURATION = 1000L;
-	private static final float ZOOM_IN = .625f;
-	private static final float ZOOM_OUT = 1.6f;
-
+	private long duration = DURATION;
 	@Nonnull
 	private final Interpolator interpolator = new AccelerateDecelerateInterpolator();
-
-	private float level = 1f;
-
-	private float from = -1;
-	private float to = level;
-
+	@Nonnull
+	private Zoom level = Zoom.one();
+	@Nonnull
+	private Zoom to = level;
+	@Nullable
+	private Zoom from = null;
 	private long startTime = -1;
-	private long duration = DURATION;
 
 	public Zoomer(@Nonnull Bundle bundle) {
-		level = bundle.getFloat("zoom.level", 1f);
+		final float value = bundle.getFloat("zoom.level", 1f);
+		level = new Zoom(value, value);
 		to = level;
 	}
 
 	public Zoomer() {
 	}
 
-	public float getLevel() {
+	@Nonnull
+	public Zoom getLevel() {
 		return level;
 	}
 
@@ -42,22 +42,18 @@ final class Zoomer {
 	 */
 	public boolean onFrame() {
 		if (isZooming()) {
+			Check.isTrue(from != null);
 			final long now = uptimeMillis();
 			final float position = (now - startTime) / (float) duration;
 			if (position >= 1f) {
 				startTime = -1;
-				from = -1;
+				from = null;
 				level = to;
 				return true;
 			}
 
-			if (from > to) {
-				level = from - (from - to) * interpolator.getInterpolation(position);
-				return true;
-			}
-
-			if (from < to) {
-				level = from + (to - from) * interpolator.getInterpolation(position);
+			if (!from.equals(to)) {
+				level = Zoom.between(from, to, interpolator.getInterpolation(position));
 				return true;
 			}
 		}
@@ -71,20 +67,20 @@ final class Zoomer {
 		}
 
 		if (in) {
-			if (level * ZOOM_IN == 0f) {
+			if (!level.canZoomIn()) {
 				return false;
 			}
-			if (from == -1) {
-				zoomTo(level * ZOOM_IN);
+			if (from == null) {
+				zoomTo(level.zoomIn());
 			} else {
 				reverseZoom();
 			}
 		} else {
-			if (level >= Float.MAX_VALUE / ZOOM_OUT) {
+			if (!level.canZoomOut()) {
 				return false;
 			}
-			if (from == -1) {
-				zoomTo(level * ZOOM_OUT);
+			if (from == null) {
+				zoomTo(level.zoomOut());
 			} else {
 				reverseZoom();
 			}
@@ -100,13 +96,13 @@ final class Zoomer {
 		if (level == 1f) {
 			return false;
 		}
-		zoomTo(this.level * level);
+		zoomTo(this.level.multiplyBy(level));
 		duration = 1;
 		return true;
 	}
 
-	private void zoomTo(float newLevel) {
-		to = newLevel;
+	private void zoomTo(@Nonnull Zoom newZoom) {
+		to = newZoom;
 		from = level;
 		duration = DURATION;
 		startTime = uptimeMillis();
@@ -114,15 +110,15 @@ final class Zoomer {
 
 	public boolean reset() {
 		if (isZooming()) {
-			if ((to == 1f) || (from == 1f)) {
+			if (to.isOne() || (from != null && from.isOne())) {
 				reverseZoom();
 				return true;
 			}
 			return false;
 		}
 
-		if (level != 1) {
-			zoomTo(1);
+		if (!level.isOne()) {
+			zoomTo(Zoom.one());
 			return true;
 		}
 
@@ -130,7 +126,7 @@ final class Zoomer {
 	}
 
 	private void reverseZoom() {
-		final float tmp = to;
+		final Zoom tmp = to;
 		to = from;
 		from = tmp;
 
@@ -144,15 +140,16 @@ final class Zoomer {
 	}
 
 	boolean isZoomingIn() {
-		return to < level;
+		return to.smallerThan(level);
 	}
 
 	boolean isZoomingOut() {
-		return to > level;
+		return to.biggerThan(level);
 	}
 
 	public void saveState(@Nonnull Bundle bundle) {
-		bundle.putFloat("zoom.level", isZooming() ? to : level);
+		// todo serso: fix this
+		bundle.putFloat("zoom.level", isZooming() ? to.x : level.x);
 	}
 
 	@Override

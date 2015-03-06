@@ -1,10 +1,14 @@
 package org.solovyev.android.plotter;
 
 import android.graphics.PointF;
+import android.util.Log;
 
 import javax.annotation.Nonnull;
 
 final class PinchZoomTracker {
+
+	@Nonnull
+	private static final String TAG = Plot.getTag("PinchZoom");
 
 	private static final float EPS = 1.5f;
 	// todo serso: dpi!!!
@@ -29,18 +33,19 @@ final class PinchZoomTracker {
 		if (distance.x > MIN_DISTANCE) {
 			final float dx = distance(x1, x2);
 			if (dx > EPS) {
-				current.x = distance.x / dx;
+				current.setX(distance.x / dx);
 			}
 		}
 
 		if (distance.y > MIN_DISTANCE) {
 			final float dy = distance(y1, y2);
 			if (dy > EPS) {
-				current.y = distance.y / dy;
+				current.setY(distance.y / dy);
 			}
 		}
 
 		current.adjust();
+		Log.d(TAG, String.valueOf(current));
 		return current;
 	}
 

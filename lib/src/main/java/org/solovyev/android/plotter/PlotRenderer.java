@@ -73,7 +73,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void setPlotter(@Nonnull Plotter plotter) {
-		float zoomLevel;
+		Zoom zoomLevel;
 		synchronized (zoomer) {
 			zoomLevel = zoomer.zoomer.getLevel();
 		}
@@ -201,7 +201,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		spf.logFrameEnd();
 	}
 
-	private void initFrustum(@Nonnull GL10 gl, float distance) {
+	private void initFrustum(@Nonnull GL10 gl, @Nonnull Zoom distance) {
 		Check.isGlThread();
 
 		if (viewDimensions.isEmpty()) {
@@ -220,7 +220,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		viewDimensions.set(0, 0, width, height);
 		gl.glViewport(0, 0, width, height);
 		zoomer.onSurfaceChanged(gl);
-		final float zoomLevel = zoomer.zoomer.getLevel();
+		final Zoom zoomLevel = zoomer.zoomer.getLevel();
 
 		view.post(new Runnable() {
 			@Override
@@ -420,14 +420,15 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		@GuardedBy("zoomer")
 		volatile boolean pinchZoom;
 
-		float onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
-			final float zoomLevel;
+		@Nonnull
+		Zoom onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
+			final Zoom zoomLevel;
 			synchronized (zoomer) {
 				if (zoomer.onFrame()) {
 					synchronized (lock) {
 						frustumZoomer = zoomer;
 					}
-					initFrustum(gl, Dimensions.DISTANCE * zoomer.getLevel());
+					initFrustum(gl, zoomer.getLevel().multiplyBy(Dimensions.DISTANCE));
 
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
@@ -444,7 +445,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 						// frustum is not initialized yet => let's do it
 						if (frustumZoomer != zoomer) {
 							frustumZoomer = zoomer;
-							initFrustum(gl, Dimensions.DISTANCE * zoomer.getLevel());
+							initFrustum(gl, zoomer.getLevel().multiplyBy(Dimensions.DISTANCE));
 						}
 					}
 				}
@@ -455,7 +456,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		void onSurfaceChanged(GL10 gl) {
 			synchronized (zoomer) {
-				initFrustum(gl, Dimensions.DISTANCE * zoomer.getLevel());
+				initFrustum(gl, zoomer.getLevel().multiplyBy(Dimensions.DISTANCE));
 			}
 		}
 
@@ -467,7 +468,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		void restoreState(@Nonnull Bundle bundle) {
-			final float zoomLevel;
+			final Zoom zoomLevel;
 			synchronized (zoomer) {
 				zoomer = new Zoomer(bundle);
 				Log.d(TAG, "Restoring state: " + zoomer);
@@ -505,12 +506,16 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		public void zoomBy(@Nonnull ZoomLevels levels) {
-			if(!levels.isChanged()) {
+			if (!levels.isChanged()) {
 				return;
 			}
 
-			//if (levels.x != 1f && levels.y != 1f) {
-			if (true) {
+			final Plotter plotter = getPlotter();
+			if (plotter == null) {
+				return;
+			}
+
+			if (plotter.is3d()) {
 				final float level = levels.getLevel();
 
 				synchronized (zoomer) {
@@ -520,12 +525,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					Log.d(TAG, "Zooming by level=" + levels + ". " + zoomer);
 				}
 			} else {
-				final Plotter plotter = getPlotter();
-				if (plotter != null) {
-					final Dimensions dimensions = plotter.getDimensions();
-					dimensions.graph.multiplyBy(levels.x, levels.y);
-					plotter.setDimensions(dimensions);
-				}
+				final Dimensions dimensions = plotter.getDimensions();
+				dimensions.graph.multiplyBy(levels.x, levels.y);
+				plotter.setDimensions(dimensions);
 			}
 		}
 

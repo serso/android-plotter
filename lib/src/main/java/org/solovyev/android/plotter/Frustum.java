@@ -7,19 +7,20 @@ public final class Frustum {
 	public float height;
 	public float near;
 	public float far;
-	public float distance;
+	@Nonnull
+	public Zoom distance;
 	public float aspectRatio;
 
-	private Frustum(float distance, float aspectRatio) {
+	private Frustum(@Nonnull Zoom distance, float aspectRatio) {
 		update(distance, aspectRatio);
 	}
 
-	boolean update(float distance, float aspectRatio) {
-		if (this.distance != distance || this.aspectRatio != aspectRatio) {
+	boolean update(@Nonnull Zoom distance, float aspectRatio) {
+		if (!this.distance.equals(distance) || this.aspectRatio != aspectRatio) {
 			this.distance = distance;
 			this.aspectRatio = aspectRatio;
-			this.near = distance / 3f;
-			this.far = distance * 3f;
+			this.near = distance.x / 3f;
+			this.far = distance.x * 3f;
 			this.width = 2 * near / 5f;
 			this.height = width * aspectRatio;
 			return true;
@@ -29,13 +30,13 @@ public final class Frustum {
 	}
 
 	@Nonnull
-	static Frustum create(float distance, float aspectRatio) {
+	static Frustum create(@Nonnull Zoom distance, float aspectRatio) {
 		return new Frustum(distance, aspectRatio);
 	}
 
 	@Nonnull
 	static Frustum empty() {
-		return new Frustum(0, 1);
+		return new Frustum(Zoom.zero(), 1);
 	}
 
 	@Override

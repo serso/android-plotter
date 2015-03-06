@@ -39,6 +39,8 @@ final class Scene {
 
 	static final class Ticks {
 
+		private static final int MIN_COUNT = 3;
+
 		// always odd
 		final int count;
 		final float step;
@@ -61,7 +63,7 @@ final class Scene {
 			final float graphWidthGpx = graph.width() - 2 * sidePaddingGpx;
 			final float tickStepGpx = Meshes.getTickStep(graphWidthGpx, 10);
 
-			int ticksCount = (int) (axis.lengthX / graph.toScreenX(tickStepGpx));
+			int ticksCount = Math.max((int) (axis.lengthX / graph.toScreenX(tickStepGpx)), MIN_COUNT);
 			if (ticksCount > 20) {
 				ticksCount /= 2;
 			}
