@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 
 class Graph {
 
-	float accuracy = 1f;
+	float step = -1f;
 
 	int start = 0;
 	int end = 0;
