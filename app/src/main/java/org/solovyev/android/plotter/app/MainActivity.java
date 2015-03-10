@@ -26,13 +26,13 @@ public class MainActivity extends Activity {
 			if(function == null) {
 				return;
 			}
-			final Color color = Color.create(function.lineStyle.color);
+			final Color color = function.meshSpec.color;
 			if (color.equals(Color.BLACK) || color.equals(Color.RED)) {
 				direction = -direction;
 			}
-			function.lineStyle.color = color.add(direction * 0.01f, 0, 0).toInt();
+			function.meshSpec.color = color.add(direction * 0.01f, 0, 0);
 			plotter.update(function);
-			plotView.postDelayed(this, 100L);
+			plotView.postDelayed(this, 10L);
 		}
 	};
 

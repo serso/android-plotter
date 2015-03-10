@@ -19,7 +19,6 @@ public interface Plotter {
 
 	void update(@Nonnull PlotFunction function);
 
-
 	void initGl(@Nonnull GL11 gl, boolean firstTime);
 	void draw(@Nonnull GL11 gl);
 

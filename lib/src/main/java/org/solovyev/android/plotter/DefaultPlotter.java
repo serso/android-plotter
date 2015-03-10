@@ -186,19 +186,18 @@ final class DefaultPlotter implements Plotter {
 		// if there are too many meshes => release them
 		int i = 0;
 		for (PlotFunction function : plotData.functions) {
-			final Color lineColor = Color.create(function.lineStyle.color);
 			if (i < functionMeshes.size()) {
 				final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.get(i);
 				final FunctionGraph next = dbm.getNext();
 				final FunctionGraph current = dbm.getOther(next);
 				next.setFunction(function.function);
-				next.setColor(lineColor);
+				function.meshSpec.applyTo(next);
 				next.setDimensions(dimensions);
-				current.setColor(lineColor);
+				function.meshSpec.applyTo(current);
 			} else {
 				final FunctionGraph mesh = pool.obtain();
 				mesh.setFunction(function.function);
-				mesh.setColor(lineColor);
+				function.meshSpec.applyTo(mesh);
 				mesh.setDimensions(dimensions);
 				functionMeshes.add(DoubleBufferMesh.wrap(mesh, FunctionGraphSwapper.INSTANCE));
 			}

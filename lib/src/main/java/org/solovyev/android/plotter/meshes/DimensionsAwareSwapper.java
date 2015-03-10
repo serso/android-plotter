@@ -13,6 +13,7 @@ public final class DimensionsAwareSwapper implements DoubleBufferMesh.Swapper<Di
 	@Override
 	public void swap(@Nonnull DimensionsAware current, @Nonnull DimensionsAware next) {
 		next.setColor(current.getColor());
+		next.setWidth(current.getWidth());
 		next.setDimensions(current.getDimensions());
 	}
 }

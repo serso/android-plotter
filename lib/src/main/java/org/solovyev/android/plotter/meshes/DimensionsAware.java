@@ -7,12 +7,17 @@ import javax.annotation.Nonnull;
 
 public interface DimensionsAware extends Mesh {
 
-	void setDimensions(@Nonnull Dimensions dimensions);
-
 	@Nonnull
 	Dimensions getDimensions();
 
-	void setColor(@Nonnull Color color);
+	void setDimensions(@Nonnull Dimensions dimensions);
+
+	boolean setColor(@Nonnull Color color);
+
 	@Nonnull
 	Color getColor();
+
+	boolean setWidth(int width);
+
+	int getWidth();
 }

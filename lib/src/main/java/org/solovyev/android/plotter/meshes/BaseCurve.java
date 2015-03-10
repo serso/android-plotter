@@ -4,10 +4,11 @@ import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
-import javax.microedition.khronos.opengles.GL11;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+
+import javax.annotation.Nonnull;
+import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 

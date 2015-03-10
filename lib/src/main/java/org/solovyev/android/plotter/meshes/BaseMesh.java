@@ -60,7 +60,10 @@ public abstract class BaseMesh implements Mesh {
 
 	// can be set from any thread
 	@Nonnull
-	private volatile Color color = Color.WHITE;
+	private volatile Color color = MeshSpec.COLOR_NO;
+
+	// can be set from any thread
+	private volatile int width = MeshSpec.WIDTH_DEFAULT;
 
 	// can be accessed/changed from any thread
 	@Nonnull
@@ -69,11 +72,6 @@ public abstract class BaseMesh implements Mesh {
 	private static boolean supportsVbo(@Nonnull GL11 gl) {
 		final String extensions = gl.glGetString(GL10.GL_EXTENSIONS);
 		return extensions.contains("vertex_buffer_object");
-	}
-
-	@Nonnull
-	public Color getColor() {
-		return color;
 	}
 
 	@Nonnull
@@ -119,7 +117,12 @@ public abstract class BaseMesh implements Mesh {
 		final boolean usedVbo = useVbo;
 		useVbo = this.config.useVbo && supportsVbo(gl);
 		if (usedVbo) {
-			final int[] buffers = {verticesVbo, colorsVbo, indicesVbo, textureCoordinatesVbo};
+			final int[] buffers;
+			if (colorsVbo != NULL) {
+				buffers = new int[]{verticesVbo, indicesVbo, textureCoordinatesVbo, colorsVbo};
+			} else {
+				buffers = new int[]{verticesVbo, indicesVbo, textureCoordinatesVbo};
+			}
 			gl.glDeleteBuffers(buffers.length, buffers, 0);
 		}
 
@@ -155,8 +158,10 @@ public abstract class BaseMesh implements Mesh {
 		if (getState() != State.INIT_GL) {
 			return;
 		}
+		final boolean hasColor = !color.equals(MeshSpec.COLOR_NO);
 		final boolean hasColors = colorsCount >= 0;
 		final boolean hasTexture = hasTexture();
+		final boolean hasWidth = width != 1;
 
 		// counter-clockwise winding
 		gl.glFrontFace(GL10.GL_CCW);
@@ -167,15 +172,18 @@ public abstract class BaseMesh implements Mesh {
 		}
 
 		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-		if (hasColors) {
-			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
-		}
 		if (hasTexture) {
 			gl.glEnable(GL10.GL_TEXTURE_2D);
 			gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 		}
-		if (!hasColors) {
+		if (hasColor) {
 			gl.glColor4f(color.red, color.green, color.blue, color.alpha);
+		}
+		if (hasColors) {
+			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+		}
+		if (hasWidth) {
+			gl.glLineWidth(width);
 		}
 
 		onPreDraw(gl);
@@ -209,12 +217,18 @@ public abstract class BaseMesh implements Mesh {
 		}
 		onPostDraw(gl);
 
-		if (hasTexture) {
-			gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
-			gl.glDisable(GL10.GL_TEXTURE_2D);
+		if (hasWidth) {
+			gl.glLineWidth(1);
 		}
 		if (hasColors) {
 			gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+		}
+		if (hasColor) {
+			gl.glColor4f(MeshSpec.COLOR_DEFAULT.red, MeshSpec.COLOR_DEFAULT.green, MeshSpec.COLOR_DEFAULT.blue, MeshSpec.COLOR_DEFAULT.alpha);
+		}
+		if (hasTexture) {
+			gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
+			gl.glDisable(GL10.GL_TEXTURE_2D);
 		}
 		gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 
@@ -331,24 +345,44 @@ public abstract class BaseMesh implements Mesh {
 	}
 
 	@Nonnull
-	public final BaseMesh withColor(int color) {
-		setColor(color);
-		return this;
+	public Color getColor() {
+		return color;
 	}
 
-	@Nonnull
-	public final BaseMesh withColor(@Nonnull Color color) {
-		setColor(color);
-		return this;
+	public final boolean setColor(int color) {
+		return setColor(Color.create(color));
 	}
 
-	public final void setColor(int color) {
-		setColor(Color.create(color));
+	public final boolean setColor(@Nonnull Color color) {
+		if (!this.color.equals(color)) {
+			// todo serso: color and colors are now used independently, think about making them
+			// dependent
+			this.color = color;
+			return true;
+		}
+		return false;
 	}
 
-	public final void setColor(@Nonnull Color color) {
-		// todo serso: we must null colors here and call setDirty if they were not null
-		this.color = color;
+	public int getWidth() {
+		return width;
+	}
+
+	public final boolean setWidth(int width) {
+		if (this.width != width) {
+			this.width = width;
+			return true;
+		}
+		return false;
+	}
+
+	protected void clearColors() {
+		Check.isGlThread();
+		this.colors = null;
+		this.colorsCount = 0;
+		if (useVbo && colorsVbo != NULL) {
+			gl.glDeleteBuffers(1, new int[]{colorsVbo}, 0);
+			colorsVbo = NULL;
+		}
 	}
 
 	protected void setColors(@Nonnull float[] colors) {
@@ -423,13 +457,6 @@ public abstract class BaseMesh implements Mesh {
 		@Override
 		public String toString() {
 			return state.toString() + "(" + String.valueOf(delayedState) + ")";
-		}
-	}
-
-	static class Swapper<M extends BaseMesh> implements DoubleBufferMesh.Swapper<M> {
-		@Override
-		public void swap(@Nonnull M current, @Nonnull M next) {
-			next.setColor(((BaseMesh) current).color);
 		}
 	}
 }

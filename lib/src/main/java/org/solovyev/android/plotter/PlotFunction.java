@@ -22,6 +22,8 @@
 
 package org.solovyev.android.plotter;
 
+import org.solovyev.android.plotter.meshes.MeshSpec;
+
 import javax.annotation.Nonnull;
 
 public final class PlotFunction {
@@ -30,19 +32,19 @@ public final class PlotFunction {
 	public Function function;
 
 	@Nonnull
-	public LineStyle lineStyle;
+	public MeshSpec meshSpec;
 
 	public boolean visible = true;
 
 	private PlotFunction(@Nonnull Function function) {
 		this.function = function;
-		this.lineStyle = LineStyle.create();
+		this.meshSpec = MeshSpec.createDefault();
 	}
 
 	private PlotFunction(@Nonnull Function function,
-						 @Nonnull LineStyle lineStyle) {
+						 @Nonnull MeshSpec meshSpec) {
 		this.function = function;
-		this.lineStyle = lineStyle;
+		this.meshSpec = meshSpec;
 	}
 
 	@Nonnull
@@ -52,13 +54,13 @@ public final class PlotFunction {
 
 	@Nonnull
 	public static PlotFunction create(@Nonnull Function function,
-									  @Nonnull LineStyle lineStyle) {
-		return new PlotFunction(function, lineStyle);
+									  @Nonnull MeshSpec meshSpec) {
+		return new PlotFunction(function, meshSpec);
 	}
 
 	@Nonnull
 	public PlotFunction copy() {
-		final PlotFunction copy = create(this.function, this.lineStyle.copy());
+		final PlotFunction copy = create(this.function, this.meshSpec.copy());
 
 		copy.visible = this.visible;
 
