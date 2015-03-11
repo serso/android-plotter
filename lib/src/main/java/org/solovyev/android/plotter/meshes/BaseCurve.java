@@ -1,22 +1,16 @@
 package org.solovyev.android.plotter.meshes;
 
-import android.util.Log;
-
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
-
-	@Nonnull
-	private static final String TAG = Meshes.getTag("BaseCurve");
 
 	@Nonnull
 	protected volatile Dimensions dimensions;
@@ -88,19 +82,15 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		final float density = dimensions.scene.view.width() / 10f;
 		final float step = Math.abs((newXMax - newXMin) / density);
 
-		Log.d(TAG, "Requesting [" + newXMin + ", " + newXMax + "]");
-		if (!graph.isEmpty()) {
-			Log.d(TAG, "Old values [" + graph.xMin() + ", " + graph.xMax() + "]");
-		}
-
 		if (graph.step < 0 || graph.step > step) {
-			Log.d(TAG, "Clearing... Old step = " + graph.step + ", new step = " + step);
 			graph.step = step;
 			graph.clear();
 		}
 
 		if (!graph.isEmpty()) {
-			if (newXMin >= graph.xMin()) {
+			final float screenXMin = dimensions.graph.toScreenX(newXMin);
+			final float screenXMax = dimensions.graph.toScreenX(newXMax);
+			if (screenXMin >= graph.xMin()) {
 				// |------[---erased---|------data----|---erased--]------ old data
 				// |-------------------[------data----]------------------ new data
 				//                    xMin           xMax
@@ -110,11 +100,11 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 				// |------[---erased---|------data----]----------- old data
 				// |-------------------[------data----<---->]----- new data
 				//                    xMin                 xMax
-				graph.moveStartTo(newXMin);
-				if (newXMax <= graph.xMax()) {
-					graph.moveEndTo(newXMax);
+				graph.moveStartTo(screenXMin);
+				if (screenXMax <= graph.xMax()) {
+					graph.moveEndTo(screenXMax);
 				} else {
-					append(graph.xMax() + step, newXMax, step, graph, dimensions.graph);
+					append(dimensions.graph.toGraphX(graph.xMax()) + step, newXMax, step, graph, dimensions.graph);
 				}
 			} else {
 				// |--------------------[-----data----|---erased----]-- old data
@@ -127,25 +117,21 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 				// |-------[<----------->------data--<--->]-----------new data
 				//        xMin                           xMax
 
-				prepend(newXMin, graph.xMin() - step, step, graph, dimensions.graph);
-				if (newXMax <= graph.xMax()) {
-					graph.moveEndTo(newXMax);
+				prepend(newXMin, dimensions.graph.toGraphX(graph.xMin()) - step, step, graph, dimensions.graph);
+				if (screenXMax <= graph.xMax()) {
+					graph.moveEndTo(screenXMax);
 				} else {
-					append(graph.xMax() + step, newXMax, step, graph, dimensions.graph);
+					append(dimensions.graph.toGraphX(graph.xMax()) + step, newXMax, step, graph, dimensions.graph);
 				}
 			}
 		} else {
 			append(newXMin, newXMax, step, graph, dimensions.graph);
 		}
-
-		List<float[]> value = java.util.Arrays.asList(graph.vertices);
-		Log.d(TAG, String.valueOf(value));
 	}
 
 	protected abstract float y(float x);
 
 	private void append(float from, float to, float step, @Nonnull Graph graph, @Nonnull Dimensions.Graph g) {
-		Log.d(TAG, "Appending [" + from + ", " + to + "]");
 		float x = from;
 		while (x < to) {
 			graph.append(g.toScreenX(x), g.toScreenY(y(x)));
@@ -154,7 +140,6 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	}
 
 	private void prepend(float from, float to, float step, @Nonnull Graph graph, @Nonnull Dimensions.Graph g) {
-		Log.d(TAG, "Prepending [" + from + ", " + to + "]");
 		float x = to;
 		while (x > from) {
 			graph.prepend(g.toScreenX(x), g.toScreenY(y(x)));

@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Check;
+
 import javax.annotation.Nonnull;
 
 class Graph {
@@ -81,7 +83,7 @@ class Graph {
 
 		final int newCapacity = 5 * capacity / 4;
 		final float[] newVertices = new float[newCapacity];
-		final int offset = newCapacity - capacity;
+		final int offset = (newCapacity - capacity) / 2;
 		System.arraycopy(vertices, start, newVertices, start + offset, length());
 		start += offset;
 		end += offset;
@@ -108,6 +110,7 @@ class Graph {
 	}
 
 	public void moveStartTo(float x) {
+		checkIsNotEmpty();
 		while (start < end && vertices[start] < x) {
 			start += 3;
 		}
@@ -117,7 +120,12 @@ class Graph {
 		}
 	}
 
+	private void checkIsNotEmpty() {
+		Check.isTrue(!isEmpty(), "Should not be empty");
+	}
+
 	public void moveEndTo(float x) {
+		checkIsNotEmpty();
 		while (start < end && vertices[end - 3] > x) {
 			end -= 3;
 		}
