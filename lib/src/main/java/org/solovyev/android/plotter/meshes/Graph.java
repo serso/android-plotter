@@ -1,17 +1,21 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.util.Log;
+
 import org.solovyev.android.plotter.Check;
 
 import javax.annotation.Nonnull;
 
 class Graph {
 
+	static final int MAX_CAPACITY = 1000;
+
 	float step = -1f;
 
-	int start = 0;
-	int end = 0;
-
 	int capacity = 4 * 3;
+
+	int start;
+	int end;
 
 	@Nonnull
 	float[] vertices = new float[capacity];
@@ -20,6 +24,7 @@ class Graph {
 	private short[] indices = new short[capacity / 3];
 
 	private Graph() {
+		init();
 	}
 
 	@Nonnull
@@ -38,6 +43,7 @@ class Graph {
 	private void ensureCanPrepend() {
 		if (start < 3) {
 			makeSpaceAtTheStart();
+			logCapacity();
 		}
 	}
 
@@ -52,7 +58,12 @@ class Graph {
 	private void ensureCanAppend() {
 		if (end + 3 > capacity) {
 			makeSpaceAtTheEnd();
+			logCapacity();
 		}
+	}
+
+	private void logCapacity() {
+		Log.d(Meshes.getTag("Graph"), "Capacity=" + capacity);
 	}
 
 	void makeSpaceAtTheEnd() {
@@ -64,11 +75,19 @@ class Graph {
 			return;
 		}
 
-		final int newCapacity = 5 * capacity / 4;
+		final int newCapacity = newCapacity(capacity);
 		final float[] newVertices = new float[newCapacity];
 		System.arraycopy(vertices, start, newVertices, start, length());
 		vertices = newVertices;
 		capacity = newCapacity;
+	}
+
+	private static int newCapacity(int capacity) {
+		return 5 * capacity / 4;
+	}
+
+	public boolean canGrow() {
+		return newCapacity(capacity) < MAX_CAPACITY;
 	}
 
 	private void makeSpaceAtTheStart() {
@@ -81,7 +100,7 @@ class Graph {
 			return;
 		}
 
-		final int newCapacity = 5 * capacity / 4;
+		final int newCapacity = newCapacity(capacity);
 		final float[] newVertices = new float[newCapacity];
 		final int offset = (newCapacity - capacity) / 2;
 		System.arraycopy(vertices, start, newVertices, start + offset, length());
@@ -101,8 +120,14 @@ class Graph {
 	}
 
 	void clear() {
-		start = 0;
-		end = 0;
+		init();
+		Log.d(Meshes.getTag("Graph"), "Cleared");
+	}
+
+	private void init() {
+		// starting not from zero to allow prepend work without resizing the array
+		start = capacity / 3;
+		end = capacity / 3;
 	}
 
 	public float x(int position) {
