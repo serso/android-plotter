@@ -24,6 +24,9 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	private volatile Dimensions dimensions;
 
+	@Nonnull
+	private final DecimalFormat labelFormat = new DecimalFormat("##0.##E0");
+
 	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
 		this.direction = direction;
 		this.fontAtlas = fontAtlas;
@@ -63,7 +66,6 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		super.onInitGl(gl, config);
 		final List<FontAtlas.MeshData> meshDataList = new ArrayList<>();
-		final DecimalFormat tickFormat = new DecimalFormat("##0.##E0");
 
 		final boolean isY = direction == AxisDirection.Y;
 		final Scene.Axis axis = Scene.Axis.create(dimensions.scene, isY);
@@ -95,7 +97,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 				continue;
 			}
 
-			final String label = tickFormat.format(x);
+			final String label = getLabel(x, y, z);
 			FontAtlas.MeshData meshData = fontAtlas.getMeshData(label, x, y, z, fontScale, !isY, isY);
 			if (!middle && direction != AxisDirection.Z && !meshDataList.isEmpty()) {
 				final RectF bounds = meshData.getBounds();
@@ -117,6 +119,23 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		setIndices(meshData.indices, meshData.indicesOrder);
 		setVertices(meshData.vertices);
 		setTexture(meshData.textureId, meshData.textureCoordinates);
+	}
+
+	@Nonnull
+	private String getLabel(float x, float y, float z) {
+		final float value;
+		switch (direction){
+			case X:
+				value = dimensions.graph.toGraphX(x);
+				break;
+			case Y:
+				value = dimensions.graph.toGraphY(y);
+				break;
+			default:
+				value = dimensions.graph.toGraphZ(z);
+		}
+
+		return labelFormat.format(value);
 	}
 
 	private float calculateFontVerticalOffset(Scene.Ticks ticks) {

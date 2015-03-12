@@ -247,8 +247,12 @@ public final class Dimensions {
 			return x / zoom.x;
 		}
 
-		private float toGraphY(float y) {
+		public float toGraphY(float y) {
 			return y / zoom.y;
+		}
+
+		public float toGraphZ(float z) {
+			return toGraphY(z);
 		}
 
 		public float toScreenX(float x) {
