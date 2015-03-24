@@ -8,21 +8,21 @@ public final class Frustum {
 	public float near;
 	public float far;
 	@Nonnull
-	public Zoom distance;
+	public Zoom zoom = Zoom.zero();
 	public float aspectRatio;
 
-	private Frustum(@Nonnull Zoom distance, float aspectRatio) {
-		update(distance, aspectRatio);
+	private Frustum(@Nonnull Zoom zoom, float aspectRatio) {
+		update(zoom, aspectRatio);
 	}
 
-	boolean update(@Nonnull Zoom distance, float aspectRatio) {
-		if (!this.distance.equals(distance) || this.aspectRatio != aspectRatio) {
-			this.distance = distance;
+	boolean update(@Nonnull Zoom zoom, float aspectRatio) {
+		if (!this.zoom.equals(zoom) || this.aspectRatio != aspectRatio) {
+			this.zoom = zoom;
 			this.aspectRatio = aspectRatio;
-			this.near = distance.x / 3f;
-			this.far = distance.x * 3f;
-			this.width = 2 * near / 5f;
-			this.height = width * aspectRatio;
+			this.near = zoom.level / 3f;
+			this.far = zoom.level * 3f;
+			this.width = zoom.x * 2 * near / 5f;
+			this.height = zoom.y * width * aspectRatio;
 			return true;
 		}
 
@@ -30,8 +30,8 @@ public final class Frustum {
 	}
 
 	@Nonnull
-	static Frustum create(@Nonnull Zoom distance, float aspectRatio) {
-		return new Frustum(distance, aspectRatio);
+	static Frustum create(@Nonnull Zoom zoom, float aspectRatio) {
+		return new Frustum(zoom, aspectRatio);
 	}
 
 	@Nonnull
@@ -47,19 +47,19 @@ public final class Frustum {
 		Frustum frustum = (Frustum) o;
 
 		if (Float.compare(frustum.aspectRatio, aspectRatio) != 0) return false;
-		if (Float.compare(frustum.distance, distance) != 0) return false;
+		if (!zoom.equals(frustum.zoom)) return false;
 
 		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = (distance != +0.0f ? Float.floatToIntBits(distance) : 0);
+		int result = zoom.hashCode();
 		result = 31 * result + (aspectRatio != +0.0f ? Float.floatToIntBits(aspectRatio) : 0);
 		return result;
 	}
 
 	public boolean isEmpty() {
-		return distance == 0f;
+		return zoom.isZero();
 	}
 }

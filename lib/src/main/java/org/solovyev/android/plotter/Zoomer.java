@@ -16,25 +16,24 @@ final class Zoomer {
 	@Nonnull
 	private final Interpolator interpolator = new AccelerateDecelerateInterpolator();
 	@Nonnull
-	private Zoom level = Zoom.one();
+	private Zoom current = Zoom.one();
 	@Nonnull
-	private Zoom to = level;
+	private Zoom to = current;
 	@Nullable
 	private Zoom from = null;
 	private long startTime = -1;
 
 	public Zoomer(@Nonnull Bundle bundle) {
-		final float value = bundle.getFloat("zoom.level", 1f);
-		level = new Zoom(value, value);
-		to = level;
+		current = Zoom.load(bundle);
+		to = current;
 	}
 
 	public Zoomer() {
 	}
 
 	@Nonnull
-	public Zoom getLevel() {
-		return level;
+	public Zoom current() {
+		return current;
 	}
 
 	/**
@@ -48,12 +47,12 @@ final class Zoomer {
 			if (position >= 1f) {
 				startTime = -1;
 				from = null;
-				level = to;
+				current = to;
 				return true;
 			}
 
 			if (!from.equals(to)) {
-				level = Zoom.between(from, to, interpolator.getInterpolation(position));
+				current = Zoom.between(from, to, interpolator.getInterpolation(position));
 				return true;
 			}
 		}
@@ -67,20 +66,20 @@ final class Zoomer {
 		}
 
 		if (in) {
-			if (!level.canZoomIn()) {
+			if (!current.canZoomIn()) {
 				return false;
 			}
 			if (from == null) {
-				zoomTo(level.zoomIn());
+				zoomTo(current.zoomIn());
 			} else {
 				reverseZoom();
 			}
 		} else {
-			if (!level.canZoomOut()) {
+			if (!current.canZoomOut()) {
 				return false;
 			}
 			if (from == null) {
-				zoomTo(level.zoomOut());
+				zoomTo(current.zoomOut());
 			} else {
 				reverseZoom();
 			}
@@ -96,14 +95,26 @@ final class Zoomer {
 		if (level == 1f) {
 			return false;
 		}
-		zoomTo(this.level.multiplyBy(level));
+		zoomTo(current.multiplyBy(level));
+		duration = 1;
+		return true;
+	}
+
+	public boolean zoomBy(float x, float y) {
+		if (isZooming()) {
+			return false;
+		}
+		if (x == 1f && y == 1f) {
+			return false;
+		}
+		zoomTo(current.multiplyBy(x, y));
 		duration = 1;
 		return true;
 	}
 
 	private void zoomTo(@Nonnull Zoom newZoom) {
 		to = newZoom;
-		from = level;
+		from = current;
 		duration = DURATION;
 		startTime = uptimeMillis();
 	}
@@ -117,7 +128,7 @@ final class Zoomer {
 			return false;
 		}
 
-		if (!level.isOne()) {
+		if (!current.isOne()) {
 			zoomTo(Zoom.one());
 			return true;
 		}
@@ -136,26 +147,26 @@ final class Zoomer {
 	}
 
 	boolean isZooming() {
-		return to != level;
+		return to != current;
 	}
 
 	boolean isZoomingIn() {
-		return to.smallerThan(level);
+		return to.smallerThan(current);
 	}
 
 	boolean isZoomingOut() {
-		return to.biggerThan(level);
+		return to.biggerThan(current);
 	}
 
 	public void saveState(@Nonnull Bundle bundle) {
-		// todo serso: fix this
-		bundle.putFloat("zoom.level", isZooming() ? to.x : level.x);
+		final Zoom zoom = isZooming() ? to : current;
+		zoom.save(bundle);
 	}
 
 	@Override
 	public String toString() {
 		return "Zoomer{" +
-				"level=" + (isZooming() ? to : level) +
+				"current=" + (isZooming() ? to : current) +
 				'}';
 	}
 }

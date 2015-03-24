@@ -44,8 +44,9 @@ final class PinchZoomTracker {
 			}
 		}
 
-		current.adjust();
-		Log.d(TAG, String.valueOf(current));
+		if (current.isChanged()) {
+			Log.d(TAG, String.valueOf(current));
+		}
 		return current;
 	}
 

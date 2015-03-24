@@ -97,18 +97,43 @@ public final class Dimensions {
 			final Zoom zoomChange = setZoom(zoom);
 			final boolean zoomChanged = !zoomChange.isOne();
 			if (viewChanged) {
-				scene.rect.left *= zoom.x;
-				scene.rect.right *= zoom.x;
-				scene.rect.bottom *= zoom.y;
-				scene.rect.top *= zoom.y;
+				scene.rect.left *= zoom.level;
+				scene.rect.right *= zoom.level;
+				scene.rect.bottom *= zoom.level;
+				scene.rect.top *= zoom.level;
+
+				final float mx = middle(scene.rect.right, scene.rect.left) * zoom.x;
+				final float my = middle(scene.rect.top, scene.rect.bottom) * zoom.y;
+				final float width = scene.rect.width() * zoom.x;
+				final float height = scene.rect.height() * zoom.y;
+
+				scene.rect.right = mx + width / 2f;
+				scene.rect.left = mx - width / 2f;
+				scene.rect.bottom = my + height / 2f;
+				scene.rect.top = my - height / 2f;
 			} else if (zoomChanged) {
-				scene.rect.left /= zoomChange.x;
-				scene.rect.right /= zoomChange.x;
-				scene.rect.bottom /= zoomChange.y;
-				scene.rect.top /= zoomChange.y;
+				scene.rect.left /= zoomChange.level;
+				scene.rect.right /= zoomChange.level;
+				scene.rect.bottom /= zoomChange.level;
+				scene.rect.top /= zoomChange.level;
+
+				final float mx = middle(scene.rect.right, scene.rect.left) / zoomChange.x;
+				final float my = middle(scene.rect.top, scene.rect.bottom) / zoomChange.y;
+				final float width = scene.rect.width() / zoomChange.x;
+				final float height = scene.rect.height() / zoomChange.y;
+
+				scene.rect.right = mx + width / 2f;
+				scene.rect.left = mx - width / 2f;
+				scene.rect.bottom = my + height / 2f;
+				scene.rect.top = my - height / 2f;
 			}
+
 			graph.update(this);
 		}
+	}
+
+	private static float middle(float from, float to) {
+		return (from + to) / 2f;
 	}
 
 	boolean shouldUpdate(@Nonnull Zoom zoom, int viewWidth, int viewHeight) {
@@ -239,11 +264,11 @@ public final class Dimensions {
 			final float requestedWidth = 20;
 			final float requestedHeight = 20;
 			final float aspectRatio = dimensions.scene.getAspectRatio();
-			final float width = requestedWidth * dimensions.zoom.x;
-			final float height = requestedHeight * dimensions.zoom.y * aspectRatio;
+			final float width = requestedWidth * dimensions.zoom.level;
+			final float height = requestedHeight * dimensions.zoom.level * aspectRatio;
 			set(width, height);
-			zoom.x = dimensions.zoom.x / width();
-			zoom.y = dimensions.zoom.y / height();
+			zoom.x = dimensions.zoom.level / width();
+			zoom.y = dimensions.zoom.level / height();
 		}
 
 		public float toGraphX(float x) {

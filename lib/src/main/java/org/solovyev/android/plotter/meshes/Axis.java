@@ -1,7 +1,10 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.util.Log;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
+import org.solovyev.android.plotter.Plot;
 
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;

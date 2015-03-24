@@ -1,7 +1,10 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.util.Log;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
+import org.solovyev.android.plotter.Plot;
 
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL10;
@@ -57,6 +60,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 		super.onInit();
 
 		if (!dimensions.isEmpty()) {
+			Log.d(Plot.getTag("Dimensions"), String.valueOf(dimensions));
 			createInitializer().init(arrays);
 			arrays.createBuffers();
 		} else {
