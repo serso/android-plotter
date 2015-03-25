@@ -83,7 +83,7 @@ class Graph {
 	}
 
 	private static int newCapacity(int capacity) {
-		return 5 * capacity / 4;
+		return 5 * capacity / 4 + 4;
 	}
 
 	public boolean canGrow() {
