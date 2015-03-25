@@ -84,6 +84,11 @@ public abstract class BaseMesh implements Mesh {
 		Log.d(TAG, this + ": state=" + state);
 	}
 
+	protected final void setDirtyGl() {
+		state.setDirtyGl();
+		Log.d(TAG, this + ": state=" + state);
+	}
+
 	@Override
 	public final boolean init() {
 		Check.isNotMainThread();
@@ -427,6 +432,25 @@ public abstract class BaseMesh implements Mesh {
 				state = newState;
 			}
 			return true;
+		}
+
+		public void setDirtyGl() {
+			synchronized (this) {
+				if (state == State.DIRTY) {
+					return;
+				}
+
+				if (state == State.INITIALIZING_GL) {
+					if (delayedState != null) {
+						return;
+					}
+					// if we are in the middle of initialization process we should postpone setting dirty state until
+					// the process is done
+					delayedState = State.INIT;
+				} else if (state != State.INITIALIZING) {
+					state = State.INIT;
+				}
+			}
 		}
 
 		public void setDirty() {

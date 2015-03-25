@@ -8,6 +8,9 @@ import javax.annotation.Nonnull;
 
 public class AxisGrid extends BaseSurface {
 
+	@Nonnull
+	public static final Color COLOR = Color.create(0xFF222222);
+
 	protected static enum Axes {
 		XY,
 		XZ,
@@ -20,7 +23,7 @@ public class AxisGrid extends BaseSurface {
 	private AxisGrid(@Nonnull Dimensions dimensions, @Nonnull Axes axes) {
 		super(dimensions);
 		this.axes = axes;
-		setColor(Color.create(0xFF222222));
+		setColor(COLOR);
 	}
 
 	@Nonnull
