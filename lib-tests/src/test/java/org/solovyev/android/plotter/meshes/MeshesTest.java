@@ -38,7 +38,7 @@ public class MeshesTest {
 		assertEquals(0.5f, getTickStep(1.5f, 3), 0.0001);
 		assertEquals(0.5f, getTickStep(1.6f, 3), 0.0001);
 		assertEquals(0.5f, getTickStep(1.99f, 3), 0.0001);
-		assertEquals(10f, getTickStep(51f, 3), 0.0001);
+		assertEquals(50f, getTickStep(51f, 3), 0.0001);
 		assertEquals(50f, getTickStep(99f, 3), 0.0001);
 		assertEquals(50f, getTickStep(100f, 3), 0.0001);
 	}

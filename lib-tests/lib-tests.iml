@@ -79,6 +79,7 @@
     <orderEntry type="library" exported="" scope="TEST" name="classes" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="_home_serso_projects_java_serso_android_plotter_app_build_intermediates_classes_debug" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="_home_serso_projects_java_serso_android_plotter_app_build_intermediates_dependency_cache_debug" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="android" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">

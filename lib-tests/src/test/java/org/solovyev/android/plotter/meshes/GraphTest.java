@@ -27,8 +27,8 @@ public class GraphTest {
 	public void testShouldMakeSpaceAtTheEnd() throws Exception {
 		graph.makeSpaceAtTheEnd();
 		verify(graph, 1, 2, 3, 4);
-		Assert.assertEquals(0, graph.start);
-		Assert.assertEquals(12, graph.end);
+		Assert.assertEquals(4, graph.start);
+		Assert.assertEquals(16, graph.end);
 	}
 
 	@Test

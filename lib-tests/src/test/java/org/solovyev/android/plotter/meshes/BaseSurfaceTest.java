@@ -1,8 +1,11 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.graphics.RectF;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.solovyev.android.plotter.Dimensions;
 
 import javax.annotation.Nonnull;
 
@@ -46,7 +49,13 @@ public class BaseSurfaceTest {
 	}
 
 	private short[] fillIndices(final int w, final int h) {
-		final BaseSurface s = new BaseSurface(w - 1, h - 1, true) {
+		final SurfaceInitializer si = new SurfaceInitializer(new BaseSurface(Dimensions.empty()) {
+			@Nonnull
+			@Override
+			protected SurfaceInitializer createInitializer() {
+				return null;
+			}
+
 			@Override
 			protected float z(float x, float y, int xi, int yi) {
 				return 0;
@@ -57,12 +66,10 @@ public class BaseSurfaceTest {
 			protected BaseMesh makeCopy() {
 				return null;
 			}
-		};
-
-		final float[] vertices = new float[w * h * 3];
-		final short[] indices = new short[w * h];
-		s.fillArrays(vertices, indices);
-		return indices;
+		}, SurfaceInitializer.Data.create(new RectF(-1, -1, 1, 1), w, h));
+		final Arrays arrays = new Arrays(w * h * 3, w * h);
+		si.init(arrays);
+		return arrays.indices;
 	}
 
 	@Test
