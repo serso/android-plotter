@@ -168,7 +168,9 @@ final class DefaultPlotter implements Plotter {
 			if (mesh instanceof DoubleBufferMesh) {
 				mesh = ((DoubleBufferMesh) mesh).getNext();
 			}
-			if (mesh.getState() != Mesh.State.INIT_GL) {
+
+			final Mesh.State state = mesh.getState();
+			if (state != Mesh.State.INIT && state != Mesh.State.INIT_GL) {
 				return true;
 			}
 		}
