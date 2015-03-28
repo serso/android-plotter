@@ -74,8 +74,9 @@
     <orderEntry type="library" exported="" scope="TEST" name="support-annotations-22.0.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="classes" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="acra-4.5.0" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="internal_impl-22.0.0" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="jsr305-2.0.3" level="project" />
-    <orderEntry type="library" exported="" scope="TEST" name="_home_serso_projects_java_android_plotter_app_build_intermediates_exploded_aar_com_android_support_support_v4_22_0_0_classes_jar" level="project" />
+    <orderEntry type="library" exported="" scope="TEST" name="classes" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="_home_serso_projects_java_android_plotter_app_build_intermediates_classes_debug" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="_home_serso_projects_java_android_plotter_app_build_intermediates_dependency_cache_debug" level="project" />
     <orderEntry type="library" exported="" scope="TEST" name="android" level="project" />
