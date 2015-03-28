@@ -23,10 +23,21 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	private final FontAtlas fontAtlas;
 
 	@Nonnull
-	private volatile Dimensions dimensions;
+	private final List<FormatInterval> labelFormats = new ArrayList<>();
+
+	{
+		labelFormats.add(new FormatInterval(Math.pow(10, -5), Math.pow(10, -4), new DecimalFormat("##0.####")));
+		labelFormats.add(new FormatInterval(Math.pow(10, -4), Math.pow(10, -3), new DecimalFormat("##0.###")));
+		labelFormats.add(new FormatInterval(Math.pow(10, -3), Math.pow(10, -2), new DecimalFormat("##0.##")));
+		labelFormats.add(new FormatInterval(Math.pow(10, -2), Math.pow(10, 2), new DecimalFormat("##0.#")));
+		labelFormats.add(new FormatInterval(Math.pow(10, 2), Math.pow(10, 4), new DecimalFormat("##0")));
+	}
 
 	@Nonnull
-	private final DecimalFormat labelFormat = new DecimalFormat("##0.##E0");
+	private final DecimalFormat defaultFormat = new DecimalFormat("##0.##E0");
+
+	@Nonnull
+	private volatile Dimensions dimensions;
 
 	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
 		this.direction = direction;
@@ -88,6 +99,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 			y += fontVerticalOffset;
 		}
 		float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
+		final DecimalFormat format = getFormatter(ticks.step);
 		for (int tick = 0; tick < ticks.count; tick++) {
 			x += dv[0] * ticks.step;
 			y += dv[1] * ticks.step;
@@ -99,7 +111,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 				continue;
 			}
 
-			final String label = getLabel(x, y, z);
+			final String label = getLabel(x, y, z, format);
 			FontAtlas.MeshData meshData = fontAtlas.getMeshData(label, x, y, z, fontScale, !isY, isY);
 			if (!middle && direction != AxisDirection.Z && !meshDataList.isEmpty()) {
 				final RectF bounds = meshData.getBounds();
@@ -124,9 +136,9 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	}
 
 	@Nonnull
-	private String getLabel(float x, float y, float z) {
+	private String getLabel(float x, float y, float z, @Nonnull DecimalFormat format) {
 		final float value;
-		switch (direction){
+		switch (direction) {
 			case X:
 				value = dimensions.graph.toGraphX(x);
 				break;
@@ -137,7 +149,17 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 				value = dimensions.graph.toGraphZ(z);
 		}
 
-		return labelFormat.format(value);
+		return format.format(value);
+	}
+
+	@Nonnull
+	private DecimalFormat getFormatter(float step) {
+		for (AxisLabels.FormatInterval labelFormat : labelFormats) {
+			if (labelFormat.l <= step && step < labelFormat.r) {
+				return labelFormat.format;
+			}
+		}
+		return defaultFormat;
 	}
 
 	private float calculateFontVerticalOffset(Scene.Ticks ticks) {
@@ -150,6 +172,12 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		return new AxisLabels(direction, fontAtlas, dimensions, getColor());
 	}
 
+	@Nonnull
+	@Override
+	public Dimensions getDimensions() {
+		return this.dimensions;
+	}
+
 	@Override
 	public void setDimensions(@Nonnull Dimensions dimensions) {
 		// todo serso: might be called on GL thread, requires synchronization
@@ -159,16 +187,23 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		}
 	}
 
-	@Nonnull
-	@Override
-	public Dimensions getDimensions() {
-		return this.dimensions;
-	}
-
 	@Override
 	public String toString() {
 		return "AxisLabels{" +
 				"direction=" + direction +
 				'}';
+	}
+
+	private static final class FormatInterval {
+		final float l;
+		final float r;
+		@Nonnull
+		final DecimalFormat format;
+
+		private FormatInterval(double l, double r, @Nonnull DecimalFormat format) {
+			this.l = (float) l;
+			this.r = (float) r;
+			this.format = format;
+		}
 	}
 }
