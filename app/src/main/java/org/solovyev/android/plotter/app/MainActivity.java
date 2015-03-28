@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
 		});
 
 
-		plotView.post(colorUpdater);
+		//plotView.post(colorUpdater);
 	}
 
 	@Override

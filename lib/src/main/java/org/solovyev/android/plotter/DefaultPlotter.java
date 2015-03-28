@@ -380,12 +380,14 @@ final class DefaultPlotter implements Plotter {
 	public void setTouch(float x, float y) {
 		if (!d3) {
 			touchPosition.setScreenXY(x, y);
+			setDirty();
 		}
 	}
 
 	@Override
 	public void stopTouch() {
 		touchPosition.clear();
+		setDirty();
 	}
 
 	private void makeSetting(boolean d3) {
