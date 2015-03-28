@@ -504,7 +504,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 			synchronized (zoomer) {
 				final float level = levels.getLevel();
-				final boolean zooming = plotter.is3d() ? zoomer.zoomBy(level) : zoomer.zoomBy(levels.x, levels.y);
+				//final boolean zooming = plotter.is3d() ? zoomer.zoomBy(level) : zoomer.zoomBy(levels.x, levels.y);
+				final boolean zooming = zoomer.zoomBy(level);
 				if (zooming) {
 					view.requestRender();
 				}
