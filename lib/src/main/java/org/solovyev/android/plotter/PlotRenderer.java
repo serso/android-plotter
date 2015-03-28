@@ -517,10 +517,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			synchronized (zoomer) {
 				if (this.pinchZoom != pinchZoom) {
 					this.pinchZoom = pinchZoom;
+					final Plotter plotter = getPlotter();
 					if (this.pinchZoom) {
+						if (plotter != null) {
+							plotter.stopTouch();
+						}
 						Log.d(TAG, "Starting pinch zoom");
 					} else {
-						final Plotter plotter = getPlotter();
 						if (plotter != null) {
 							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height());
 						}
