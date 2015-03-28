@@ -52,10 +52,9 @@ dependencies {
 }
 
 task androidJavadocs(type: Javadoc) {
-    // todo serso: fix me
-    //source = android.sourceSets.main.java.srcDirs
-    //classpath += project.files(android.plugin.getBootClasspath().join(File.pathSeparator))
-    //configurations.compile.each { File file -> classpath += project.files(file.path) }
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    configurations.compile.each { File file -> classpath += project.files(file.path) }
 }
 
 task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
