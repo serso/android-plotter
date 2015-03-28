@@ -22,23 +22,14 @@
 
 package org.solovyev.android.plotter;
 
-import android.graphics.Color;
-
 import javax.annotation.Nonnull;
 
 public final class AxisStyle {
 
-	private static final int DEFAULT_AXIS_COLOR = 0xff00a000;
-	private static final int DEFAULT_GRID_COLOR = 0xff004000;
-	private static final int DEFAULT_BACKGROUND_COLOR = Color.BLACK;
-
-	public int axisColor = DEFAULT_AXIS_COLOR;
-
-	public int axisLabelsColor = DEFAULT_AXIS_COLOR;
-
-	public int gridColor = DEFAULT_GRID_COLOR;
-
-	public int backgroundColor = DEFAULT_BACKGROUND_COLOR;
+	public int axisColor = 0xFFF5F5F5;
+	public int axisLabelsColor = 0xFFF5F5F5;
+	public int gridColor = 0xFF424242;
+	public int backgroundColor = 0xFF101010;
 
 	private AxisStyle() {
 	}

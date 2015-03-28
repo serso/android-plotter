@@ -53,7 +53,7 @@ public class FontAtlas {
 		assets = context.getAssets();
 	}
 
-	public boolean init(@Nonnull GL10 gl, @Nonnull String file, int size, int paddingX, int paddingY) {
+	public boolean init(@Nonnull GL10 gl, @Nonnull String file, int size, int paddingX, int paddingY, int color) {
 		Check.isGlThread();
 
 		font.padding.x = paddingX;
@@ -63,7 +63,7 @@ public class FontAtlas {
 		final Paint paint = new Paint();
 		paint.setAntiAlias(true);
 		paint.setTextSize(size);
-		paint.setColor(0xffffffff);
+		paint.setColor(color);
 		paint.setTypeface(tf);
 
 		font.reset(paint);

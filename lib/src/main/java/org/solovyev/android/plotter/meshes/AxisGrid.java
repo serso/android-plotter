@@ -1,15 +1,13 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.graphics.RectF;
+
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 
 import javax.annotation.Nonnull;
 
 public class AxisGrid extends BaseSurface {
-
-	@Nonnull
-	public static final Color COLOR = Color.create(0xFF222222);
 
 	protected static enum Axes {
 		XY,
@@ -20,31 +18,31 @@ public class AxisGrid extends BaseSurface {
 	@Nonnull
 	private Axes axes;
 
-	private AxisGrid(@Nonnull Dimensions dimensions, @Nonnull Axes axes) {
+	private AxisGrid(@Nonnull Dimensions dimensions, @Nonnull Axes axes, @Nonnull Color color) {
 		super(dimensions);
 		this.axes = axes;
-		setColor(COLOR);
+		setColor(color);
 	}
 
 	@Nonnull
-	public static AxisGrid yz(@Nonnull Dimensions dimensions) {
-		return new AxisGrid(dimensions, Axes.YZ);
+	public static AxisGrid yz(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new AxisGrid(dimensions, Axes.YZ, color);
 	}
 
 	@Nonnull
-	public static AxisGrid xz(@Nonnull Dimensions dimensions) {
-		return new AxisGrid(dimensions, Axes.XZ);
+	public static AxisGrid xz(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new AxisGrid(dimensions, Axes.XZ, color);
 	}
 
 	@Nonnull
-	public static AxisGrid xy(@Nonnull Dimensions dimensions) {
-		return new AxisGrid(dimensions, Axes.XY);
+	public static AxisGrid xy(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new AxisGrid(dimensions, Axes.XY, color);
 	}
 
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new AxisGrid(dimensions, axes);
+		return new AxisGrid(dimensions, axes, getColor());
 	}
 
 	@Nonnull

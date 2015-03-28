@@ -2,6 +2,7 @@ package org.solovyev.android.plotter.meshes;
 
 import android.support.annotation.Nullable;
 
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
@@ -25,9 +26,9 @@ public class TouchPosition extends BaseMesh implements DimensionsAware {
 	@Nullable
 	private volatile Data data;
 
-	public TouchPosition(@Nonnull Dimensions dimensions) {
+	public TouchPosition(@Nonnull Dimensions dimensions, @Nonnull Color color) {
 		this.dimensions = dimensions;
-		setColor(AxisGrid.COLOR);
+		setColor(color);
 	}
 
 	@Override

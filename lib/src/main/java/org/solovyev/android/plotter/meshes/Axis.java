@@ -1,10 +1,8 @@
 package org.solovyev.android.plotter.meshes;
 
-import android.util.Log;
-
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
-import org.solovyev.android.plotter.Plot;
 
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
@@ -13,34 +11,32 @@ public class Axis extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	private final AxisDirection direction;
-
 	@Nonnull
 	private final Arrays arrays = new Arrays();
-
+	@Nonnull
+	private final ArrayInitializer initializer = new ArrayInitializer();
 	@Nonnull
 	protected volatile Dimensions dimensions;
 
-	@Nonnull
-	private final ArrayInitializer initializer = new ArrayInitializer();
-
-	private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions) {
+	private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions, @Nonnull Color color) {
 		this.direction = direction;
 		this.dimensions = dimensions;
+		setColor(color);
 	}
 
 	@Nonnull
-	public static Axis x(@Nonnull Dimensions dimensions) {
-		return new Axis(AxisDirection.X, dimensions);
+	public static Axis x(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new Axis(AxisDirection.X, dimensions, color);
 	}
 
 	@Nonnull
-	public static Axis y(@Nonnull Dimensions dimensions) {
-		return new Axis(AxisDirection.Y, dimensions);
+	public static Axis y(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new Axis(AxisDirection.Y, dimensions, color);
 	}
 
 	@Nonnull
-	public static Axis z(@Nonnull Dimensions dimensions) {
-		return new Axis(AxisDirection.Z, dimensions);
+	public static Axis z(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new Axis(AxisDirection.Z, dimensions, color);
 	}
 
 	@Nonnull
@@ -71,7 +67,13 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new Axis(direction, dimensions);
+		return new Axis(direction, dimensions, getColor());
+	}
+
+	@Nonnull
+	@Override
+	public Dimensions getDimensions() {
+		return this.dimensions;
 	}
 
 	@Override
@@ -83,10 +85,11 @@ public class Axis extends BaseMesh implements DimensionsAware {
 		}
 	}
 
-	@Nonnull
 	@Override
-	public Dimensions getDimensions() {
-		return this.dimensions;
+	public String toString() {
+		return "Axis{" +
+				"direction=" + direction +
+				'}';
 	}
 
 	private class ArrayInitializer {
@@ -148,12 +151,5 @@ public class Axis extends BaseMesh implements DimensionsAware {
 					-arrays.vertices[1],
 					-arrays.vertices[2]);
 		}
-	}
-
-	@Override
-	public String toString() {
-		return "Axis{" +
-				"direction=" + direction +
-				'}';
 	}
 }

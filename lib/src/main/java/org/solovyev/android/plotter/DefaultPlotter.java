@@ -20,7 +20,6 @@ import org.solovyev.android.plotter.meshes.ListPool;
 import org.solovyev.android.plotter.meshes.Mesh;
 import org.solovyev.android.plotter.meshes.Pool;
 import org.solovyev.android.plotter.meshes.TouchPosition;
-import org.solovyev.android.plotter.meshes.WireFrameCube;
 import org.solovyev.android.plotter.text.FontAtlas;
 
 import java.util.Arrays;
@@ -120,7 +119,7 @@ final class DefaultPlotter implements Plotter {
 	private final FontAtlas fontAtlas;
 
 	@Nonnull
-	private TouchPosition touchPosition = new TouchPosition(dimensions);
+	private TouchPosition touchPosition = new TouchPosition(dimensions, Color.WHITE);
 
 	DefaultPlotter(@Nonnull Context context) {
 		this.context = context;
@@ -144,7 +143,7 @@ final class DefaultPlotter implements Plotter {
 			final Resources resources = context.getResources();
 			final int fontSize = resources.getDimensionPixelSize(R.dimen.font_size);
 			final int fontSpacing = resources.getDimensionPixelSize(R.dimen.font_spacing);
-			fontAtlas.init(gl, "Roboto-Regular.ttf", fontSize, fontSpacing, fontSpacing);
+			fontAtlas.init(gl, "Roboto-Regular.ttf", fontSize, fontSpacing, fontSpacing, plotData.axisStyle.axisLabelsColor);
 
 			// fill the background
 			final int bg = plotData.axisStyle.backgroundColor;
@@ -395,21 +394,26 @@ final class DefaultPlotter implements Plotter {
 		final Dimensions dimensions = getDimensions();
 		final float size = dimensions.graph.width();
 		//add(new DrawableTexture(context.getResources(), R.drawable.icon));
-		add(AxisGrid.xz(dimensions).toDoubleBuffer());
+
+		final Color gridColor = Color.create(plotData.axisStyle.gridColor);
+		final Color axisColor = Color.create(plotData.axisStyle.axisColor);
+		final Color axisLabelsColor = Color.create(plotData.axisStyle.axisLabelsColor);
+
+		add(AxisGrid.xz(dimensions, gridColor).toDoubleBuffer());
 		if (d3) {
-			add(AxisGrid.xy(dimensions).toDoubleBuffer());
-			add(AxisGrid.yz(dimensions).toDoubleBuffer());
+			add(AxisGrid.xy(dimensions, gridColor).toDoubleBuffer());
+			add(AxisGrid.yz(dimensions, gridColor).toDoubleBuffer());
 		}
-		add(Axis.x(dimensions).toDoubleBuffer());
-		add(AxisLabels.x(fontAtlas, dimensions).toDoubleBuffer());
-		add(Axis.y(dimensions).toDoubleBuffer());
-		add(AxisLabels.y(fontAtlas, dimensions).toDoubleBuffer());
+		add(Axis.x(dimensions, axisColor).toDoubleBuffer());
+		add(AxisLabels.x(fontAtlas, dimensions, axisLabelsColor).toDoubleBuffer());
+		add(Axis.y(dimensions, axisColor).toDoubleBuffer());
+		add(AxisLabels.y(fontAtlas, dimensions, axisLabelsColor).toDoubleBuffer());
 		if (d3) {
-			add(new WireFrameCube(size, size, size));
-			add(Axis.z(dimensions).toDoubleBuffer());
-			add(AxisLabels.z(fontAtlas, dimensions).toDoubleBuffer());
+			add(Axis.z(dimensions, axisColor).toDoubleBuffer());
+			add(AxisLabels.z(fontAtlas, dimensions, axisLabelsColor).toDoubleBuffer());
 		}
 		if(!d3) {
+			touchPosition.setColor(gridColor);
 			add(touchPosition);
 		}
 	}

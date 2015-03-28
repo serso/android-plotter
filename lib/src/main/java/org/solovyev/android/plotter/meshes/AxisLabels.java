@@ -2,6 +2,7 @@ package org.solovyev.android.plotter.meshes;
 
 import android.graphics.RectF;
 
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.text.FontAtlas;
@@ -27,25 +28,26 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	private final DecimalFormat labelFormat = new DecimalFormat("##0.##E0");
 
-	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
+	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
 		this.direction = direction;
 		this.fontAtlas = fontAtlas;
 		this.dimensions = dimensions;
+		setColor(color);
 	}
 
 	@Nonnull
-	public static AxisLabels x(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
-		return new AxisLabels(AxisDirection.X, fontAtlas, dimensions);
+	public static AxisLabels x(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new AxisLabels(AxisDirection.X, fontAtlas, dimensions, color);
 	}
 
 	@Nonnull
-	public static AxisLabels y(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
-		return new AxisLabels(AxisDirection.Y, fontAtlas, dimensions);
+	public static AxisLabels y(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new AxisLabels(AxisDirection.Y, fontAtlas, dimensions, color);
 	}
 
 	@Nonnull
-	public static AxisLabels z(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
-		return new AxisLabels(AxisDirection.Z, fontAtlas, dimensions);
+	public static AxisLabels z(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
+		return new AxisLabels(AxisDirection.Z, fontAtlas, dimensions, color);
 	}
 
 	@Nonnull
@@ -145,7 +147,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new AxisLabels(direction, fontAtlas, dimensions);
+		return new AxisLabels(direction, fontAtlas, dimensions, getColor());
 	}
 
 	@Override
