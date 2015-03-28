@@ -166,6 +166,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			lastTouch.x = x;
 			lastTouch.y = y;
 			lastTouchMoved = false;
+			if(!d3 && plotter != null) {
+				plotter.setTouch(x, y);
+			}
 		}
 
 		@Override
@@ -179,6 +182,8 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			if (moreThanEps(dx, dy, 1f)) {
 				if (d3) {
 					renderer.rotate(dy, dx);
+				} else if (plotter != null) {
+					plotter.setTouch(x, y);
 				}
 				lastTouch.x = x;
 				lastTouch.y = y;
@@ -208,6 +213,8 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			if (d3) {
 				renderer.setRotationSpeed(vy, vx);
 				renderer.startRotating();
+			} else if (plotter != null) {
+				plotter.stopTouch();
 			}
 		}
 

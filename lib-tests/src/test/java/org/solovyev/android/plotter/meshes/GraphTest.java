@@ -11,6 +11,8 @@ import javax.annotation.Nonnull;
 @RunWith(RobolectricTestRunner.class)
 public class GraphTest {
 
+	public static final float EPS = 0.00005f;
+
 	@Nonnull
 	private Graph graph;
 
@@ -103,9 +105,9 @@ public class GraphTest {
 		Assert.assertEquals(3 * values.length, graph.length());
 		for (int i = 0; i < values.length; i++) {
 			final int v = graph.start + 3 * i;
-			Assert.assertEquals(values[i], graph.vertices[v], 0.00005f);
-			Assert.assertEquals(values[i], graph.vertices[v + 1], 0.00005f);
-			Assert.assertEquals(0, graph.vertices[v + 2], 0.00005f);
+			Assert.assertEquals(values[i], graph.vertices[v], EPS);
+			Assert.assertEquals(values[i], graph.vertices[v + 1], EPS);
+			Assert.assertEquals(0, graph.vertices[v + 2], EPS);
 		}
 	}
 }

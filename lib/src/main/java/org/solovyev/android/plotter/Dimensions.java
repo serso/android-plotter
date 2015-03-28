@@ -145,6 +145,9 @@ public final class Dimensions {
 	}
 
 	public static final class Scene {
+
+		public static final float WIDTH = 1.5f;
+
 		@Nonnull
 		public final RectF rect = new RectF();
 		@Nonnull
@@ -180,8 +183,8 @@ public final class Dimensions {
 				view.bottom = viewHeight;
 
 				final float aspectRatio = (float) viewHeight / (float) viewWidth;
-				rect.left = -1.5f / 2f;
-				rect.right = 1.5f + rect.left;
+				rect.left = -WIDTH / 2f;
+				rect.right = WIDTH + rect.left;
 				final float height = rect.width() * aspectRatio;
 				rect.top = -height / 2;
 				rect.bottom = height + rect.top;
@@ -201,6 +204,14 @@ public final class Dimensions {
 
 		public float width() {
 			return rect.width();
+		}
+
+		public float toSceneX(float x) {
+			return x * rect.width() / view.width() - rect.width() / 2;
+		}
+
+		public float toSceneY(float y) {
+			return -(y * rect.height() / view.height() - rect.height() / 2);
 		}
 
 		@Override

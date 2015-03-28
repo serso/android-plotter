@@ -19,6 +19,7 @@ import org.solovyev.android.plotter.meshes.ListGroup;
 import org.solovyev.android.plotter.meshes.ListPool;
 import org.solovyev.android.plotter.meshes.Mesh;
 import org.solovyev.android.plotter.meshes.Pool;
+import org.solovyev.android.plotter.meshes.TouchPosition;
 import org.solovyev.android.plotter.meshes.WireFrameCube;
 import org.solovyev.android.plotter.text.FontAtlas;
 
@@ -48,7 +49,7 @@ final class DefaultPlotter implements Plotter {
 	private final Group<Mesh> allMeshes = ListGroup.create(Arrays.<Mesh>asList(functionMeshes, otherMeshes));
 
 	@Nonnull
-	private final Pool<FunctionGraph> pool = new ListPool<FunctionGraph>(new ListPool.Callback<FunctionGraph>() {
+	private final Pool<FunctionGraph> pool = new ListPool<>(new ListPool.Callback<FunctionGraph>() {
 		@Nonnull
 		@Override
 		public FunctionGraph create() {
@@ -117,6 +118,9 @@ final class DefaultPlotter implements Plotter {
 
 	@Nonnull
 	private final FontAtlas fontAtlas;
+
+	@Nonnull
+	private TouchPosition touchPosition = new TouchPosition(dimensions);
 
 	DefaultPlotter(@Nonnull Context context) {
 		this.context = context;
@@ -370,6 +374,18 @@ final class DefaultPlotter implements Plotter {
 		}
 	}
 
+	@Override
+	public void setTouch(float x, float y) {
+		if (!d3) {
+			touchPosition.setScreenXY(x, y);
+		}
+	}
+
+	@Override
+	public void stopTouch() {
+		touchPosition.clear();
+	}
+
 	private void makeSetting(boolean d3) {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
@@ -388,6 +404,9 @@ final class DefaultPlotter implements Plotter {
 			add(new WireFrameCube(size, size, size));
 			add(Axis.z(dimensions).toDoubleBuffer());
 			add(AxisLabels.z(fontAtlas, dimensions).toDoubleBuffer());
+		}
+		if(!d3) {
+			add(touchPosition);
 		}
 	}
 

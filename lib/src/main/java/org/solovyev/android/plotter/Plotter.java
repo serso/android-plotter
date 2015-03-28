@@ -41,4 +41,8 @@ public interface Plotter {
 	boolean is3d();
 
 	void set3d(boolean d3);
+
+	void setTouch(float x, float y);
+
+	void stopTouch();
 }
