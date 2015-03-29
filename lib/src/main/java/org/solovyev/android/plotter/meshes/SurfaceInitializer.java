@@ -18,15 +18,6 @@ class SurfaceInitializer {
 		this.surface = surface;
 	}
 
-	@Nonnull
-	public static SurfaceInitializer createForGraph(@Nonnull BaseSurface surface, @Nonnull Dimensions.Graph graph) {
-		return new SurfaceInitializer(surface, Data.create(graph.rect));
-	}
-
-	@Nonnull
-	public static SurfaceInitializer create(@Nonnull BaseSurface surface, @Nonnull RectF bounds) {
-		return new SurfaceInitializer(surface, Data.create(bounds));
-	}
 
 	public void init(@Nonnull Arrays arrays) {
 		arrays.init(3 * data.totalVertices(), data.totalVertices());

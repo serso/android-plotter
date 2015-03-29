@@ -2,11 +2,8 @@ package org.solovyev.android.plotter.app;
 
 import android.app.Application;
 
-import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Function1;
-import org.solovyev.android.plotter.Function2;
 import org.solovyev.android.plotter.Plot;
-import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
 
 import javax.annotation.Nonnull;
@@ -43,7 +40,34 @@ public class PlotterApplication extends Application {
 			}
 		});
 
-		plotter.add(new Function2("sin(x) + sin(y)") {
+		plotter.add(new Function1("tan(x)") {
+			@Override
+			public float evaluate(float x) {
+				return (float) Math.tan(x);
+			}
+		});
+
+/*		plotter.add(new Function1("sin(1/x)") {
+			@Override
+			public float evaluate(float x) {
+				if (x == 0) {
+					return 0;
+				}
+				return (float) Math.sin(1 / x);
+			}
+		});*/
+
+		plotter.add(new Function1("1/(x + 1)/(x - 1)^6") {
+			@Override
+			public float evaluate(float x) {
+				if (x == 1 || x == -1) {
+					return Float.MAX_VALUE;
+				}
+				return (float) (1 / (x + 1) / Math.pow(x - 1, 6));
+			}
+		});
+
+/*		plotter.add(new Function2("sin(x) + sin(y)") {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.sin(y));
@@ -57,7 +81,7 @@ public class PlotterApplication extends Application {
 			}
 		});
 		paraboloid.meshSpec.color = Color.RED;
-		plotter.add(paraboloid);
+		plotter.add(paraboloid);*/
 	}
 
 	@Nonnull

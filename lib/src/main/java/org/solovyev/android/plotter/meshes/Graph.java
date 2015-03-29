@@ -8,8 +8,6 @@ import javax.annotation.Nonnull;
 
 class Graph {
 
-	static final int MAX_CAPACITY = 1000;
-
 	float step = -1f;
 
 	int capacity = 4 * 3;
@@ -86,8 +84,8 @@ class Graph {
 		return 5 * capacity / 4 + 4;
 	}
 
-	public boolean canGrow() {
-		return newCapacity(capacity) < MAX_CAPACITY;
+	public boolean canGrow(int maxCapacity) {
+		return newCapacity(capacity) < maxCapacity;
 	}
 
 	private void makeSpaceAtTheStart() {

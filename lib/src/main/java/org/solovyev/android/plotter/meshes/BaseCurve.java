@@ -79,8 +79,9 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		final float add = 0;
 		final float newXMin = dimensions.graph.rect.left - add;
 		final float newXMax = dimensions.graph.rect.right + 2 * add;
-		final float density = dimensions.scene.view.width() / 10f;
-		final float step = Math.abs((newXMax - newXMin) / density);
+		final float points = dimensions.scene.view.width() / 2;
+		final int maxPoints = (int) (2 * dimensions.scene.view.width());
+		final float step = Math.abs(newXMax - newXMin) / points;
 
 		if (graph.step < 0 || graph.step > step) {
 			graph.clear();
@@ -104,8 +105,8 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 				if (screenXMax <= graph.xMax()) {
 					graph.moveEndTo(screenXMax);
 				} else {
-					if (fillGraphIfCantGrow(graph, newXMin, newXMax, step)) return;
-					append(dimensions.graph.toGraphX(graph.xMax()) + step, newXMax, step, graph, dimensions.graph);
+					if (fillGraphIfCantGrow(graph, newXMin, newXMax, step, maxPoints)) return;
+					calculate(dimensions.graph.toGraphX(graph.xMax()) + step, newXMax, step, graph, dimensions.graph);
 				}
 			} else {
 				// |--------------------[-----data----|---erased----]-- old data
@@ -117,24 +118,24 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 				// |--------------------[------data--]----|----------- old data
 				// |-------[<----------->------data--<--->]-----------new data
 				//        xMin                           xMax
-				if (fillGraphIfCantGrow(graph, newXMin, newXMax, step)) return;
-				prepend(newXMin, dimensions.graph.toGraphX(graph.xMin()) - step, step, graph, dimensions.graph);
+				if (fillGraphIfCantGrow(graph, newXMin, newXMax, step, maxPoints)) return;
+				calculate(dimensions.graph.toGraphX(graph.xMin()) - step, newXMin, -step, graph, dimensions.graph);
 				if (screenXMax <= graph.xMax()) {
 					graph.moveEndTo(screenXMax);
 				} else {
-					append(dimensions.graph.toGraphX(graph.xMax()) + step, newXMax, step, graph, dimensions.graph);
+					calculate(dimensions.graph.toGraphX(graph.xMax()) + step, newXMax, step, graph, dimensions.graph);
 				}
 			}
 		} else {
-			append(newXMin, newXMax, step, graph, dimensions.graph);
+			calculate(newXMin, newXMax, step, graph, dimensions.graph);
 		}
 	}
 
-	private boolean fillGraphIfCantGrow(Graph graph, float newXMin, float newXMax, float step) {
-		if (!graph.canGrow()) {
+	private boolean fillGraphIfCantGrow(Graph graph, float newXMin, float newXMax, float step, int maxPoints) {
+		if (!graph.canGrow(maxPoints)) {
 			// if we can't grow anymore we must clear the graph and recalculate all values
 			graph.clear();
-			append(newXMin, newXMax, step, graph, dimensions.graph);
+			calculate(newXMin, newXMax, step, graph, dimensions.graph);
 			return true;
 		}
 		return false;
@@ -142,20 +143,16 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
 	protected abstract float y(float x);
 
-	private void append(float from, float to, float step, @Nonnull Graph graph, @Nonnull Dimensions.Graph g) {
+	private void calculate(float from, float to, float step, @Nonnull Graph graph, @Nonnull Dimensions.Graph g) {
 		float x = from;
 		while (x < to) {
-			graph.append(g.toScreenX(x), g.toScreenY(y(x)));
+			float y = y(x);
+			if (step > 0) {
+				graph.append(g.toScreenX(x), g.toScreenY(y));
+			} else {
+				graph.prepend(g.toScreenX(x), g.toScreenY(y));
+			}
 			x += step;
 		}
 	}
-
-	private void prepend(float from, float to, float step, @Nonnull Graph graph, @Nonnull Dimensions.Graph g) {
-		float x = to;
-		while (x > from) {
-			graph.prepend(g.toScreenX(x), g.toScreenY(y(x)));
-			x -= step;
-		}
-	}
-
 }
