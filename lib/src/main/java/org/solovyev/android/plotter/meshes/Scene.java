@@ -15,20 +15,23 @@ final class Scene {
 
 		final float length;
 		final float lengthX;
-		final float minLength;
 		final float arrowLength;
 		final float arrowWidth;
+		final float multiplier = 3f;
 
 		public Axis(@Nonnull Dimensions.Scene scene, boolean y) {
-			lengthX = scene.width();
+			final float width = multiplier * scene.width();
+			final float height = multiplier * scene.height();
+
+			lengthX = width;
 			if (y) {
-				length = scene.height();
+				length = height;
 			} else {
-				length = scene.width();
+				length = width;
 			}
-			minLength = Math.min(scene.width(), scene.height());
-			arrowLength = minLength / 30;
-			arrowWidth = minLength / 40;
+			final float minLength = Math.min(width, height);
+			arrowLength = minLength / (multiplier * 30);
+			arrowWidth = minLength / (multiplier * 40);
 		}
 
 		@Nonnull
@@ -63,11 +66,11 @@ final class Scene {
 			final float graphWidthGpx = graph.width() - 2 * sidePaddingGpx;
 			final float tickStepGpx = Meshes.getTickStep(graphWidthGpx, 10);
 
-			int ticksCount = Math.max((int) (axis.lengthX / graph.toScreenX(tickStepGpx)), MIN_COUNT);
-			if (ticksCount > 20) {
+			int ticksCount = Math.max((int) (axis.multiplier * axis.lengthX / graph.toScreenX(tickStepGpx)), MIN_COUNT);
+			if (ticksCount > axis.multiplier * 20) {
 				ticksCount /= 2;
 			}
-			if (ticksCount < 10) {
+			if (ticksCount < axis.multiplier * 10) {
 				ticksCount *= 2;
 			}
 			if (ticksCount % 2 == 0) {

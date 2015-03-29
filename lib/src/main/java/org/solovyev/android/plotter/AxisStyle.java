@@ -28,7 +28,7 @@ public final class AxisStyle {
 
 	public int axisColor = 0xFFF5F5F5;
 	public int axisLabelsColor = 0xFFF5F5F5;
-	public int gridColor = 0xFF424242;
+	public int gridColor = 0x99424242;
 	public int backgroundColor = 0xFF101010;
 
 	private AxisStyle() {

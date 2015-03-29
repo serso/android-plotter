@@ -22,17 +22,6 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	private final Graph graph = Graph.create();
 
-	protected BaseCurve(float width, float height) {
-		this(makeDimensions(width, height));
-	}
-
-	@Nonnull
-	private static Dimensions makeDimensions(float width, float height) {
-		final Dimensions dimensions = new Dimensions();
-		dimensions.graph.set(width, height);
-		return dimensions;
-	}
-
 	protected BaseCurve(@Nonnull Dimensions dimensions) {
 		this.dimensions = dimensions;
 	}
@@ -76,7 +65,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	}
 
 	void fillGraph(@Nonnull Graph graph) {
-		final float add = 0;
+		final float add = dimensions.graph.rect.width();
 		final float newXMin = dimensions.graph.rect.left - add;
 		final float newXMax = dimensions.graph.rect.right + 2 * add;
 		final float points = dimensions.scene.view.width() / 2;

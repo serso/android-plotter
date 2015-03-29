@@ -31,7 +31,7 @@ public final class Dimensions {
 	@Nonnull
 	private static final Dimensions EMPTY = new Dimensions();
 
-	static final float DISTANCE = 4f;
+	public static final float DISTANCE = 4f;
 
 	@Nonnull
 	public final Graph graph = new Graph();
@@ -229,11 +229,6 @@ public final class Dimensions {
 
 		@Nonnull
 		public final RectF rect = new RectF();
-
-		public void multiplyBy(float w, float h) {
-			rect.right *= w;
-			rect.bottom *= h;
-		}
 
 		@Override
 		public boolean equals(Object o) {
