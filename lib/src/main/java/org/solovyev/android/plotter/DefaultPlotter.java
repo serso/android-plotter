@@ -18,6 +18,7 @@ import org.solovyev.android.plotter.meshes.Group;
 import org.solovyev.android.plotter.meshes.ListGroup;
 import org.solovyev.android.plotter.meshes.ListPool;
 import org.solovyev.android.plotter.meshes.Mesh;
+import org.solovyev.android.plotter.meshes.MeshSpec;
 import org.solovyev.android.plotter.meshes.Pool;
 import org.solovyev.android.plotter.meshes.TouchPosition;
 import org.solovyev.android.plotter.text.FontAtlas;
@@ -221,7 +222,7 @@ final class DefaultPlotter implements Plotter {
 
 	@Override
 	public void add(@Nonnull Function function) {
-		plotData.add(function);
+		plotData.add(PlotFunction.create(function, context));
 		onFunctionsChanged();
 	}
 
@@ -392,9 +393,9 @@ final class DefaultPlotter implements Plotter {
 	private void makeSetting(boolean d3) {
 		otherMeshes.clear();
 		final Dimensions dimensions = getDimensions();
-		final float size = dimensions.graph.width();
 		//add(new DrawableTexture(context.getResources(), R.drawable.icon));
 
+		final int axisWidth = MeshSpec.defaultWidth(context);
 		final Color gridColor = Color.create(plotData.axisStyle.gridColor);
 		final Color axisColor = Color.create(plotData.axisStyle.axisColor);
 		final Color axisLabelsColor = Color.create(plotData.axisStyle.axisLabelsColor);
@@ -404,18 +405,31 @@ final class DefaultPlotter implements Plotter {
 			add(AxisGrid.xy(dimensions, gridColor).toDoubleBuffer());
 			add(AxisGrid.yz(dimensions, gridColor).toDoubleBuffer());
 		}
-		add(Axis.x(dimensions, axisColor).toDoubleBuffer());
-		add(AxisLabels.x(fontAtlas, dimensions, axisLabelsColor).toDoubleBuffer());
-		add(Axis.y(dimensions, axisColor).toDoubleBuffer());
-		add(AxisLabels.y(fontAtlas, dimensions, axisLabelsColor).toDoubleBuffer());
+		add(prepareAxis(Axis.x(dimensions), axisColor, axisWidth));
+		add(prepareAxisLabels(AxisLabels.x(fontAtlas, dimensions), axisLabelsColor));
+		add(prepareAxis(Axis.y(dimensions), axisColor, axisWidth));
+		add(prepareAxisLabels(AxisLabels.y(fontAtlas, dimensions), axisLabelsColor));
 		if (d3) {
-			add(Axis.z(dimensions, axisColor).toDoubleBuffer());
-			add(AxisLabels.z(fontAtlas, dimensions, axisLabelsColor).toDoubleBuffer());
+			add(prepareAxis(Axis.z(dimensions), axisColor, axisWidth));
+			add(prepareAxisLabels(AxisLabels.z(fontAtlas, dimensions), axisLabelsColor));
 		}
 		if(!d3) {
 			touchPosition.setColor(gridColor);
 			add(touchPosition);
 		}
+	}
+
+	@Nonnull
+	private DoubleBufferMesh<AxisLabels> prepareAxisLabels(@Nonnull AxisLabels labels, @Nonnull Color color) {
+		labels.setColor(color);
+		return labels.toDoubleBuffer();
+	}
+
+	@Nonnull
+	private DoubleBufferMesh<Axis> prepareAxis(@Nonnull Axis axis, @Nonnull Color color, int width) {
+		axis.setColor(color);
+		axis.setWidth(width);
+		return axis.toDoubleBuffer();
 	}
 
 	private boolean set3d0(boolean d3) {

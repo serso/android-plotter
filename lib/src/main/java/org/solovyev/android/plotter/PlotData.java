@@ -24,10 +24,11 @@ package org.solovyev.android.plotter;
 
 import android.text.TextUtils;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class PlotData {
 
@@ -76,10 +77,6 @@ public final class PlotData {
 			}
 		}
 		return false;
-	}
-
-	public void add(@Nonnull Function function) {
-		add(PlotFunction.create(function));
 	}
 
 	@Nullable

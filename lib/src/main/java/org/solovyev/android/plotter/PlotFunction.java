@@ -22,6 +22,8 @@
 
 package org.solovyev.android.plotter;
 
+import android.content.Context;
+
 import org.solovyev.android.plotter.meshes.MeshSpec;
 
 import javax.annotation.Nonnull;
@@ -36,11 +38,6 @@ public final class PlotFunction {
 
 	public boolean visible = true;
 
-	private PlotFunction(@Nonnull Function function) {
-		this.function = function;
-		this.meshSpec = MeshSpec.createDefault();
-	}
-
 	private PlotFunction(@Nonnull Function function,
 						 @Nonnull MeshSpec meshSpec) {
 		this.function = function;
@@ -48,8 +45,8 @@ public final class PlotFunction {
 	}
 
 	@Nonnull
-	public static PlotFunction create(@Nonnull Function function) {
-		return new PlotFunction(function);
+	public static PlotFunction create(@Nonnull Function function, @Nonnull Context context) {
+		return new PlotFunction(function, MeshSpec.createDefault(context));
 	}
 
 	@Nonnull

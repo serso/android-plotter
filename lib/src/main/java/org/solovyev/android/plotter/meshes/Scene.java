@@ -66,11 +66,11 @@ final class Scene {
 			final float graphWidthGpx = graph.width() - 2 * sidePaddingGpx;
 			final float tickStepGpx = Meshes.getTickStep(graphWidthGpx, 10);
 
-			int ticksCount = Math.max((int) (axis.multiplier * axis.lengthX / graph.toScreenX(tickStepGpx)), MIN_COUNT);
-			if (ticksCount > axis.multiplier * 20) {
+			int ticksCount = Math.max((int) (axis.lengthX / graph.toScreenX(tickStepGpx)), MIN_COUNT);
+			while (ticksCount > axis.multiplier * 20) {
 				ticksCount /= 2;
 			}
-			if (ticksCount < axis.multiplier * 10) {
+			while (ticksCount < axis.multiplier * 10) {
 				ticksCount *= 2;
 			}
 			if (ticksCount % 2 == 0) {

@@ -1,6 +1,5 @@
 package org.solovyev.android.plotter.meshes;
 
-import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
@@ -18,25 +17,24 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	protected volatile Dimensions dimensions;
 
-	private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions, @Nonnull Color color) {
+	private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions) {
 		this.direction = direction;
 		this.dimensions = dimensions;
-		setColor(color);
 	}
 
 	@Nonnull
-	public static Axis x(@Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new Axis(AxisDirection.X, dimensions, color);
+	public static Axis x(@Nonnull Dimensions dimensions) {
+		return new Axis(AxisDirection.X, dimensions);
 	}
 
 	@Nonnull
-	public static Axis y(@Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new Axis(AxisDirection.Y, dimensions, color);
+	public static Axis y(@Nonnull Dimensions dimensions) {
+		return new Axis(AxisDirection.Y, dimensions);
 	}
 
 	@Nonnull
-	public static Axis z(@Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new Axis(AxisDirection.Z, dimensions, color);
+	public static Axis z(@Nonnull Dimensions dimensions) {
+		return new Axis(AxisDirection.Z, dimensions);
 	}
 
 	@Nonnull
@@ -67,7 +65,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new Axis(direction, dimensions, getColor());
+		return new Axis(direction, dimensions);
 	}
 
 	@Nonnull

@@ -2,9 +2,12 @@ package org.solovyev.android.plotter.app;
 
 import android.app.Application;
 
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Function1;
 import org.solovyev.android.plotter.Plot;
+import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
+import org.solovyev.android.plotter.meshes.MeshSpec;
 
 import javax.annotation.Nonnull;
 
@@ -33,12 +36,12 @@ public class PlotterApplication extends Application {
 		super.onCreate();
 
 		plotter = Plot.newPlotter(this);
-		plotter.add(new Function1("x * x / 2") {
+		plotter.add(PlotFunction.create(new Function1("x * x / 2") {
 			@Override
 			public float evaluate(float x) {
 				return x * x / 2;
 			}
-		});
+		}, MeshSpec.create(Color.BLUE, MeshSpec.defaultWidth(this))));
 
 		plotter.add(new Function1("tan(x)") {
 			@Override

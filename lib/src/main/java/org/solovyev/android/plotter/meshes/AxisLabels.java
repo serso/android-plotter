@@ -2,7 +2,6 @@ package org.solovyev.android.plotter.meshes;
 
 import android.graphics.RectF;
 
-import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.text.FontAtlas;
@@ -39,26 +38,25 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	private volatile Dimensions dimensions;
 
-	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
+	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
 		this.direction = direction;
 		this.fontAtlas = fontAtlas;
 		this.dimensions = dimensions;
-		setColor(color);
 	}
 
 	@Nonnull
-	public static AxisLabels x(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new AxisLabels(AxisDirection.X, fontAtlas, dimensions, color);
+	public static AxisLabels x(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
+		return new AxisLabels(AxisDirection.X, fontAtlas, dimensions);
 	}
 
 	@Nonnull
-	public static AxisLabels y(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new AxisLabels(AxisDirection.Y, fontAtlas, dimensions, color);
+	public static AxisLabels y(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
+		return new AxisLabels(AxisDirection.Y, fontAtlas, dimensions);
 	}
 
 	@Nonnull
-	public static AxisLabels z(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new AxisLabels(AxisDirection.Z, fontAtlas, dimensions, color);
+	public static AxisLabels z(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
+		return new AxisLabels(AxisDirection.Z, fontAtlas, dimensions);
 	}
 
 	@Nonnull
@@ -169,7 +167,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new AxisLabels(direction, fontAtlas, dimensions, getColor());
+		return new AxisLabels(direction, fontAtlas, dimensions);
 	}
 
 	@Nonnull
