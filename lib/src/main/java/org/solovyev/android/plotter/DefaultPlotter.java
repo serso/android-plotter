@@ -7,6 +7,7 @@ import android.util.Log;
 import org.solovyev.android.plotter.meshes.Axis;
 import org.solovyev.android.plotter.meshes.AxisGrid;
 import org.solovyev.android.plotter.meshes.AxisLabels;
+import org.solovyev.android.plotter.meshes.Coordinates;
 import org.solovyev.android.plotter.meshes.DimensionsAware;
 import org.solovyev.android.plotter.meshes.DoubleBufferGroup;
 import org.solovyev.android.plotter.meshes.DoubleBufferMesh;
@@ -20,7 +21,6 @@ import org.solovyev.android.plotter.meshes.ListPool;
 import org.solovyev.android.plotter.meshes.Mesh;
 import org.solovyev.android.plotter.meshes.MeshSpec;
 import org.solovyev.android.plotter.meshes.Pool;
-import org.solovyev.android.plotter.meshes.TouchPosition;
 import org.solovyev.android.plotter.text.FontAtlas;
 
 import java.util.Arrays;
@@ -120,7 +120,7 @@ final class DefaultPlotter implements Plotter {
 	private final FontAtlas fontAtlas;
 
 	@Nonnull
-	private TouchPosition touchPosition = new TouchPosition(dimensions, Color.WHITE);
+	private Coordinates coordinates = new Coordinates(dimensions, Color.WHITE);
 
 	DefaultPlotter(@Nonnull Context context) {
 		this.context = context;
@@ -377,16 +377,16 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
-	public void setTouch(float x, float y) {
+	public void showCoordinates(float x, float y) {
 		if (!d3) {
-			touchPosition.setScreenXY(x, y);
+			coordinates.setScreenXY(x, y);
 			setDirty();
 		}
 	}
 
 	@Override
-	public void stopTouch() {
-		touchPosition.clear();
+	public void hideCoordinates() {
+		coordinates.clear();
 		setDirty();
 	}
 
@@ -414,8 +414,8 @@ final class DefaultPlotter implements Plotter {
 			add(prepareAxisLabels(AxisLabels.z(fontAtlas, dimensions), axisLabelsColor));
 		}
 		if(!d3) {
-			touchPosition.setColor(gridColor);
-			add(touchPosition);
+			coordinates.setColor(gridColor);
+			add(coordinates);
 		}
 	}
 

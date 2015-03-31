@@ -9,7 +9,7 @@ import org.solovyev.android.plotter.MeshConfig;
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
-public class TouchPosition extends BaseMesh implements DimensionsAware {
+public class Coordinates extends BaseMesh implements DimensionsAware {
 	private static final float EMPTY = Float.MAX_VALUE;
 	private volatile float x = EMPTY;
 	private volatile float y = EMPTY;
@@ -26,7 +26,7 @@ public class TouchPosition extends BaseMesh implements DimensionsAware {
 	@Nullable
 	private volatile Data data;
 
-	public TouchPosition(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+	public Coordinates(@Nonnull Dimensions dimensions, @Nonnull Color color) {
 		this.dimensions = dimensions;
 		setColor(color);
 	}
@@ -117,7 +117,7 @@ public class TouchPosition extends BaseMesh implements DimensionsAware {
 
 	@Override
 	public String toString() {
-		return "TouchPosition{" +
+		return "Coordinates{" +
 				"y=" + y +
 				", x=" + x +
 				'}';

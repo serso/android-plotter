@@ -43,6 +43,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 	private void init() {
 		setOnTouchListener(touchListener.handler);
+		touchListener.on3d(d3);
 	}
 
 	@Nonnull
@@ -98,6 +99,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			final Bundle state = (Bundle) in;
 			in = state.getParcelable("super");
 			d3 = state.getBoolean("view.3d");
+			touchListener.on3d(d3);
 			renderer.restoreState(state);
 		}
 
@@ -136,7 +138,14 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 				renderer.setRotationSpeed(0, 0.5f);
 				renderer.startRotating();
 			}
+			touchListener.on3d(d3);
 		}
+	}
+
+	private enum TouchMode {
+		PAN,
+		COORDINATES,
+		ROTATE
 	}
 
 	private class TouchListener implements TouchHandler.Listener {
@@ -153,6 +162,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 		private long lastZoomTime = 0;
 
+		@Nonnull
+		private TouchMode mode = TouchMode.PAN;
+
 		@Override
 		public void onTouchDown(float x, float y) {
 			if (lastZoomTime != 0) {
@@ -166,8 +178,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			lastTouch.x = x;
 			lastTouch.y = y;
 			lastTouchMoved = false;
-			if(!d3 && plotter != null) {
-				plotter.setTouch(x, y);
+			if (mode == TouchMode.COORDINATES && plotter != null) {
+				Check.isTrue(!d3);
+				plotter.showCoordinates(x, y);
 			}
 		}
 
@@ -180,10 +193,18 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			final float dy = y - lastTouch.y;
 			lastTouchMoved = moreThanEps(dx, dy, 3f);
 			if (moreThanEps(dx, dy, 1f)) {
-				if (d3) {
-					renderer.rotate(dy, dx);
-				} else if (plotter != null) {
-					plotter.setTouch(x, y);
+				switch (mode) {
+					case PAN:
+						break;
+					case COORDINATES:
+						if (plotter != null) {
+							plotter.showCoordinates(x, y);
+						}
+						break;
+					case ROTATE:
+						Check.isTrue(d3);
+						renderer.rotate(dy, dx);
+						break;
 				}
 				lastTouch.x = x;
 				lastTouch.y = y;
@@ -210,11 +231,19 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 				vy = 0;
 			}
 
-			if (d3) {
-				renderer.setRotationSpeed(vy, vx);
-				renderer.startRotating();
-			} else if (plotter != null) {
-				plotter.stopTouch();
+			switch (mode) {
+				case PAN:
+					break;
+				case COORDINATES:
+					if (plotter != null) {
+						plotter.hideCoordinates();
+					}
+					break;
+				case ROTATE:
+					Check.isTrue(d3);
+					renderer.setRotationSpeed(vy, vx);
+					renderer.startRotating();
+					break;
 			}
 		}
 
@@ -249,6 +278,10 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		@Override
 		public void onTouchZoomUp(float x1, float y1, float x2, float y2) {
 			setZooming(false);
+		}
+
+		public void on3d(boolean d3) {
+			mode = d3 ? TouchMode.ROTATE : TouchMode.PAN;
 		}
 	}
 

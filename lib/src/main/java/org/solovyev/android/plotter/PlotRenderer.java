@@ -520,7 +520,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					final Plotter plotter = getPlotter();
 					if (this.pinchZoom) {
 						if (plotter != null) {
-							plotter.stopTouch();
+							plotter.hideCoordinates();
 						}
 						Log.d(TAG, "Starting pinch zoom");
 					} else {
