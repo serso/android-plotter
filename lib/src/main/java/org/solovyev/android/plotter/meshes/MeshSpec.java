@@ -2,10 +2,9 @@ package org.solovyev.android.plotter.meshes;
 
 
 import android.content.Context;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 
 import org.solovyev.android.plotter.Color;
+import org.solovyev.android.plotter.Plot;
 
 import javax.annotation.Nonnull;
 
@@ -38,8 +37,7 @@ public class MeshSpec {
 	}
 
 	public static int defaultWidth(@Nonnull Context context) {
-		final DisplayMetrics dm = context.getResources().getDisplayMetrics();
-		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, dm);
+		return (int) Plot.dpsToPxs(context, 1);
 	}
 
 	@Nonnull

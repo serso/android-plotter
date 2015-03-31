@@ -145,7 +145,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		private final TouchHandler handler = TouchHandler.create(this);
 
 		@Nonnull
-		private final PinchZoomTracker zoomTracker = new PinchZoomTracker();
+		private final PinchZoomTracker zoomTracker = new PinchZoomTracker(getContext());
 
 		@Nonnull
 		private final PointF lastTouch = new PointF();
