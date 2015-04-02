@@ -36,6 +36,10 @@ public interface Plotter {
 	@Nonnull
 	Dimensions getDimensions();
 
+	// should not be modified!
+	@Nonnull
+	Dimensions.Scene getSceneDimensions();
+
 	void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight);
 
 	boolean is3d();

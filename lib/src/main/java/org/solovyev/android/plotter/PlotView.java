@@ -195,6 +195,10 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			if (moreThanEps(dx, dy, 1f)) {
 				switch (mode) {
 					case PAN:
+						if (plotter != null) {
+							final Dimensions.Scene scene = plotter.getSceneDimensions();
+							renderer.moveCamera(scene.toSceneDx(dx), scene.toSceneDy(dy));
+						}
 						break;
 					case COORDINATES:
 						if (plotter != null) {
@@ -233,6 +237,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 			switch (mode) {
 				case PAN:
+					renderer.stopMovingCamera();
 					break;
 				case COORDINATES:
 					if (plotter != null) {

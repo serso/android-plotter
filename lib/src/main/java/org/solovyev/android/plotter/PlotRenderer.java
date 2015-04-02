@@ -16,6 +16,7 @@
 package org.solovyev.android.plotter;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -52,6 +53,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@GuardedBy("lock")
 	private boolean glInitialized;
+
+	@GuardedBy("lock")
+	private PointF camera = new PointF();
 
 	@Nonnull
 	private final RotationHolder rotation = new RotationHolder();
@@ -168,7 +172,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glMatrixMode(GL10.GL_MODELVIEW);
 			gl.glLoadIdentity();
 
-			gl.glTranslatef(0, 0, -Dimensions.DISTANCE * zoom.level);
+			final float cameraX;
+			final float cameraY;
+			synchronized (lock) {
+				cameraX = camera.x;
+				cameraY = camera.y;
+			}
+
+			gl.glTranslatef(cameraX, cameraY, -Dimensions.DISTANCE * zoom.level);
 
 			rotation.onFrame(gl10);
 
@@ -281,6 +292,30 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		zoomer.setPinchZoom(pinchZoom);
 	}
 
+	public void moveCamera(float dx, float dy) {
+		synchronized (lock) {
+			camera.offset(dx, -dy);
+		}
+		view.requestRender();
+	}
+
+	public void stopMovingCamera() {
+		float cameraX;
+		float cameraY;
+		synchronized (lock) {
+			cameraX = camera.x;
+			cameraY = camera.y;
+			camera.set(0f, 0f);
+		}
+		if (cameraX != 0f || cameraY != 0f) {
+			final Plotter plotter = getPlotter();
+			if (plotter != null) {
+				// todo serso: update dimensions
+			}
+			view.requestRender();
+		}
+	}
+
 	private static final class Rotation {
 
 		private static final float MIN_ROTATION = 0.5f;
@@ -390,6 +425,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			}
 			view.requestRender();
 		}
+	}
+
+	private final class Panner {
+
 	}
 
 	private final class ZoomerHolder {

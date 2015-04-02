@@ -347,6 +347,14 @@ final class DefaultPlotter implements Plotter {
 		}
 	}
 
+	@Nonnull
+	@Override
+	public Dimensions.Scene getSceneDimensions() {
+		synchronized (lock) {
+			return dimensions.scene;
+		}
+	}
+
 	@Override
 	public boolean is3d() {
 		synchronized (lock) {

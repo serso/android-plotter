@@ -128,7 +128,7 @@ public final class Dimensions {
 				scene.rect.top = my - height / 2f;
 			}
 
-			graph.update(this);
+			graph.update(scene.getAspectRatio(), zoom);
 		}
 	}
 
@@ -142,6 +142,9 @@ public final class Dimensions {
 
 	public boolean isEmpty() {
 		return graph.isEmpty() || scene.isEmpty();
+	}
+
+	public void moveCamera(float dx, float dy) {
 	}
 
 	public static final class Scene {
@@ -210,8 +213,16 @@ public final class Dimensions {
 			return x * rect.width() / view.width() - rect.width() / 2;
 		}
 
+		public float toSceneDx(float dx) {
+			return dx * rect.width() / view.width();
+		}
+
 		public float toSceneY(float y) {
 			return -(y * rect.height() / view.height() - rect.height() / 2);
+		}
+
+		public float toSceneDy(float dy) {
+			return dy * rect.height() / view.height();
 		}
 
 		@Override
@@ -230,6 +241,9 @@ public final class Dimensions {
 		@Nonnull
 		public final RectF rect = new RectF();
 
+		@Nonnull
+		private final PointF center = new PointF();
+
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
@@ -239,6 +253,7 @@ public final class Dimensions {
 
 			if (!rect.equals(graph.rect)) return false;
 			if (!zoom.equals(graph.zoom)) return false;
+			if (!center.equals(graph.center)) return false;
 
 			return true;
 		}
@@ -250,11 +265,11 @@ public final class Dimensions {
 			return result;
 		}
 
-		public boolean set(float width, float height) {
+		private boolean set(float width, float height) {
 			if (rect.width() != width || rect.height() != height) {
-				rect.left = -width / 2;
+				rect.left = center.x - width / 2;
 				rect.right = width + rect.left;
-				rect.top = -height / 2;
+				rect.top = center.y - height / 2;
 				rect.bottom = height + rect.top;
 				return true;
 			}
@@ -266,15 +281,14 @@ public final class Dimensions {
 			return rect.isEmpty();
 		}
 
-		public void update(@Nonnull Dimensions dimensions) {
+		public void update(float aspectRatio, @Nonnull Zoom zoom) {
 			final float requestedWidth = 20;
 			final float requestedHeight = 20;
-			final float aspectRatio = dimensions.scene.getAspectRatio();
-			final float width = requestedWidth * dimensions.zoom.level;
-			final float height = requestedHeight * dimensions.zoom.level * aspectRatio;
+			final float width = requestedWidth * zoom.level;
+			final float height = requestedHeight * zoom.level * aspectRatio;
 			set(width, height);
-			zoom.x = dimensions.zoom.level / width();
-			zoom.y = dimensions.zoom.level / height();
+			this.zoom.x = 1f / requestedWidth;
+			this.zoom.y = 1f / (requestedHeight * aspectRatio);
 		}
 
 		public float toGraphX(float x) {
