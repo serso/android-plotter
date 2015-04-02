@@ -91,16 +91,14 @@ public final class Dimensions {
 		return Zoom.one();
 	}
 
-	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF camera) {
-		if (shouldUpdate(zoom, viewWidth, viewHeight, camera)) {
+	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
+		if (shouldUpdate(zoom, viewWidth, viewHeight, center)) {
 			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
 			final Zoom zoomChange = setZoom(zoom);
 			final boolean zoomChanged = !zoomChange.isOne();
+			scene.center.set(center);
 			if (viewChanged) {
-				scene.rect.left *= zoom.level;
-				scene.rect.right *= zoom.level;
-				scene.rect.bottom *= zoom.level;
-				scene.rect.top *= zoom.level;
+				updateRect(center, scene.rect.width() * zoom.level, scene.rect.height() * zoom.level);
 
 				final float mx = middle(scene.rect.right, scene.rect.left) * zoom.x;
 				final float my = middle(scene.rect.top, scene.rect.bottom) * zoom.y;
@@ -112,10 +110,7 @@ public final class Dimensions {
 				scene.rect.bottom = my + height / 2f;
 				scene.rect.top = my - height / 2f;
 			} else if (zoomChanged) {
-				scene.rect.left /= zoomChange.level;
-				scene.rect.right /= zoomChange.level;
-				scene.rect.bottom /= zoomChange.level;
-				scene.rect.top /= zoomChange.level;
+				updateRect(center, scene.rect.width() / zoom.level, scene.rect.height() / zoom.level);
 
 				final float mx = middle(scene.rect.right, scene.rect.left) / zoomChange.x;
 				final float my = middle(scene.rect.top, scene.rect.bottom) / zoomChange.y;
@@ -128,8 +123,15 @@ public final class Dimensions {
 				scene.rect.top = my - height / 2f;
 			}
 
-			graph.update(scene.getAspectRatio(), zoom);
+			graph.update(scene.center, scene.getAspectRatio(), zoom);
 		}
+	}
+
+	private void updateRect(@Nonnull PointF center, float w, float h) {
+		scene.rect.left = center.x - w / 2;
+		scene.rect.right = scene.rect.left + w;
+		scene.rect.top = center.y - h / 2;
+		scene.rect.bottom = scene.rect.top + h;
 	}
 
 	private static float middle(float from, float to) {
@@ -285,7 +287,7 @@ public final class Dimensions {
 			return rect.isEmpty();
 		}
 
-		public void update(float aspectRatio, @Nonnull Zoom zoom) {
+		public void update(@Nonnull PointF center, float aspectRatio, @Nonnull Zoom zoom) {
 			final float requestedWidth = 20;
 			final float requestedHeight = 20;
 			final float width = requestedWidth * zoom.level;

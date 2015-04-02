@@ -25,7 +25,7 @@ public class DimensionsTest {
 	@Test
 	public void testScreenToGraphConversion() throws Exception {
 		final Dimensions.Graph graph = new Dimensions.Graph();
-		graph.update(2f, Zoom.one().multiplyBy(2));
+		graph.update(graph.center, 2f, Zoom.one().multiplyBy(2));
 		Assert.assertEquals(-10, graph.toGraphX(-5), GraphTest.EPS);
 	}
 }
