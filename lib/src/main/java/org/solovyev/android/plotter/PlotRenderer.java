@@ -55,6 +55,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private boolean glInitialized;
 
 	@GuardedBy("lock")
+	@Nonnull
 	private PointF camera = new PointF();
 
 	@Nonnull
@@ -77,15 +78,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void setPlotter(@Nonnull Plotter plotter) {
-		Zoom zoomLevel;
-		synchronized (zoomer) {
-			zoomLevel = zoomer.zoomer.current();
-		}
+		final Zoom zoom = zoomer.current();
 		synchronized (lock) {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
 			if (!viewDimensions.isEmpty()) {
-				this.plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height());
+				this.plotter.updateDimensions(zoom, viewDimensions.width(), viewDimensions.height(), getCamera());
 			}
 		}
 	}
@@ -218,14 +216,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		viewDimensions.set(0, 0, width, height);
 		gl.glViewport(0, 0, width, height);
 		zoomer.onSurfaceChanged(gl);
-		final Zoom zoomLevel = zoomer.zoomer.current();
+		final Zoom zoom = zoomer.current();
 
 		view.post(new Runnable() {
 			@Override
 			public void run() {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
-					plotter.updateDimensions(zoomLevel, width, height);
+					plotter.updateDimensions(zoom, width, height, getCamera());
 				}
 			}
 		});
@@ -300,20 +298,21 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void stopMovingCamera() {
-		float cameraX;
-		float cameraY;
+		final Plotter plotter = getPlotter();
+		if (plotter != null) {
+			final Zoom zoom = zoomer.current();
+			plotter.updateDimensions(zoom, viewDimensions.width(), viewDimensions.height(), getCamera());
+		}
+		view.requestRender();
+	}
+
+	@Nonnull
+	private PointF getCamera() {
+		final PointF result = new PointF();
 		synchronized (lock) {
-			cameraX = camera.x;
-			cameraY = camera.y;
-			camera.set(0f, 0f);
+			result.set(camera);
 		}
-		if (cameraX != 0f || cameraY != 0f) {
-			final Plotter plotter = getPlotter();
-			if (plotter != null) {
-				// todo serso: update dimensions
-			}
-			view.requestRender();
-		}
+		return result;
 	}
 
 	private static final class Rotation {
@@ -427,7 +426,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
-	private final class Panner {
+	private final class CameraHolder {
 
 	}
 
@@ -439,17 +438,17 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		@GuardedBy("PlotRenderer.this.lock")
 		Object frustumZoomer;
 
-		@GuardedBy("zoomer")
+		@GuardedBy("this")
 		@Nonnull
 		volatile Zoomer zoomer = new Zoomer();
 
-		@GuardedBy("zoomer")
+		@GuardedBy("this")
 		volatile boolean pinchZoom;
 
 		@Nonnull
 		Zoom onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
 			final Zoom zoomLevel;
-			synchronized (zoomer) {
+			synchronized (this) {
 				if (zoomer.onFrame()) {
 					synchronized (lock) {
 						frustumZoomer = zoomer;
@@ -459,7 +458,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
 						if (!pinchZoom) {
-							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height());
+							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
 						}
 						startRotating();
 					} else {
@@ -481,13 +480,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		void onSurfaceChanged(GL10 gl) {
-			synchronized (zoomer) {
+			synchronized (this) {
 				initFrustum(gl, zoomer.current().multiplyBy(Dimensions.DISTANCE));
 			}
 		}
 
 		void saveState(@Nonnull Bundle bundle) {
-			synchronized (zoomer) {
+			synchronized (this) {
 				Log.d(TAG, "Saving state: " + zoomer);
 				zoomer.saveState(bundle);
 			}
@@ -495,7 +494,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		void restoreState(@Nonnull Bundle bundle) {
 			final Zoom zoomLevel;
-			synchronized (zoomer) {
+			synchronized (this) {
 				zoomer = new Zoomer(bundle);
 				Log.d(TAG, "Restoring state: " + zoomer);
 				zoomLevel = zoomer.current();
@@ -504,13 +503,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			if (!viewDimensions.isEmpty()) {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
-					plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height());
+					plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height(), getCamera());
 				}
 			}
 		}
 
 		void zoom(boolean in) {
-			synchronized (zoomer) {
+			synchronized (this) {
 				if (zoomer.zoom(in)) {
 					loop(true);
 				}
@@ -523,7 +522,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		void reset() {
-			synchronized (zoomer) {
+			synchronized (this) {
 				if (zoomer.reset()) {
 					loop(true);
 				}
@@ -541,7 +540,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				return;
 			}
 
-			synchronized (zoomer) {
+			synchronized (this) {
 				final float level = levels.getLevel();
 				//final boolean zooming = plotter.is3d() ? zoomer.zoomBy(level) : zoomer.zoomBy(levels.x, levels.y);
 				final boolean zooming = zoomer.zoomBy(level);
@@ -553,7 +552,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		public void setPinchZoom(boolean pinchZoom) {
-			synchronized (zoomer) {
+			synchronized (this) {
 				if (this.pinchZoom != pinchZoom) {
 					this.pinchZoom = pinchZoom;
 					final Plotter plotter = getPlotter();
@@ -564,12 +563,21 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 						Log.d(TAG, "Starting pinch zoom");
 					} else {
 						if (plotter != null) {
-							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height());
+							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
 						}
 						Log.d(TAG, "Ending pinch zoom");
 					}
 				}
 			}
+		}
+
+		@Nonnull
+		private Zoom current() {
+			final Zoom zoom;
+			synchronized (this) {
+				zoom = zoomer.current();
+			}
+			return zoom;
 		}
 	}
 }

@@ -91,8 +91,8 @@ public final class Dimensions {
 		return Zoom.one();
 	}
 
-	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight) {
-		if (shouldUpdate(zoom, viewWidth, viewHeight)) {
+	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF camera) {
+		if (shouldUpdate(zoom, viewWidth, viewHeight, camera)) {
 			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
 			final Zoom zoomChange = setZoom(zoom);
 			final boolean zoomChanged = !zoomChange.isOne();
@@ -136,8 +136,8 @@ public final class Dimensions {
 		return (from + to) / 2f;
 	}
 
-	boolean shouldUpdate(@Nonnull Zoom zoom, int viewWidth, int viewHeight) {
-		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight;
+	boolean shouldUpdate(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
+		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight || !this.scene.center.equals(center);
 	}
 
 	public boolean isEmpty() {
@@ -155,6 +155,8 @@ public final class Dimensions {
 		public final RectF rect = new RectF();
 		@Nonnull
 		public final RectF view = new RectF();
+		@Nonnull
+		public final PointF center = new PointF();
 
 		@Override
 		public boolean equals(Object o) {
@@ -165,6 +167,7 @@ public final class Dimensions {
 
 			if (!rect.equals(scene.rect)) return false;
 			if (!view.equals(scene.view)) return false;
+			if (!center.equals(scene.center)) return false;
 
 			return true;
 		}
@@ -173,6 +176,7 @@ public final class Dimensions {
 		public int hashCode() {
 			int result = rect.hashCode();
 			result = 31 * result + view.hashCode();
+			result = 31 * result + center.hashCode();
 			return result;
 		}
 

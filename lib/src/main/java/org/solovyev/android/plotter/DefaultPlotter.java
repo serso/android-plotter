@@ -2,6 +2,7 @@ package org.solovyev.android.plotter;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.PointF;
 import android.util.Log;
 
 import org.solovyev.android.plotter.meshes.Axis;
@@ -329,11 +330,11 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
-	public void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight) {
+	public void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF camera) {
 		synchronized (lock) {
-			if (dimensions.shouldUpdate(zoom, viewWidth, viewHeight)) {
+			if (dimensions.shouldUpdate(zoom, viewWidth, viewHeight, camera)) {
 				final Dimensions newDimensions = dimensions.copy();
-				newDimensions.update(zoom, viewWidth, viewHeight);
+				newDimensions.update(zoom, viewWidth, viewHeight, camera);
 				updateDimensions(newDimensions);
 			}
 		}

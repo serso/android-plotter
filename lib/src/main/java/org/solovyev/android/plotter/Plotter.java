@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter;
 
+import android.graphics.PointF;
+
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
@@ -40,7 +42,7 @@ public interface Plotter {
 	@Nonnull
 	Dimensions.Scene getSceneDimensions();
 
-	void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight);
+	void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF camera);
 
 	boolean is3d();
 
