@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Plotter" type="AndroidRunConfigurationType" factoryName="Android Application">
+  <configuration default="false" name="Run" type="AndroidRunConfigurationType" factoryName="Android Application">
     <module name="app" />
     <option name="ACTIVITY_CLASS" value="" />
     <option name="MODE" value="default_activity" />
@@ -17,6 +17,10 @@
     <option name="CLEAR_LOGCAT" value="false" />
     <option name="SHOW_LOGCAT_AUTOMATICALLY" value="true" />
     <option name="FILTER_LOGCAT_AUTOMATICALLY" value="true" />
+    <option name="SELECTED_MATRIX_CONFIGURATION_ID" value="-1" />
+    <option name="SELECTED_CLOUD_PROJECT_ID" value="Please select a project..." />
+    <option name="IS_VALID_CLOUD_SELECTION" value="false" />
+    <option name="INVALID_CLOUD_SELECTION_ERROR" value="Matrix configuration not specified" />
     <RunnerSettings RunnerId="AndroidDebugRunner" />
     <ConfigurationWrapper RunnerId="AndroidDebugRunner" />
     <method />
