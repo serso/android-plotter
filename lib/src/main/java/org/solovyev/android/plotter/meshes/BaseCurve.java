@@ -45,7 +45,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	public void onInit() {
 		super.onInit();
 
-		if (!dimensions.isEmpty()) {
+		if (!dimensions.isZero()) {
 			fillGraph(graph);
 			verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
 			indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
@@ -67,15 +67,17 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	void fillGraph(@Nonnull Graph graph) {
 		final float add = dimensions.graph.rect.width();
 		final float newXMin = dimensions.graph.rect.left - add;
-		final float newXMax = dimensions.graph.rect.right + 2 * add;
+		final float newXMax = dimensions.graph.rect.right + add;
 		final float points = dimensions.scene.view.width() / 2;
 		final int maxPoints = (int) (2 * dimensions.scene.view.width());
 		final float step = Math.abs(newXMax - newXMin) / points;
 
-		if (graph.step < 0 || graph.step > step) {
+		if (graph.step < 0 || graph.step > step || graph.center.x != dimensions.graph.rect.centerX() || graph.center.y != dimensions.graph.rect.centerY()) {
 			graph.clear();
 		}
 		graph.step = step;
+		graph.center.x = dimensions.graph.rect.centerX();
+		graph.center.y = dimensions.graph.rect.centerY();
 
 		if (!graph.isEmpty()) {
 			final float screenXMin = dimensions.graph.toScreenX(newXMin);

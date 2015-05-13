@@ -35,7 +35,7 @@ public class Coordinates extends BaseMesh implements DimensionsAware {
 	protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		super.onInitGl(gl, config);
 
-		if (isEmpty() || dimensions.isEmpty()) {
+		if (isEmpty() || dimensions.isZero()) {
 			setDirtyGl();
 			return;
 		}

@@ -60,13 +60,13 @@ final class Scene {
 		@Nonnull
 		public static Ticks create(@Nonnull Dimensions.Graph graph, @Nonnull Axis axis) {
 			final float sidePaddingSpx = 1.2f * axis.arrowLength;
-			final float sidePaddingGpx = graph.toGraphX(sidePaddingSpx);
+			final float sidePaddingGpx = graph.scaleToGraphX(sidePaddingSpx);
 			final float tickWidthSpx = axis.arrowWidth / 3;
 
 			final float graphWidthGpx = graph.width() - 2 * sidePaddingGpx;
 			final float tickStepGpx = Meshes.getTickStep(graphWidthGpx, 10);
 
-			int ticksCount = Math.max((int) (axis.lengthX / graph.toScreenX(tickStepGpx)), MIN_COUNT);
+			int ticksCount = Math.max((int) (axis.lengthX / graph.scaleToScreenX(tickStepGpx)), MIN_COUNT);
 			while (ticksCount > axis.multiplier * 20) {
 				ticksCount /= 2;
 			}

@@ -291,6 +291,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void moveCamera(float dx, float dy) {
+		Check.isMainThread();
 		synchronized (lock) {
 			camera.offset(dx, -dy);
 		}
@@ -298,10 +299,15 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void stopMovingCamera() {
+		Check.isMainThread();
+
 		final Plotter plotter = getPlotter();
 		if (plotter != null) {
 			final Zoom zoom = zoomer.current();
 			plotter.updateDimensions(zoom, viewDimensions.width(), viewDimensions.height(), getCamera());
+			synchronized (lock) {
+				camera.set(0f, 0f);
+			}
 		}
 		view.requestRender();
 	}

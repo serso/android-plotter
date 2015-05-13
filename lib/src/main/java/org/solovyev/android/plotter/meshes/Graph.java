@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.graphics.PointF;
 import android.util.Log;
 
 import org.solovyev.android.plotter.Check;
@@ -9,6 +10,7 @@ import javax.annotation.Nonnull;
 class Graph {
 
 	float step = -1f;
+	final PointF center = new PointF();
 
 	int capacity = 4 * 3;
 

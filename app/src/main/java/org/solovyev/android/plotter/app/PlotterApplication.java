@@ -43,12 +43,14 @@ public class PlotterApplication extends Application {
 			}
 		}, MeshSpec.create(Color.BLUE, MeshSpec.defaultWidth(this))));
 
+/*
 		plotter.add(new Function1("tan(x)") {
 			@Override
 			public float evaluate(float x) {
 				return (float) Math.tan(x);
 			}
 		});
+*/
 
 /*		plotter.add(new Function1("sin(1/x)") {
 			@Override
@@ -60,7 +62,7 @@ public class PlotterApplication extends Application {
 			}
 		});*/
 
-		plotter.add(new Function1("1/(x + 1)/(x - 1)^6") {
+/*		plotter.add(new Function1("1/(x + 1)/(x - 1)^6") {
 			@Override
 			public float evaluate(float x) {
 				if (x == 1 || x == -1) {
@@ -68,7 +70,7 @@ public class PlotterApplication extends Application {
 				}
 				return (float) (1 / (x + 1) / Math.pow(x - 1, 6));
 			}
-		});
+		});*/
 
 /*		plotter.add(new Function2("sin(x) + sin(y)") {
 			@Override

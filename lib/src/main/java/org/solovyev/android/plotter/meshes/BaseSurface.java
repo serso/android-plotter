@@ -59,7 +59,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 	public void onInit() {
 		super.onInit();
 
-		if (!dimensions.isEmpty()) {
+		if (!dimensions.isZero()) {
 			Log.d(Plot.getTag("Dimensions"), String.valueOf(dimensions));
 			createInitializer().init(arrays);
 			arrays.createBuffers();

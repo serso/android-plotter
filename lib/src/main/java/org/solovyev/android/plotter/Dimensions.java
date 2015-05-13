@@ -54,6 +54,7 @@ public final class Dimensions {
 		that.graph.zoom.set(this.graph.zoom);
 		that.scene.rect.set(this.scene.rect);
 		that.scene.view.set(this.scene.view);
+		that.scene.center.set(this.scene.center);
 
 		return that;
 	}
@@ -93,10 +94,10 @@ public final class Dimensions {
 
 	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
 		if (shouldUpdate(zoom, viewWidth, viewHeight, center)) {
-			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
+			final boolean viewChanged = !isZero(center) || scene.setViewDimensions(viewWidth, viewHeight);
 			final Zoom zoomChange = setZoom(zoom);
 			final boolean zoomChanged = !zoomChange.isOne();
-			scene.center.set(center);
+			scene.center.offset(center.x, center.y);
 			if (viewChanged) {
 				updateRect(center, scene.rect.width() * zoom.level, scene.rect.height() * zoom.level);
 
@@ -139,14 +140,15 @@ public final class Dimensions {
 	}
 
 	boolean shouldUpdate(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
-		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight || !this.scene.center.equals(center);
+		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight || !isZero(center);
 	}
 
-	public boolean isEmpty() {
+	private static boolean isZero(@Nonnull PointF point) {
+		return point.x == 0f && point.y == 0f;
+	}
+
+	public boolean isZero() {
 		return graph.isEmpty() || scene.isEmpty();
-	}
-
-	public void moveCamera(float dx, float dy) {
 	}
 
 	public static final class Scene {
@@ -247,9 +249,6 @@ public final class Dimensions {
 		@Nonnull
 		public final RectF rect = new RectF();
 
-		@Nonnull
-		private final PointF center = new PointF();
-
 		@Override
 		public boolean equals(Object o) {
 			if (this == o) return true;
@@ -259,7 +258,6 @@ public final class Dimensions {
 
 			if (!rect.equals(graph.rect)) return false;
 			if (!zoom.equals(graph.zoom)) return false;
-			if (!center.equals(graph.center)) return false;
 
 			return true;
 		}
@@ -271,11 +269,11 @@ public final class Dimensions {
 			return result;
 		}
 
-		private boolean set(float width, float height) {
-			if (rect.width() != width || rect.height() != height) {
-				rect.left = center.x - width / 2;
+		private boolean set(float width, float height, float x, float y) {
+			if (rect.width() != width || rect.height() != height || rect.centerX() != x || rect.centerY() != y) {
+				rect.left = x - width / 2;
 				rect.right = width + rect.left;
-				rect.top = center.y - height / 2;
+				rect.top = y - height / 2;
 				rect.bottom = height + rect.top;
 				return true;
 			}
@@ -292,16 +290,24 @@ public final class Dimensions {
 			final float requestedHeight = 20;
 			final float width = requestedWidth * zoom.level;
 			final float height = requestedHeight * zoom.level * aspectRatio;
-			set(width, height);
 			this.zoom.x = 1f / requestedWidth;
 			this.zoom.y = 1f / (requestedHeight * aspectRatio);
+			set(width, height, scaleToGraphX(-center.x), scaleToGraphY(-center.y));
 		}
 
 		public float toGraphX(float x) {
+			return rect.centerX() + scaleToGraphX(x);
+		}
+
+		public float scaleToGraphX(float x) {
 			return x / zoom.x;
 		}
 
 		public float toGraphY(float y) {
+			return rect.centerY() + scaleToGraphY(y);
+		}
+
+		public float scaleToGraphY(float y) {
 			return y / zoom.y;
 		}
 
@@ -310,10 +316,18 @@ public final class Dimensions {
 		}
 
 		public float toScreenX(float x) {
+			return scaleToScreenX(-rect.centerX()) + scaleToScreenX(x);
+		}
+
+		public float scaleToScreenX(float x) {
 			return x * zoom.x;
 		}
 
 		public float toScreenY(float y) {
+			return scaleToScreenY(-rect.centerY()) + scaleToScreenY(y);
+		}
+
+		public float scaleToScreenY(float y) {
 			return y * zoom.y;
 		}
 
