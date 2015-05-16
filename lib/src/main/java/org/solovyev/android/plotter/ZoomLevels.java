@@ -43,11 +43,6 @@ public class ZoomLevels {
 		y = 1f;
 	}
 
-	void update(float x, float y) {
-		setX(x);
-		setY(y);
-	}
-
 	void setY(float y) {
 		this.y = round(y);
 	}

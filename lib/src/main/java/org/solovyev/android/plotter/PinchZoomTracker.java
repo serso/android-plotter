@@ -56,8 +56,8 @@ final class PinchZoomTracker {
 		return current;
 	}
 
-	private static float distance(float x1, float x2) {
-		final float dx = x1 - x2;
+	private static float distance(float from, float to) {
+		final float dx = from - to;
 		return dx * dx;
 	}
 }
