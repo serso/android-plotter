@@ -512,6 +512,10 @@ final class DefaultPlotter implements Plotter {
 		}
 
 		@Override
+		public void resetCamera() {
+		}
+
+		@Override
 		public boolean post(@Nonnull Runnable runnable) {
 			if (!shouldUpdateFunctions) {
 				shouldUpdateFunctions = dimensionsChangedRunnable == runnable;

@@ -322,6 +322,19 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		return result;
 	}
 
+	public void resetCamera() {
+		boolean changed = false;
+		synchronized (lock) {
+			if (camera.x != 0f || camera.y != 0f) {
+				camera.set(0f, 0f);
+				changed = true;
+			}
+		}
+		if (changed) {
+			stopMovingCamera();
+		}
+	}
+
 	private static final class Rotation {
 
 		private static final float MIN_ROTATION = 0.5f;

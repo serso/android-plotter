@@ -126,6 +126,11 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	}
 
 	@Override
+	public void resetCamera() {
+		renderer.resetCamera();
+	}
+
+	@Override
 	public void set3d(boolean d3) {
 		Check.isMainThread();
 		if (this.d3 != d3) {

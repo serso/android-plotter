@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
 		zoom0Button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				plotView.resetCamera();
 				plotView.resetZoom();
 			}
 		});

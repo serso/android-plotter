@@ -9,6 +9,7 @@ public interface PlottingView {
 	void zoom(boolean in);
 
 	void resetZoom();
+	void resetCamera();
 
 	boolean post(@Nonnull Runnable runnable);
 
