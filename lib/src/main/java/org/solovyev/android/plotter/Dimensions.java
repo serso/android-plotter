@@ -30,6 +30,8 @@ import javax.annotation.Nonnull;
 public final class Dimensions {
 	@Nonnull
 	private static final Dimensions EMPTY = new Dimensions();
+	@Nonnull
+	public static final PointF ZERO = new PointF();
 
 	public static final float DISTANCE = 4f;
 
@@ -54,7 +56,6 @@ public final class Dimensions {
 		that.graph.zoom.set(this.graph.zoom);
 		that.scene.rect.set(this.scene.rect);
 		that.scene.view.set(this.scene.view);
-		that.scene.center.set(this.scene.center);
 
 		return that;
 	}
@@ -92,59 +93,42 @@ public final class Dimensions {
 		return Zoom.one();
 	}
 
-	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
+	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center, boolean cameraFixed) {
 		if (shouldUpdate(zoom, viewWidth, viewHeight, center)) {
-			final boolean viewChanged = !isZero(center) || scene.setViewDimensions(viewWidth, viewHeight);
+			final boolean cameraChanged = centerChanged(center);
+			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
 			final Zoom zoomChange = setZoom(zoom);
 			final boolean zoomChanged = !zoomChange.isOne();
-			scene.center.offset(center.x, center.y);
 			if (viewChanged) {
-				updateRect(center, scene.rect.width() * zoom.level, scene.rect.height() * zoom.level);
-
-				final float mx = middle(scene.rect.right, scene.rect.left) * zoom.x;
-				final float my = middle(scene.rect.top, scene.rect.bottom) * zoom.y;
-				final float width = scene.rect.width() * zoom.x;
-				final float height = scene.rect.height() * zoom.y;
-
-				scene.rect.right = mx + width / 2f;
-				scene.rect.left = mx - width / 2f;
-				scene.rect.bottom = my + height / 2f;
-				scene.rect.top = my - height / 2f;
+				scaleRect(zoom.level * zoomChange.x, zoom.level * zoomChange.y);
 			} else if (zoomChanged) {
-				updateRect(center, scene.rect.width() / zoom.level, scene.rect.height() / zoom.level);
-
-				final float mx = middle(scene.rect.right, scene.rect.left) / zoomChange.x;
-				final float my = middle(scene.rect.top, scene.rect.bottom) / zoomChange.y;
-				final float width = scene.rect.width() / zoomChange.x;
-				final float height = scene.rect.height() / zoomChange.y;
-
-				scene.rect.right = mx + width / 2f;
-				scene.rect.left = mx - width / 2f;
-				scene.rect.bottom = my + height / 2f;
-				scene.rect.top = my - height / 2f;
+				scaleRect(1f / (zoomChange.level * zoomChange.x), 1f / (zoomChange.level * zoomChange.y));
+			} else if (cameraChanged) {
+				scene.rect.offset(center.x - scene.rect.centerX(), center.y - scene.rect.centerY());
 			}
 
-			graph.update(scene.center, scene.getAspectRatio(), zoom);
+			graph.update(scene.rect.centerX(), scene.rect.centerY(), scene.getAspectRatio(), zoom);
 		}
 	}
 
-	private void updateRect(@Nonnull PointF center, float w, float h) {
-		scene.rect.left = center.x - w / 2;
-		scene.rect.right = scene.rect.left + w;
-		scene.rect.top = center.y - h / 2;
-		scene.rect.bottom = scene.rect.top + h;
+	private boolean centerChanged(@Nonnull PointF center) {
+		return scene.rect.centerX() != center.x || scene.rect.centerY() != center.y;
 	}
 
-	private static float middle(float from, float to) {
-		return (from + to) / 2f;
+	private void scaleRect(float zoomX, float zoomY) {
+		final float cx = scene.rect.centerX();
+		final float cy = scene.rect.centerY();
+		final float width = scene.rect.width() * zoomX;
+		final float height = scene.rect.height() * zoomY;
+
+		scene.rect.left = cx - width / 2f;
+		scene.rect.right = cx + width / 2f;
+		scene.rect.top = cy - height / 2f;
+		scene.rect.bottom = cy + height / 2f;
 	}
 
 	boolean shouldUpdate(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
-		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight || !isZero(center);
-	}
-
-	private static boolean isZero(@Nonnull PointF point) {
-		return point.x == 0f && point.y == 0f;
+		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight || centerChanged(center);
 	}
 
 	public boolean isZero() {
@@ -159,8 +143,6 @@ public final class Dimensions {
 		public final RectF rect = new RectF();
 		@Nonnull
 		public final RectF view = new RectF();
-		@Nonnull
-		public final PointF center = new PointF();
 
 		@Override
 		public boolean equals(Object o) {
@@ -171,7 +153,6 @@ public final class Dimensions {
 
 			if (!rect.equals(scene.rect)) return false;
 			if (!view.equals(scene.view)) return false;
-			if (!center.equals(scene.center)) return false;
 
 			return true;
 		}
@@ -180,7 +161,6 @@ public final class Dimensions {
 		public int hashCode() {
 			int result = rect.hashCode();
 			result = 31 * result + view.hashCode();
-			result = 31 * result + center.hashCode();
 			return result;
 		}
 
@@ -236,9 +216,17 @@ public final class Dimensions {
 		@Override
 		public String toString() {
 			return "Scene{" +
-					"rect=" + rect +
-					", view=" + view +
+					"rect=" + Dimensions.toString(rect) +
+					", view=" + Dimensions.toString(view) +
 					'}';
+		}
+
+		public float centerXForStep(float step) {
+			return rect.centerX() - rect.centerX() % step;
+		}
+
+		public float centerYForStep(float step) {
+			return rect.centerY() - rect.centerY() % step;
 		}
 	}
 
@@ -285,18 +273,18 @@ public final class Dimensions {
 			return rect.isEmpty();
 		}
 
-		public void update(@Nonnull PointF center, float aspectRatio, @Nonnull Zoom zoom) {
+		public void update(float x, float y, float aspectRatio, @Nonnull Zoom zoom) {
 			final float requestedWidth = 20;
 			final float requestedHeight = 20;
 			final float width = requestedWidth * zoom.level;
 			final float height = requestedHeight * zoom.level * aspectRatio;
 			this.zoom.x = 1f / requestedWidth;
 			this.zoom.y = 1f / (requestedHeight * aspectRatio);
-			set(width, height, scaleToGraphX(-center.x), scaleToGraphY(-center.y));
+			set(width, height, scaleToGraphX(-x), scaleToGraphY(-y));
 		}
 
 		public float toGraphX(float x) {
-			return rect.centerX() + scaleToGraphX(x);
+			return /*rect.centerX()*/ + scaleToGraphX(x);
 		}
 
 		public float scaleToGraphX(float x) {
@@ -304,7 +292,7 @@ public final class Dimensions {
 		}
 
 		public float toGraphY(float y) {
-			return rect.centerY() + scaleToGraphY(y);
+			return /*rect.centerY()*/ + scaleToGraphY(y);
 		}
 
 		public float scaleToGraphY(float y) {
@@ -316,7 +304,7 @@ public final class Dimensions {
 		}
 
 		public float toScreenX(float x) {
-			return scaleToScreenX(-rect.centerX()) + scaleToScreenX(x);
+			return /*scaleToScreenX(-rect.centerX())*/ + scaleToScreenX(x);
 		}
 
 		public float scaleToScreenX(float x) {
@@ -324,7 +312,7 @@ public final class Dimensions {
 		}
 
 		public float toScreenY(float y) {
-			return scaleToScreenY(-rect.centerY()) + scaleToScreenY(y);
+			return /*scaleToScreenY(-rect.centerY())*/ + scaleToScreenY(y);
 		}
 
 		public float scaleToScreenY(float y) {
@@ -346,8 +334,8 @@ public final class Dimensions {
 		@Override
 		public String toString() {
 			return "Graph{" +
-					"zoom=" + zoom +
-					", rect=" + rect +
+					"zoom=" + Dimensions.toString(zoom) +
+					", rect=" + Dimensions.toString(rect) +
 					'}';
 		}
 	}
@@ -367,5 +355,15 @@ public final class Dimensions {
 				", scene=" + scene +
 				", zoom=" + zoom +
 				'}';
+	}
+
+	@Nonnull
+	static String toString(@Nonnull PointF point) {
+		return "(x=" + point.x + ", y=" + point.y + ")";
+	}
+
+	@Nonnull
+	static String toString(@Nonnull RectF rect) {
+		return "[x=" + rect.left + ", y=" + rect.top + ", w=" + rect.width() + ", h=" + rect.height() + "]";
 	}
 }

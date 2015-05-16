@@ -76,10 +76,10 @@ public class AxisGrid extends BaseSurface {
 			default:
 				throw new AssertionError();
 		}
-		bounds.left = -widthTicks.axisLength / 2;
-		bounds.right = widthTicks.axisLength / 2;
-		bounds.bottom = -heightTicks.axisLength / 2;
-		bounds.top = heightTicks.axisLength / 2;
+		bounds.left = -widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step);
+		bounds.right = widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step);
+		bounds.bottom = -heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step);
+		bounds.top = heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step);
 		return new SurfaceInitializer(this, SurfaceInitializer.Data.create(bounds, widthTicks.count, heightTicks.count)) {
 			@Override
 			protected void rotate(float[] point) {

@@ -24,7 +24,9 @@ import org.solovyev.android.plotter.meshes.MeshSpec;
 import org.solovyev.android.plotter.meshes.Pool;
 import org.solovyev.android.plotter.text.FontAtlas;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -39,6 +41,16 @@ final class DefaultPlotter implements Plotter {
 
 	@Nonnull
 	private static final String TAG = Plot.getTag("Plotter");
+
+	@GuardedBy("lock")
+	@Nonnull
+	private Dimensions dimensions = new Dimensions();
+
+	@Nonnull
+	private final Coordinates coordinates = new Coordinates(dimensions, Color.WHITE);
+
+	@Nonnull
+	private final List<DoubleBufferMesh<AxisLabels>> labels = new ArrayList<>(3);
 
 	@Nonnull
 	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraphSwapper.INSTANCE);
@@ -100,10 +112,6 @@ final class DefaultPlotter implements Plotter {
 	private PlottingView view = emptyView;
 
 	@GuardedBy("lock")
-	@Nonnull
-	private Dimensions dimensions = new Dimensions();
-
-	@GuardedBy("lock")
 	private boolean d3 = D3;
 
 	@Nonnull
@@ -119,9 +127,6 @@ final class DefaultPlotter implements Plotter {
 
 	@Nonnull
 	private final FontAtlas fontAtlas;
-
-	@Nonnull
-	private Coordinates coordinates = new Coordinates(dimensions, Color.WHITE);
 
 	DefaultPlotter(@Nonnull Context context) {
 		this.context = context;
@@ -334,7 +339,7 @@ final class DefaultPlotter implements Plotter {
 		synchronized (lock) {
 			if (dimensions.shouldUpdate(zoom, viewWidth, viewHeight, camera)) {
 				final Dimensions newDimensions = dimensions.copy();
-				newDimensions.update(zoom, viewWidth, viewHeight, camera);
+				newDimensions.update(zoom, viewWidth, viewHeight, camera, false);
 				updateDimensions(newDimensions);
 			}
 		}
@@ -399,8 +404,18 @@ final class DefaultPlotter implements Plotter {
 		setDirty();
 	}
 
+	@Override
+	public void onCameraMoved(float dx, float dy) {
+		Check.isMainThread();
+		for (DoubleBufferMesh<AxisLabels> label : labels) {
+			final AxisLabels next = label.getNext();
+			next.updateCamera(dx, dy);
+		}
+	}
+
 	private void makeSetting(boolean d3) {
 		otherMeshes.clear();
+		labels.clear();
 		final Dimensions dimensions = getDimensions();
 		//add(new DrawableTexture(context.getResources(), R.drawable.icon));
 
@@ -415,12 +430,15 @@ final class DefaultPlotter implements Plotter {
 			add(AxisGrid.yz(dimensions, gridColor).toDoubleBuffer());
 		}
 		add(prepareAxis(Axis.x(dimensions), axisColor, axisWidth));
-		add(prepareAxisLabels(AxisLabels.x(fontAtlas, dimensions), axisLabelsColor));
+		labels.add(prepareAxisLabels(AxisLabels.x(fontAtlas, dimensions), axisLabelsColor));
 		add(prepareAxis(Axis.y(dimensions), axisColor, axisWidth));
-		add(prepareAxisLabels(AxisLabels.y(fontAtlas, dimensions), axisLabelsColor));
+		labels.add(prepareAxisLabels(AxisLabels.y(fontAtlas, dimensions), axisLabelsColor));
 		if (d3) {
 			add(prepareAxis(Axis.z(dimensions), axisColor, axisWidth));
-			add(prepareAxisLabels(AxisLabels.z(fontAtlas, dimensions), axisLabelsColor));
+			labels.add(prepareAxisLabels(AxisLabels.z(fontAtlas, dimensions), axisLabelsColor));
+		}
+		for (DoubleBufferMesh<AxisLabels> label : labels) {
+			add(label);
 		}
 		if(!d3) {
 			coordinates.setColor(gridColor);
