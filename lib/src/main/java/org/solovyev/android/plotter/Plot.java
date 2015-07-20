@@ -36,4 +36,8 @@ public final class Plot {
 		final DisplayMetrics dm = context.getResources().getDisplayMetrics();
 		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps, dm);
 	}
+
+	public static long animationTime() {
+		return System.nanoTime() / (1000L * 1000L);
+	}
 }

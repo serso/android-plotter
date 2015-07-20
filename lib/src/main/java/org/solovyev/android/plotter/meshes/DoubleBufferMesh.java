@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.util.Log;
+
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
@@ -137,5 +138,11 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 	@Override
 	public State getState() {
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void setAlpha(float alpha) {
+		this.first.setAlpha(alpha);
+		this.second.setAlpha(alpha);
 	}
 }

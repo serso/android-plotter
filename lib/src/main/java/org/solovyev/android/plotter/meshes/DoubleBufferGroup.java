@@ -2,10 +2,11 @@ package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.MeshConfig;
 
+import java.util.Iterator;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL11;
-import java.util.Iterator;
 
 public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBufferMesh<M>> {
 
@@ -69,6 +70,11 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
 	@Override
 	public State getState() {
 		return group.getState();
+	}
+
+	@Override
+	public void setAlpha(float alpha) {
+		group.setAlpha(alpha);
 	}
 
 	@Override

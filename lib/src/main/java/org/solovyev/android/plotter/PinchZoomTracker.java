@@ -38,14 +38,14 @@ final class PinchZoomTracker {
 		if (distance.x > minDistance) {
 			final float dx = distance(x1, x2);
 			if (dx > EPS) {
-				current.setX(distance.x / dx);
+				current.setX(getZoom(distance.x, dx));
 			}
 		}
 
 		if (distance.y > minDistance) {
 			final float dy = distance(y1, y2);
 			if (dy > EPS) {
-				current.setY(distance.y / dy);
+				current.setY(getZoom(distance.y, dy));
 			}
 		}
 
@@ -54,6 +54,10 @@ final class PinchZoomTracker {
 		}
 
 		return current;
+	}
+
+	private float getZoom(float z1, float z2) {
+		return (float) Math.sqrt(Math.sqrt(Math.sqrt(z1 / z2)));
 	}
 
 	private static float distance(float from, float to) {

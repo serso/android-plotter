@@ -184,7 +184,10 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
-	public void draw(@Nonnull GL11 gl) {
+	public void draw(@Nonnull GL11 gl, float labelsAlpha) {
+		for (DoubleBufferMesh<AxisLabels> label : labels) {
+			label.setAlpha(labelsAlpha);
+		}
 		allMeshes.draw(gl);
 	}
 

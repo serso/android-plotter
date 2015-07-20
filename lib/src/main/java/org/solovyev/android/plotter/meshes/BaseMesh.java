@@ -65,6 +65,8 @@ public abstract class BaseMesh implements Mesh {
 	// can be set from any thread
 	private volatile int width = MeshSpec.WIDTH_DEFAULT;
 
+	private volatile float alpha = 1f;
+
 	// can be accessed/changed from any thread
 	@Nonnull
 	private final StateHolder state = new StateHolder();
@@ -157,6 +159,7 @@ public abstract class BaseMesh implements Mesh {
 	protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 	}
 
+	@Override
 	public final void draw(@Nonnull GL11 gl) {
 		Check.isGlThread();
 
@@ -182,7 +185,7 @@ public abstract class BaseMesh implements Mesh {
 			gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 		}
 		if (hasColor) {
-			gl.glColor4f(color.red, color.green, color.blue, color.alpha);
+			gl.glColor4f(color.red, color.green, color.blue, color.alpha * alpha);
 		}
 		if (hasColors) {
 			gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
@@ -406,6 +409,11 @@ public abstract class BaseMesh implements Mesh {
 			bindVboBuffer(this.colors, colorsVbo, GL11.GL_ARRAY_BUFFER);
 			this.colors = null;
 		}
+	}
+
+	@Override
+	public void setAlpha(float alpha) {
+		this.alpha = alpha;
 	}
 
 	private static final class StateHolder {

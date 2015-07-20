@@ -65,6 +65,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final ZoomerHolder zoomer = new ZoomerHolder();
 
 	@Nonnull
+	private final FaderHolder fader = new FaderHolder();
+
+	@Nonnull
 	private Rect viewDimensions = new Rect();
 
 	@Nonnull
@@ -163,6 +166,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		if (plotter != null) {
 			final GL11 gl = (GL11) gl10;
 
+			final float alpha = fader.onFrame();
 			final Zoom zoom = zoomer.onFrame(gl, plotter);
 
 			gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
@@ -186,7 +190,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glEnable(GL10.GL_BLEND);
 			gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 
-			plotter.draw(gl);
+			plotter.draw(gl, alpha);
 
 			gl.glDisable(GL10.GL_BLEND);
 		}
@@ -446,8 +450,34 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
-	private final class CameraHolder {
+	private final class FaderHolder {
+		@Nonnull
+		private final String TAG = Plot.getTag("Fader");
 
+		@GuardedBy("this")
+		@Nonnull
+		volatile Fader fader = new Fader();
+
+		float onFrame() {
+			synchronized (this) {
+				if (fader.onFrame()) {
+					view.requestRender();
+				}
+				return fader.getAlpha();
+			}
+		}
+
+		public void fadeOut() {
+			synchronized (this) {
+				fader.fadeOut();
+			}
+		}
+
+		public void fadeIn() {
+			synchronized (this) {
+				fader.fadeIn();
+			}
+		}
 	}
 
 	private final class ZoomerHolder {
@@ -482,8 +512,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 						}
 						startRotating();
 					} else {
-						// we must loop while zoom is zooming
-						looping = true;
+						view.requestRender();
 					}
 				} else {
 					synchronized (lock) {
@@ -580,8 +609,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 						if (plotter != null) {
 							plotter.hideCoordinates();
 						}
+						fader.fadeOut();
 						Log.d(TAG, "Starting pinch zoom");
 					} else {
+						fader.fadeIn();
 						if (plotter != null) {
 							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
 						}

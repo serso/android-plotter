@@ -2,12 +2,13 @@ package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
-import javax.microedition.khronos.opengles.GL11;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
+import javax.microedition.khronos.opengles.GL11;
 
 @ThreadSafe
 public final class ListGroup<M extends Mesh> implements Group<M> {
@@ -61,6 +62,13 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
 			}
 		}
 		return state;
+	}
+
+	@Override
+	public void setAlpha(float alpha) {
+		for (M mesh : list) {
+			mesh.setAlpha(alpha);
+		}
 	}
 
 	@Override

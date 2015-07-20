@@ -19,6 +19,8 @@ public interface Mesh {
 	@Nonnull
 	State getState();
 
+	void setAlpha(float alpha);
+
 	enum State {
 		DIRTY(0),
 		INITIALIZING(1),
