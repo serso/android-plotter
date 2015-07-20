@@ -294,6 +294,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		Check.isMainThread();
 		synchronized (lock) {
 			camera.offset(dx, -dy);
+			final Plotter plotter = getPlotter();
+			if (plotter != null) {
+				plotter.onCameraMoved(dx, -dy);
+			}
 		}
 		view.requestRender();
 	}
@@ -305,9 +309,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		if (plotter != null) {
 			final Zoom zoom = zoomer.current();
 			plotter.updateDimensions(zoom, viewDimensions.width(), viewDimensions.height(), getCamera());
-			synchronized (lock) {
-				camera.set(0f, 0f);
-			}
 		}
 		view.requestRender();
 	}
@@ -319,6 +320,19 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			result.set(camera);
 		}
 		return result;
+	}
+
+	public void resetCamera() {
+		boolean changed = false;
+		synchronized (lock) {
+			if (camera.x != 0f || camera.y != 0f) {
+				camera.set(0f, 0f);
+				changed = true;
+			}
+		}
+		if (changed) {
+			stopMovingCamera();
+		}
 	}
 
 	private static final class Rotation {

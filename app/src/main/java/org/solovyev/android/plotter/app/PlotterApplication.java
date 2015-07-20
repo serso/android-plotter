@@ -36,10 +36,10 @@ public class PlotterApplication extends Application {
 		super.onCreate();
 
 		plotter = Plot.newPlotter(this);
-		plotter.add(PlotFunction.create(new Function1("x * x / 2") {
+		plotter.add(PlotFunction.create(new Function1("x") {
 			@Override
 			public float evaluate(float x) {
-				return x * x / 2;
+				return x;
 			}
 		}, MeshSpec.create(Color.BLUE, MeshSpec.defaultWidth(this))));
 
