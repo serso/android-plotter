@@ -13,7 +13,7 @@ import javax.microedition.khronos.opengles.GL11;
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
-	protected volatile Dimensions dimensions;
+	protected final MeshDimensions dimensions;
 
 	// create on the background thread and accessed from GL thread
 	private volatile FloatBuffer verticesBuffer;
@@ -23,14 +23,12 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	private final Graph graph = Graph.create();
 
 	protected BaseCurve(@Nonnull Dimensions dimensions) {
-		this.dimensions = dimensions;
+		this.dimensions = new MeshDimensions(dimensions);
 	}
 
 	@Override
 	public void setDimensions(@Nonnull Dimensions dimensions) {
-		// todo serso: might be called on GL thread, requires synchronization
-		if (!this.dimensions.equals(dimensions)) {
-			this.dimensions = dimensions;
+		if (this.dimensions.set(dimensions)) {
 			setDirty();
 		}
 	}
@@ -38,15 +36,16 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	@Override
 	@Nonnull
 	public Dimensions getDimensions() {
-		return dimensions;
+		return dimensions.get();
 	}
 
 	@Override
 	public void onInit() {
 		super.onInit();
 
+		final Dimensions dimensions = this.dimensions.get();
 		if (!dimensions.isZero()) {
-			fillGraph(graph);
+			fillGraph(graph, dimensions);
 			verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
 			indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
 		} else {
@@ -64,7 +63,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		setIndices(indicesBuffer, IndicesOrder.LINE_STRIP);
 	}
 
-	void fillGraph(@Nonnull Graph graph) {
+	void fillGraph(@Nonnull Graph graph, @Nonnull Dimensions dimensions) {
 		final float add = dimensions.graph.rect.width();
 		final float newXMin = dimensions.graph.rect.left - add;
 		final float newXMax = dimensions.graph.rect.right + add;
@@ -96,7 +95,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 				if (screenXMax <= graph.xMax()) {
 					graph.moveEndTo(screenXMax);
 				} else {
-					if (fillGraphIfCantGrow(graph, newXMin, newXMax, step, maxPoints)) return;
+					if (fillGraphIfCantGrow(graph, newXMin, newXMax, step, maxPoints, dimensions)) return;
 					calculate(dimensions.graph.toGraphX(graph.xMax()) + step, newXMax, step, graph, dimensions.graph);
 				}
 			} else {
@@ -109,7 +108,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 				// |--------------------[------data--]----|----------- old data
 				// |-------[<----------->------data--<--->]-----------new data
 				//        xMin                           xMax
-				if (fillGraphIfCantGrow(graph, newXMin, newXMax, step, maxPoints)) return;
+				if (fillGraphIfCantGrow(graph, newXMin, newXMax, step, maxPoints, dimensions)) return;
 				calculate(dimensions.graph.toGraphX(graph.xMin()) - step, newXMin, -step, graph, dimensions.graph);
 				if (screenXMax <= graph.xMax()) {
 					graph.moveEndTo(screenXMax);
@@ -122,7 +121,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		}
 	}
 
-	private boolean fillGraphIfCantGrow(Graph graph, float newXMin, float newXMax, float step, int maxPoints) {
+	private boolean fillGraphIfCantGrow(Graph graph, float newXMin, float newXMax, float step, int maxPoints, @Nonnull Dimensions dimensions) {
 		if (!graph.canGrow(maxPoints)) {
 			// if we can't grow anymore we must clear the graph and recalculate all values
 			graph.clear();

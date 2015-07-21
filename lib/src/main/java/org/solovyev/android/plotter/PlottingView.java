@@ -11,6 +11,7 @@ public interface PlottingView {
 	void resetZoom();
 	void resetCamera();
 
+	boolean removeCallbacks(@Nonnull Runnable runnable);
 	boolean post(@Nonnull Runnable runnable);
 
 	void set3d(boolean d3);

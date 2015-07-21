@@ -35,6 +35,9 @@ import javax.microedition.khronos.opengles.GL11;
 final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Nonnull
+	private static final PointF tmp = new PointF();
+
+	@Nonnull
 	private final Spf spf = new Spf();
 
 	// lock for synchronization GL objects
@@ -66,6 +69,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Nonnull
 	private final FaderHolder fader = new FaderHolder();
+
+	@Nonnull
+	private final CameraManHolder cameraMan = new CameraManHolder();
 
 	@Nonnull
 	private Rect viewDimensions = new Rect();
@@ -174,14 +180,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glMatrixMode(GL10.GL_MODELVIEW);
 			gl.glLoadIdentity();
 
-			final float cameraX;
-			final float cameraY;
-			synchronized (lock) {
-				cameraX = camera.x;
-				cameraY = camera.y;
-			}
-
-			gl.glTranslatef(cameraX, cameraY, -Dimensions.DISTANCE * zoom.level);
+			cameraMan.onFrame(tmp, plotter);
+			gl.glTranslatef(tmp.x, tmp.y, -Dimensions.DISTANCE * zoom.level);
 
 			rotation.onFrame(gl10);
 
@@ -327,16 +327,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void resetCamera() {
-		boolean changed = false;
-		synchronized (lock) {
-			if (camera.x != 0f || camera.y != 0f) {
-				camera.set(0f, 0f);
-				changed = true;
-			}
-		}
-		if (changed) {
-			stopMovingCamera();
-		}
+		cameraMan.reset();
 	}
 
 	private static final class Rotation {
@@ -450,16 +441,55 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
+	private final class CameraManHolder {
+		@GuardedBy("PlotRenderer.this.lock")
+		@Nonnull
+		private final CameraMan cameraMan = new CameraMan();
+		@GuardedBy("PlotRenderer.this.lock")
+		private boolean moving;
+
+		public void reset() {
+			synchronized (lock) {
+				if (camera.x != 0f || camera.y != 0f) {
+					cameraMan.move(camera, new PointF());
+					fader.fadeOut();
+					moving = true;
+					view.requestRender();
+				}
+			}
+		}
+
+		public void onFrame(@Nonnull PointF out, @Nonnull Plotter plotter) {
+			synchronized (lock) {
+				if (!moving) {
+					out.set(camera);
+					return;
+				}
+
+				if (cameraMan.onFrame()) {
+					camera.set(cameraMan.getPosition());
+					view.requestRender();
+				} else if (moving) {
+					camera.set(cameraMan.getPosition());
+					moving = false;
+					plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
+					fader.fadeIn();
+				}
+				out.set(camera);
+			}
+		}
+	}
+
 	private final class FaderHolder {
 		@Nonnull
 		private final String TAG = Plot.getTag("Fader");
 
-		@GuardedBy("this")
+		@GuardedBy("PlotRenderer.this.lock")
 		@Nonnull
-		volatile Fader fader = new Fader();
+		private final Fader fader = new Fader();
 
 		float onFrame() {
-			synchronized (this) {
+			synchronized (lock) {
 				if (fader.onFrame()) {
 					view.requestRender();
 				}
@@ -468,14 +498,16 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		}
 
 		public void fadeOut() {
-			synchronized (this) {
+			synchronized (lock) {
 				fader.fadeOut();
+				view.requestRender();
 			}
 		}
 
 		public void fadeIn() {
-			synchronized (this) {
+			synchronized (lock) {
 				fader.fadeIn();
+				view.requestRender();
 			}
 		}
 	}
@@ -560,7 +592,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		void zoom(boolean in) {
 			synchronized (this) {
 				if (zoomer.zoom(in)) {
-					loop(true);
+					view.requestRender();
 				}
 				if (in) {
 					Log.d(TAG, "Zooming in: " + zoomer);
@@ -573,7 +605,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		void reset() {
 			synchronized (this) {
 				if (zoomer.reset()) {
-					loop(true);
+					view.requestRender();
 				}
 				Log.d(TAG, "Resetting: " + zoomer);
 			}

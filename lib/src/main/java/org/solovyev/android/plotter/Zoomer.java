@@ -11,7 +11,7 @@ import static android.os.SystemClock.uptimeMillis;
 
 final class Zoomer {
 
-	private static final long DURATION = 1000L;
+	static final long DURATION = 1000L;
 	private long duration = DURATION;
 	@Nonnull
 	private final Interpolator interpolator = new AccelerateDecelerateInterpolator();

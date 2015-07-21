@@ -83,7 +83,7 @@ final class DefaultPlotter implements Plotter {
 	private PlotData plotData = PlotData.create();
 
 	@Nonnull
-	private final Initializer initializer = new Initializer(allMeshes);
+	private final Initializer initializer = new Initializer();
 
 	@Nonnull
 	private final MeshConfig config = MeshConfig.create();
@@ -329,6 +329,7 @@ final class DefaultPlotter implements Plotter {
 			if (!dimensions.equals(newDimensions)) {
 				dimensions = newDimensions;
 				if (!Plot.isMainThread() || view == emptyView) {
+					view.removeCallbacks(dimensionsChangedRunnable);
 					view.post(dimensionsChangedRunnable);
 				} else {
 					dimensionsChangedRunnable.run();
@@ -475,16 +476,9 @@ final class DefaultPlotter implements Plotter {
 	@Nonnull
 	public final class Initializer implements Runnable {
 
-		@Nonnull
-		private final Group<Mesh> group;
-
-		public Initializer(@Nonnull Group<Mesh> group) {
-			this.group = group;
-		}
-
 		@Override
 		public void run() {
-			group.init();
+			allMeshes.init();
 			synchronized (lock) {
 				view.requestRender();
 			}
@@ -516,6 +510,11 @@ final class DefaultPlotter implements Plotter {
 
 		@Override
 		public void resetCamera() {
+		}
+
+		@Override
+		public boolean removeCallbacks(@Nonnull Runnable runnable) {
+			return false;
 		}
 
 		@Override
