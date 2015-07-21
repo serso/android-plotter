@@ -79,7 +79,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	@Nonnull
 	private final Frustum frustum = Frustum.empty();
 
-	private volatile boolean looping = rotation.shouldRotate();
+	private volatile boolean rotating = rotation.shouldRotate();
 
 	public PlotRenderer(@Nonnull Context context, @Nonnull PlottingView view) {
 		this.context = context;
@@ -195,7 +195,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glDisable(GL10.GL_BLEND);
 		}
 
-		if (looping) {
+		if (rotating) {
 			view.requestRender();
 		}
 		spf.logFrameEnd();
@@ -246,20 +246,17 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void stopRotating() {
-		looping = false;
+		rotating = false;
 	}
 
 	public void startRotating() {
 		synchronized (rotation) {
 			final boolean shouldRotate = rotation.shouldRotate();
-			loop(shouldRotate);
-		}
-	}
-
-	private void loop(boolean loop) {
-		if (looping != loop) {
-			looping = loop;
-			if (looping) {
+			if (rotating == shouldRotate) {
+				return;
+			}
+			rotating = shouldRotate;
+			if (rotating) {
 				view.requestRender();
 			}
 		}
@@ -424,7 +421,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		void restoreState(@Nonnull Bundle bundle) {
 			synchronized (rotation) {
 				rotation = new Rotation(bundle);
-				looping = rotation.shouldRotate();
+				rotating = rotation.shouldRotate();
 			}
 		}
 
