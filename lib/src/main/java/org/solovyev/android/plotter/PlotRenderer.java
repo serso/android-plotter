@@ -269,12 +269,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		Check.isMainThread();
 		rotation.saveState(bundle);
 		zoomer.saveState(bundle);
+		cameraMan.saveState(bundle);
 	}
 
 	public void restoreState(@Nonnull Bundle bundle) {
 		Check.isMainThread();
 		rotation.restoreState(bundle);
 		zoomer.restoreState(bundle);
+		cameraMan.restoreState(bundle);
 		view.requestRender();
 	}
 
@@ -476,6 +478,20 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					fader.fadeIn();
 				}
 				out.set(camera);
+			}
+		}
+
+		public void saveState(@Nonnull Bundle bundle) {
+			synchronized (lock) {
+				bundle.putFloat("camera.x", camera.x);
+				bundle.putFloat("camera.y", camera.y);
+			}
+		}
+
+		public void restoreState(@Nonnull Bundle bundle) {
+			synchronized (lock) {
+				camera.x = bundle.getFloat("camera.x", camera.x);
+				camera.y = bundle.getFloat("camera.y", camera.y);
 			}
 		}
 	}
