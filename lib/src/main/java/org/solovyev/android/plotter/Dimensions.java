@@ -103,7 +103,10 @@ public final class Dimensions {
 				scaleRect(zoom.level * zoomChange.x, zoom.level * zoomChange.y);
 			} else if (zoomChanged) {
 				scaleRect(1f / (zoomChange.level * zoomChange.x), 1f / (zoomChange.level * zoomChange.y));
-			} else if (cameraChanged) {
+			}
+
+			// camera can be changed independently from view/zoom
+			if (cameraChanged) {
 				scene.rect.offset(center.x - scene.rect.centerX(), center.y - scene.rect.centerY());
 			}
 

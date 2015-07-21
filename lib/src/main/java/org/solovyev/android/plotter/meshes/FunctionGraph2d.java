@@ -58,6 +58,6 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 
 	@Override
 	public String toString() {
-		return function.toString();
+		return function.toString() + "(" + Integer.toString(System.identityHashCode(this), 16) + ")";
 	}
 }

@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.util.Log;
+
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
@@ -29,6 +31,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	@Override
 	public void setDimensions(@Nonnull Dimensions dimensions) {
 		if (this.dimensions.set(dimensions)) {
+			Log.d(TAG, this + ": dimensions=" + dimensions);
 			setDirty();
 		}
 	}

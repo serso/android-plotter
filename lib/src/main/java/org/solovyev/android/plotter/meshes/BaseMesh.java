@@ -21,7 +21,7 @@ import javax.microedition.khronos.opengles.GL11;
 public abstract class BaseMesh implements Mesh {
 
 	@Nonnull
-	private static final String TAG = Meshes.getTag("BaseMesh");
+	protected static final String TAG = Meshes.getTag("BaseMesh");
 
 	private static final int NULL = 0xDEADC0DE;
 
