@@ -302,6 +302,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				plotter.onCameraMoved(dx, -dy);
 			}
 		}
+		fader.fadeOut();
 		view.requestRender();
 	}
 
@@ -313,6 +314,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			final Zoom zoom = zoomer.current();
 			plotter.updateDimensions(zoom, viewDimensions.width(), viewDimensions.height(), getCamera());
 		}
+		fader.fadeIn();
 		view.requestRender();
 	}
 
