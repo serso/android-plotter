@@ -343,7 +343,7 @@ final class DefaultPlotter implements Plotter {
 		synchronized (lock) {
 			if (dimensions.shouldUpdate(zoom, viewWidth, viewHeight, camera)) {
 				final Dimensions newDimensions = dimensions.copy();
-				newDimensions.update(zoom, viewWidth, viewHeight, camera, false);
+				newDimensions.update(zoom, viewWidth, viewHeight, camera);
 				updateDimensions(newDimensions);
 			}
 		}

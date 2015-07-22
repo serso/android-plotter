@@ -52,5 +52,5 @@ public interface Plotter {
 
 	void hideCoordinates();
 
-	void onCameraMoved(float fx, float dy);
+	void onCameraMoved(float dx, float dy);
 }

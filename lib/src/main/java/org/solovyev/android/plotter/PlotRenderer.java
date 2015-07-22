@@ -554,6 +554,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					if (!zoomer.isZooming()) {
 						if (!pinchZoom) {
 							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
+							fader.fadeIn();
 						}
 						startRotating();
 					} else {
@@ -606,6 +607,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			synchronized (this) {
 				if (zoomer.zoom(in)) {
 					view.requestRender();
+					fader.fadeOut();
 				}
 				if (in) {
 					Log.d(TAG, "Zooming in: " + zoomer);

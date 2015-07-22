@@ -93,7 +93,7 @@ public final class Dimensions {
 		return Zoom.one();
 	}
 
-	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center, boolean cameraFixed) {
+	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
 		if (shouldUpdate(zoom, viewWidth, viewHeight, center)) {
 			final boolean cameraChanged = centerChanged(center);
 			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
