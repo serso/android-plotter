@@ -201,7 +201,7 @@ public final class Dimensions {
 		}
 
 		public float toSceneX(float x) {
-			return x * rect.width() / view.width() - rect.width() / 2;
+			return -rect.centerX() + x * rect.width() / view.width() - rect.width() / 2;
 		}
 
 		public float toSceneDx(float dx) {
@@ -209,7 +209,7 @@ public final class Dimensions {
 		}
 
 		public float toSceneY(float y) {
-			return -(y * rect.height() / view.height() - rect.height() / 2);
+			return -rect.centerY() + -(y * rect.height() / view.height() - rect.height() / 2);
 		}
 
 		public float toSceneDy(float dy) {

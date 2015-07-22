@@ -149,7 +149,6 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 	private enum TouchMode {
 		PAN,
-		COORDINATES,
 		ROTATE
 	}
 
@@ -163,6 +162,8 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 		@Nonnull
 		private final PointF lastTouch = new PointF();
+		@Nonnull
+		private final PointF cameraOffset = new PointF();
 		private boolean lastTouchMoved;
 
 		private long lastZoomTime = 0;
@@ -182,8 +183,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			renderer.stopRotating();
 			lastTouch.x = x;
 			lastTouch.y = y;
+			cameraOffset.set(0, 0);
 			lastTouchMoved = false;
-			if (mode == TouchMode.COORDINATES && plotter != null) {
+			if (mode == TouchMode.PAN && plotter != null) {
 				Check.isTrue(!d3);
 				plotter.showCoordinates(x, y);
 			}
@@ -198,16 +200,13 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			final float dy = y - lastTouch.y;
 			lastTouchMoved = moreThanEps(dx, dy, 3f);
 			if (moreThanEps(dx, dy, 1f)) {
+				cameraOffset.offset(-dx, -dy);
 				switch (mode) {
 					case PAN:
 						if (plotter != null) {
 							final Dimensions.Scene scene = plotter.getSceneDimensions();
 							renderer.moveCamera(scene.toSceneDx(dx), scene.toSceneDy(dy));
-						}
-						break;
-					case COORDINATES:
-						if (plotter != null) {
-							plotter.showCoordinates(x, y);
+							plotter.showCoordinates(x + cameraOffset.x, y + cameraOffset.y);
 						}
 						break;
 					case ROTATE:
@@ -243,8 +242,6 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			switch (mode) {
 				case PAN:
 					renderer.stopMovingCamera();
-					break;
-				case COORDINATES:
 					if (plotter != null) {
 						plotter.hideCoordinates();
 					}
