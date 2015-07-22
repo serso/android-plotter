@@ -27,7 +27,7 @@ import org.solovyev.android.plotter.text.FontAtlas;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -89,7 +89,7 @@ final class DefaultPlotter implements Plotter {
 	private final MeshConfig config = MeshConfig.create();
 
 	@Nonnull
-	private final Executor background = Executors.newFixedThreadPool(4, new ThreadFactory() {
+	private final ExecutorService background = Executors.newFixedThreadPool(Plot.getAvailableProcessors(), new ThreadFactory() {
 
 		@Nonnull
 		private final AtomicInteger counter = new AtomicInteger(0);

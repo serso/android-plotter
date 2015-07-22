@@ -57,7 +57,7 @@ final class PinchZoomTracker {
 	}
 
 	private float getZoom(float z1, float z2) {
-		return (float) Math.sqrt(Math.sqrt(Math.sqrt(z1 / z2)));
+		return z1 / z2;
 	}
 
 	private static float distance(float from, float to) {

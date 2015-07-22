@@ -40,4 +40,8 @@ public final class Plot {
 	public static long animationTime() {
 		return System.nanoTime() / (1000L * 1000L);
 	}
+
+	static int getAvailableProcessors() {
+		return Math.max(1, Runtime.getRuntime().availableProcessors());
+	}
 }
