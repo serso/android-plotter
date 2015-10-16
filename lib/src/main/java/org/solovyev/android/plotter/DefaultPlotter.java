@@ -396,16 +396,16 @@ final class DefaultPlotter implements Plotter {
 
 	@Override
 	public void showCoordinates(float x, float y) {
-		if (!d3) {
+		/*if (!d3) {
 			coordinates.setScreenXY(x, y);
 			setDirty();
-		}
+		}*/
 	}
 
 	@Override
 	public void hideCoordinates() {
-		coordinates.clear();
-		setDirty();
+		/*coordinates.clear();
+		setDirty();*/
 	}
 
 	@Override
@@ -444,10 +444,10 @@ final class DefaultPlotter implements Plotter {
 		for (DoubleBufferMesh<AxisLabels> label : labels) {
 			add(label);
 		}
-		if(!d3) {
+		/*if(!d3) {
 			coordinates.setColor(gridColor);
 			add(coordinates);
-		}
+		}*/
 	}
 
 	@Nonnull

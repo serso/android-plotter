@@ -4,6 +4,7 @@ import android.app.Application;
 
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Function1;
+import org.solovyev.android.plotter.Function2;
 import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
@@ -43,16 +44,14 @@ public class PlotterApplication extends Application {
 			}
 		}, MeshSpec.create(Color.BLUE, MeshSpec.defaultWidth(this))));
 
-/*
 		plotter.add(new Function1("tan(x)") {
 			@Override
 			public float evaluate(float x) {
 				return (float) Math.tan(x);
 			}
 		});
-*/
 
-/*		plotter.add(new Function1("sin(1/x)") {
+		plotter.add(new Function1("sin(1/x)") {
 			@Override
 			public float evaluate(float x) {
 				if (x == 0) {
@@ -60,9 +59,9 @@ public class PlotterApplication extends Application {
 				}
 				return (float) Math.sin(1 / x);
 			}
-		});*/
+		});
 
-/*		plotter.add(new Function1("1/(x + 1)/(x - 1)^6") {
+		plotter.add(new Function1("1/(x + 1)/(x - 1)^6") {
 			@Override
 			public float evaluate(float x) {
 				if (x == 1 || x == -1) {
@@ -70,9 +69,9 @@ public class PlotterApplication extends Application {
 				}
 				return (float) (1 / (x + 1) / Math.pow(x - 1, 6));
 			}
-		});*/
+		});
 
-/*		plotter.add(new Function2("sin(x) + sin(y)") {
+		plotter.add(new Function2("sin(x) + sin(y)") {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.sin(y));
@@ -84,9 +83,9 @@ public class PlotterApplication extends Application {
 			public float evaluate(float x, float y) {
 				return x * x + y * y;
 			}
-		});
+		}, this);
 		paraboloid.meshSpec.color = Color.RED;
-		plotter.add(paraboloid);*/
+		plotter.add(paraboloid);
 	}
 
 	@Nonnull
