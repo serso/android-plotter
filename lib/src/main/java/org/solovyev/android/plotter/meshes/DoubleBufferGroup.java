@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import java.util.Iterator;
@@ -75,6 +76,27 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
 	@Override
 	public void setAlpha(float alpha) {
 		group.setAlpha(alpha);
+	}
+
+	@Override
+	public boolean setColor(@Nonnull Color color) {
+		return group.setColor(color);
+	}
+
+	@Nonnull
+	@Override
+	public Color getColor() {
+		return group.getColor();
+	}
+
+	@Override
+	public boolean setWidth(int width) {
+		return group.setWidth(width);
+	}
+
+	@Override
+	public int getWidth() {
+		return group.getWidth();
 	}
 
 	@Override

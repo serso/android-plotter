@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
@@ -20,6 +21,15 @@ public interface Mesh {
 	State getState();
 
 	void setAlpha(float alpha);
+
+	boolean setColor(@Nonnull Color color);
+
+	@Nonnull
+	Color getColor();
+
+	boolean setWidth(int width);
+
+	int getWidth();
 
 	enum State {
 		DIRTY(0),

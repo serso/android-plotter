@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import java.util.Collection;
@@ -69,6 +70,34 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
 		for (M mesh : list) {
 			mesh.setAlpha(alpha);
 		}
+	}
+
+	@Override
+	public boolean setColor(@Nonnull Color color) {
+		boolean changed = false;
+		for (M mesh : list) {
+			changed |= mesh.setColor(color);
+		}
+		return changed;
+	}
+
+	@Nonnull
+	@Override
+	public Color getColor() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean setWidth(int width) {
+		boolean changed = false;
+		for (M mesh : list) {
+			changed |= mesh.setWidth(width);
+		}
+		return changed;	}
+
+	@Override
+	public int getWidth() {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

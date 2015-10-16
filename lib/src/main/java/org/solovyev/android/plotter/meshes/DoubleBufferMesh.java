@@ -2,6 +2,7 @@ package org.solovyev.android.plotter.meshes;
 
 import android.util.Log;
 
+import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import javax.annotation.Nonnull;
@@ -144,5 +145,30 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 	public void setAlpha(float alpha) {
 		this.first.setAlpha(alpha);
 		this.second.setAlpha(alpha);
+	}
+
+	@Override
+	public boolean setColor(@Nonnull Color color) {
+		final boolean f = this.first.setColor(color);
+		final boolean s = this.second.setColor(color);
+		return f || s;
+	}
+
+	@Nonnull
+	@Override
+	public Color getColor() {
+		return this.first.getColor();
+	}
+
+	@Override
+	public boolean setWidth(int width) {
+		final boolean f = this.first.setWidth(width);
+		final boolean s = this.second.setWidth(width);
+		return f || s;
+	}
+
+	@Override
+	public int getWidth() {
+		return this.first.getWidth();
 	}
 }
