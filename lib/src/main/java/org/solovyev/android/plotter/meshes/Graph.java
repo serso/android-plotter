@@ -181,10 +181,10 @@ class Graph {
 			final float y = vertices[start + 3 * vertex + 1];
 			final float yNext = vertices[start + 3 * (vertex + 1) + 1];
 			if (y > maxY || yNext > maxY) {
-				this.indicesCount--;
+				this.indicesCount-=2;
 				continue;
 			} else if (y < minY || yNext < minY) {
-				this.indicesCount--;
+				this.indicesCount-=2;
 				continue;
 			}
 			indices[j++] = vertex;
