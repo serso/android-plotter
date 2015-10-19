@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.graphics.RectF;
+
 import org.solovyev.android.plotter.Dimensions;
 
 import javax.annotation.Nonnull;
@@ -11,6 +13,53 @@ final class Scene {
 	private Scene() {
 	}
 
+	static final class AxisGrid {
+
+		@Nonnull
+		final RectF rect;
+		@Nonnull
+		final Scene.Ticks widthTicks;
+		@Nonnull
+		final Scene.Ticks heightTicks;
+
+		AxisGrid(@Nonnull RectF rect, @Nonnull Ticks widthTicks, @Nonnull Ticks heightTicks) {
+			this.rect = rect;
+			this.widthTicks = widthTicks;
+			this.heightTicks = heightTicks;
+		}
+
+		@Nonnull
+		public static AxisGrid create(@Nonnull Dimensions dimensions, @Nonnull org.solovyev.android.plotter.meshes.AxisGrid.Axes axes) {
+			final Scene.Axis xAxis = Scene.Axis.create(dimensions.scene, false);
+			final Scene.Axis yAxis = Scene.Axis.create(dimensions.scene, true);
+			final Scene.Ticks xTicks = Scene.Ticks.create(dimensions.graph, xAxis);
+			final Scene.Ticks yTicks = Scene.Ticks.create(dimensions.graph, yAxis);
+			final RectF bounds = new RectF();
+			final Scene.Ticks widthTicks;
+			final Scene.Ticks heightTicks;
+			switch (axes) {
+				case XZ:
+					widthTicks = xTicks;
+					heightTicks = yTicks;
+					break;
+				case YZ:
+					widthTicks = yTicks;
+					heightTicks = xTicks;
+					break;
+				case XY:
+					widthTicks = xTicks;
+					heightTicks = xTicks;
+					break;
+				default:
+					throw new AssertionError();
+			}
+			bounds.left = -widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step);
+			bounds.right = widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step);
+			bounds.bottom = -heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step);
+			bounds.top = heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step);
+			return new AxisGrid(bounds, widthTicks, heightTicks);
+		}
+	}
 	static final class Axis {
 
 		final float length;

@@ -50,7 +50,8 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		if (!dimensions.isZero()) {
 			fillGraph(graph, dimensions);
 			verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
-			indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
+			final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, AxisGrid.Axes.XY);
+			indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(grid.rect.bottom, grid.rect.top), 0, graph.getIndicesCount(), indicesBuffer);
 		} else {
 			setDirty();
 		}
@@ -63,7 +64,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		Check.isNotNull(verticesBuffer);
 
 		setVertices(verticesBuffer);
-		setIndices(indicesBuffer, IndicesOrder.LINE_STRIP);
+		setIndices(indicesBuffer, IndicesOrder.LINES);
 	}
 
 	void fillGraph(@Nonnull Graph graph, @Nonnull Dimensions dimensions) {
