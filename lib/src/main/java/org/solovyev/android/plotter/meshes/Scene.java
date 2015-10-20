@@ -17,7 +17,7 @@ final class Scene {
 		final float lengthX;
 		final float arrowLength;
 		final float arrowWidth;
-		final float multiplier = 3f;
+		final float multiplier = 5f;
 
 		public Axis(@Nonnull Dimensions.Scene scene, boolean y) {
 			final float width = multiplier * scene.width();
