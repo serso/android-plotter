@@ -104,8 +104,8 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 			// offset is unique for font used in the font atlas
 			y += fontVerticalOffset;
 		} else if (isX) {
-			y = Math.max(y, -dimensions.scene.rect.height() / 2 - centerY(dimensions) - 2 * ticks.width);
-			y = Math.min(y, dimensions.scene.rect.height() / 2 - centerY(dimensions));
+			y = Math.max(y, -dimensions.scene.rect.height() / 2 - centerY(dimensions) - 4 * ticks.width);
+			y = Math.min(y, dimensions.scene.rect.height() / 2 - centerY(dimensions) + 2 * ticks.width);
 		}
 		float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
 		final DecimalFormat format = getFormatter(ticks.step);
