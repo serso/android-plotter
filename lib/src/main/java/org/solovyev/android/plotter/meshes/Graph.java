@@ -22,6 +22,9 @@ class Graph {
 
 	@Nonnull
 	private short[] indices = new short[capacity / 3];
+	{
+		initIndices();
+	}
 
 	private Graph() {
 		init();
@@ -169,14 +172,19 @@ class Graph {
 	}
 
 	short[] getIndices() {
-		final int indicesCount = getIndicesCount();
-		if (indices.length < indicesCount) {
-			indices = new short[indicesCount];
-		}
-		for (short i = 0; i < indicesCount; i++) {
-			indices[i] = i;
+		final int indicesCountNew = getIndicesCount();
+		final int indicesCountOld = indices.length;
+		if (indicesCountOld < indicesCountNew) {
+			indices = new short[indicesCountNew];
+			initIndices();
 		}
 		return indices;
+	}
+
+	private void initIndices() {
+		for (int i = 0; i < indices.length; i++) {
+            indices[i] = (short) i;
+        }
 	}
 
 	int getIndicesCount() {
