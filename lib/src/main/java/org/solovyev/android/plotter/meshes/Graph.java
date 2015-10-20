@@ -22,7 +22,6 @@ class Graph {
 
 	@Nonnull
 	private short[] indices = new short[capacity / 3];
-	private int indicesCount = capacity / 3;
 
 	private Graph() {
 		init();
@@ -169,31 +168,18 @@ class Graph {
 		return vertices[end - 3];
 	}
 
-	short[] getIndices(float minY, float maxY) {
-		final int verticesCount = length() / 3;
-		final int indicesCount = 2 * verticesCount - 2;
-		this.indicesCount = indicesCount;
+	short[] getIndices() {
+		final int indicesCount = getIndicesCount();
 		if (indices.length < indicesCount) {
 			indices = new short[indicesCount];
 		}
-		short j = 0;
-		for (short vertex = 0; vertex < verticesCount - 1; vertex++) {
-			final float y = vertices[start + 3 * vertex + 1];
-			final float yNext = vertices[start + 3 * (vertex + 1) + 1];
-			if (y > maxY || yNext > maxY) {
-				this.indicesCount--;
-				continue;
-			} else if (y < minY || yNext < minY) {
-				this.indicesCount--;
-				continue;
-			}
-			indices[j++] = vertex;
-			indices[j++] = (short) (vertex + 1);
+		for (short i = 0; i < indicesCount; i++) {
+			indices[i] = i;
 		}
 		return indices;
 	}
 
 	int getIndicesCount() {
-		return indicesCount;
+		return length() / 3;
 	}
 }

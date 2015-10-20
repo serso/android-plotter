@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.graphics.RectF;
+
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 
@@ -51,8 +53,34 @@ public class AxisGrid extends BaseSurface {
 	@Nonnull
 	@Override
 	protected SurfaceInitializer createInitializer() {
-		final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, axes);
-		return new SurfaceInitializer(this, SurfaceInitializer.Data.create(grid.rect, grid.widthTicks.count, grid.heightTicks.count)) {
+		final Scene.Axis xAxis = Scene.Axis.create(dimensions.scene, false);
+		final Scene.Axis yAxis = Scene.Axis.create(dimensions.scene, true);
+		final Scene.Ticks xTicks = Scene.Ticks.create(dimensions.graph, xAxis);
+		final Scene.Ticks yTicks = Scene.Ticks.create(dimensions.graph, yAxis);
+		final RectF bounds = new RectF();
+		final Scene.Ticks widthTicks;
+		final Scene.Ticks heightTicks;
+		switch (axes) {
+			case XZ:
+				widthTicks = xTicks;
+				heightTicks = yTicks;
+				break;
+			case YZ:
+				widthTicks = yTicks;
+				heightTicks = xTicks;
+				break;
+			case XY:
+				widthTicks = xTicks;
+				heightTicks = xTicks;
+				break;
+			default:
+				throw new AssertionError();
+		}
+		bounds.left = -widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step);
+		bounds.right = widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step);
+		bounds.bottom = -heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step);
+		bounds.top = heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step);
+		return new SurfaceInitializer(this, SurfaceInitializer.Data.create(bounds, widthTicks.count, heightTicks.count)) {
 			@Override
 			protected void rotate(float[] point) {
 				if (axes != Axes.XY) {
