@@ -20,8 +20,9 @@ class Graph {
 	@Nonnull
 	float[] vertices = new float[capacity];
 
+	private int indicesCount = capacity / 3;
 	@Nonnull
-	private short[] indices = new short[capacity / 3];
+	private short[] indices = new short[indicesCount];
 	{
 		initIndices();
 	}
@@ -172,22 +173,46 @@ class Graph {
 	}
 
 	short[] getIndices() {
-		final int indicesCountNew = getIndicesCount();
-		final int indicesCountOld = indices.length;
-		if (indicesCountOld < indicesCountNew) {
-			indices = new short[indicesCountNew];
+		final int indicesCountOld = indicesCount;
+		indicesCount = getIndicesCount();
+		if (indicesCountOld < indicesCount) {
+			indices = new short[indicesCount];
 			initIndices();
+		}
+		return indices;
+	}
+
+	short[] getIndices(float minY, float maxY) {
+		final int verticesCount = length() / 3;
+		final int indicesCount = 2 * verticesCount - 2;
+		this.indicesCount = indicesCount;
+		if (indices.length < indicesCount) {
+			indices = new short[indicesCount];
+		}
+		short j = 0;
+		for (short vertex = 0; vertex < verticesCount - 1; vertex++) {
+			final float y = vertices[start + 3 * vertex + 1];
+			final float yNext = vertices[start + 3 * (vertex + 1) + 1];
+			if (y > maxY || yNext > maxY) {
+				this.indicesCount-=2;
+				continue;
+			} else if (y < minY || yNext < minY) {
+				this.indicesCount-=2;
+				continue;
+			}
+			indices[j++] = vertex;
+			indices[j++] = (short) (vertex + 1);
 		}
 		return indices;
 	}
 
 	private void initIndices() {
 		for (int i = 0; i < indices.length; i++) {
-            indices[i] = (short) i;
-        }
+			indices[i] = (short) i;
+		}
 	}
 
 	int getIndicesCount() {
-		return length() / 3;
+		return indicesCount;
 	}
 }

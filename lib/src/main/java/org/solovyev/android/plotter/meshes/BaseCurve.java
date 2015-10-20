@@ -14,6 +14,8 @@ import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
+	private static final boolean CUTOFF = true;
+
 	@Nonnull
 	protected final MeshDimensions dimensions;
 
@@ -50,7 +52,14 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		if (!dimensions.isZero()) {
 			fillGraph(graph, dimensions);
 			verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
-			indicesBuffer = Meshes.allocateOrPutBuffer(graph.getIndices(), 0, graph.getIndicesCount(), indicesBuffer);
+			final short[] indices;
+			if (CUTOFF) {
+				final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, AxisGrid.Axes.XY);
+				indices = graph.getIndices(grid.rect.bottom, grid.rect.top);
+			} else {
+				indices = graph.getIndices();
+			}
+			indicesBuffer = Meshes.allocateOrPutBuffer(indices, 0, graph.getIndicesCount(), indicesBuffer);
 		} else {
 			setDirty();
 		}
@@ -63,7 +72,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		Check.isNotNull(verticesBuffer);
 
 		setVertices(verticesBuffer);
-		setIndices(indicesBuffer, IndicesOrder.LINE_STRIP);
+		setIndices(indicesBuffer, CUTOFF ? IndicesOrder.LINES : IndicesOrder.LINE_STRIP);
 	}
 
 	void fillGraph(@Nonnull Graph graph, @Nonnull Dimensions dimensions) {
