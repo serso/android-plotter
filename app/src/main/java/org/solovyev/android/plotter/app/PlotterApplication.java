@@ -37,21 +37,22 @@ public class PlotterApplication extends Application {
 		super.onCreate();
 
 		plotter = Plot.newPlotter(this);
+		final int meshWidth = MeshSpec.defaultWidth(this);
 		plotter.add(PlotFunction.create(new Function1("x") {
 			@Override
 			public float evaluate(float x) {
 				return x;
 			}
-		}, MeshSpec.create(Color.BLUE, MeshSpec.defaultWidth(this))));
+		}, MeshSpec.create(Color.BLUE, meshWidth)));
 
-		plotter.add(new Function1("tan(x)") {
+		plotter.add(PlotFunction.create(new Function1("tan(x)") {
 			@Override
 			public float evaluate(float x) {
 				return (float) Math.tan(x);
 			}
-		});
+		}, MeshSpec.create(MeshSpec.LightColors.AMBER, meshWidth)));
 
-		plotter.add(new Function1("sin(1/x)") {
+		plotter.add(PlotFunction.create(new Function1("sin(1/x)") {
 			@Override
 			public float evaluate(float x) {
 				if (x == 0) {
@@ -59,9 +60,9 @@ public class PlotterApplication extends Application {
 				}
 				return (float) Math.sin(1 / x);
 			}
-		});
+		}, MeshSpec.create(MeshSpec.LightColors.PURPLE, meshWidth)));
 
-		plotter.add(new Function1("1/(x + 1)/(x - 1)^6") {
+		plotter.add(PlotFunction.create(new Function1("1/(x + 1)/(x - 1)^6") {
 			@Override
 			public float evaluate(float x) {
 				if (x == 1 || x == -1) {
@@ -69,14 +70,14 @@ public class PlotterApplication extends Application {
 				}
 				return (float) (1 / (x + 1) / Math.pow(x - 1, 6));
 			}
-		});
+		}, MeshSpec.create(MeshSpec.LightColors.PINK, meshWidth)));
 
-		plotter.add(new Function2("sin(x) + sin(y)") {
+		plotter.add(PlotFunction.create(new Function2("sin(x) + sin(y)") {
 			@Override
 			public float evaluate(float x, float y) {
 				return (float) (Math.sin(x) + Math.sin(y));
 			}
-		});
+		}, MeshSpec.create(MeshSpec.LightColors.GREEN, meshWidth)));
 
 		final PlotFunction paraboloid = PlotFunction.create(new Function2(PARABOLOID) {
 			@Override
@@ -84,7 +85,7 @@ public class PlotterApplication extends Application {
 				return x * x + y * y;
 			}
 		}, this);
-		paraboloid.meshSpec.color = Color.RED;
+		paraboloid.meshSpec.color = MeshSpec.LightColors.RED;
 		plotter.add(paraboloid);
 	}
 
