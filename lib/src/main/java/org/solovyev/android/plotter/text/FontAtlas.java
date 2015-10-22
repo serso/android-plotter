@@ -383,6 +383,17 @@ public class FontAtlas {
 			}
 			return bounds;
 		}
+
+		public void translate(float dx, float dy) {
+			if (dx == 0 && dy == 0) {
+				return;
+			}
+			for (int i = 0; i < vertices.length; i+=3) {
+				vertices[i] += dx;
+				vertices[i + 1] += dy;
+			}
+			getBounds().offset(dx, dy);
+		}
 	}
 
 }

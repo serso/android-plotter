@@ -83,29 +83,47 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		final List<FontAtlas.MeshData> meshDataList = new ArrayList<>();
 		final Dimensions dimensions = this.dimensions;
 
+		final float halfSceneWidth = dimensions.scene.rect.width() / 2;
+		final float halfSceneHeight = dimensions.scene.rect.height() / 2;
+		final float sceneX = centerX(dimensions);
+		final float sceneY = centerY(dimensions);
+
+		boolean rightEdge = false;
+		boolean leftEdge = false;
+		boolean topEdge = false;
+		boolean bottomEdge = false;
+
 		final boolean isY = direction == AxisDirection.Y;
 		final boolean isX = direction == AxisDirection.X;
 		final Scene.Axis axis = Scene.Axis.create(dimensions.scene, isY);
 		final Scene.Ticks ticks = Scene.Ticks.create(dimensions.graph, axis);
-		final float fontVerticalOffset = calculateFontVerticalOffset(ticks);
 		final float fontScale = 3f * ticks.width / fontAtlas.getFontHeight();
 		final int[] dv = direction.vector;
 		final int[] da = direction.arrow;
-		float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + centerX(dimensions) - centerX(dimensions) % ticks.step) + da[0] * ticks.width / 2;
+		float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + sceneX - sceneX % ticks.step) + da[0] * ticks.width / 2;
 		if (isY) {
-			x += ticks.width / 2;
-			x = Math.max(x, -dimensions.scene.rect.width() / 2 - centerX(dimensions) - 2 * ticks.width);
-			x = Math.min(x, dimensions.scene.rect.width() / 2 - centerX(dimensions) - 2 * ticks.width);
+			if (x < -halfSceneWidth - sceneX) {
+				x = -halfSceneWidth - sceneX;
+				leftEdge = true;
+			} else if (x > halfSceneWidth - sceneX) {
+				x = halfSceneWidth - sceneX;
+				rightEdge = true;
+			}
+
+			if (!leftEdge && !rightEdge) {
+				// labels are not on the edge => axis is visible => adjust horizontal position to avoid overlapping with ticks
+				x += ticks.width / 2;
+			}
 		}
-		float y = -dv[1] * (ticks.axisLength / 2 + ticks.step + centerY(dimensions) - centerY(dimensions) % ticks.step) + da[1] * ticks.width / 2;
-		if (isY) {
-			// as digits usually occupy only lower part of the glyph cell visually text appears
-			// to be not centered. Let's fix this by offsetting Y coordinate. Note that this
-			// offset is unique for font used in the font atlas
-			y += fontVerticalOffset;
-		} else if (isX) {
-			y = Math.max(y, -dimensions.scene.rect.height() / 2 - centerY(dimensions) - 4 * ticks.width);
-			y = Math.min(y, dimensions.scene.rect.height() / 2 - centerY(dimensions) + 2 * ticks.width);
+		float y = -dv[1] * (ticks.axisLength / 2 + ticks.step + sceneY - sceneY % ticks.step) + da[1] * ticks.width / 2;
+		if (isX) {
+			if (y < -halfSceneHeight - sceneY) {
+				y = -halfSceneHeight - sceneY;
+				bottomEdge = true;
+			} else if (y > halfSceneHeight - sceneY) {
+				y = halfSceneHeight - sceneY;
+				topEdge = true;
+			}
 		}
 		float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
 		final DecimalFormat format = getFormatter(ticks.step);
@@ -122,17 +140,23 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 
 			final String label = getLabel(x, y, z, format);
 			FontAtlas.MeshData meshData = fontAtlas.getMeshData(label, x, y, z, fontScale, !isY, isY);
+			final RectF bounds = meshData.getBounds();
+			meshData.translate(0, getVerticalFontOffset(bounds));
 			if (!middle && direction != AxisDirection.Z && !meshDataList.isEmpty()) {
-				final RectF bounds = meshData.getBounds();
 				final FontAtlas.MeshData lastMeshData = meshDataList.get(meshDataList.size() - 1);
 				if (lastMeshData.getBounds().intersect(bounds)) {
 					if (isX) {
-						meshData = fontAtlas.getMeshData(label, x, y - (ticks.width + bounds.height() - fontVerticalOffset), z, fontScale, !isY, isY);
+						meshData.translate(0, - ticks.width + bounds.height());
 					} else {
 						// new label intersects old, let's skip it
 						continue;
 					}
 				}
+			}
+			if (rightEdge || topEdge) {
+				final float dx = rightEdge ? -bounds.width() : 0;
+				final float dy = topEdge ? -bounds.height(): 0;
+				meshData.translate(dx, dy);
 			}
 			meshDataList.add(meshData);
 		}
@@ -142,6 +166,10 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		setIndices(meshData.indices, meshData.indicesOrder);
 		setVertices(meshData.vertices);
 		setTexture(meshData.textureId, meshData.textureCoordinates);
+	}
+
+	private float getVerticalFontOffset(RectF bounds) {
+		return bounds.height() / 6;
 	}
 
 	private float centerY(@Nonnull Dimensions dimensions) {
@@ -177,10 +205,6 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 			}
 		}
 		return defaultFormat;
-	}
-
-	private float calculateFontVerticalOffset(Scene.Ticks ticks) {
-		return ticks.width / 4;
 	}
 
 	@Nonnull

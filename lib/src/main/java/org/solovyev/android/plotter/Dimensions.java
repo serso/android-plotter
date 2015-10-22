@@ -140,7 +140,7 @@ public final class Dimensions {
 
 	public static final class Scene {
 
-		public static final float WIDTH = 1.5f;
+		public static final float WIDTH = 1.6f;
 
 		@Nonnull
 		public final RectF rect = new RectF();

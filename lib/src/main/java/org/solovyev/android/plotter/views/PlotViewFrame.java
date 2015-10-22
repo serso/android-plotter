@@ -128,15 +128,11 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 
 	private void showControlViews() {
 		for (View controlView : controlViews) {
-			showControlView(controlView);
-		}
-	}
-
-	private void showControlView(@NonNull View view) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			fadeInControl(view);
-		} else {
-			view.setVisibility(VISIBLE);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+				fadeInControl(controlView);
+			} else {
+				controlView.setVisibility(VISIBLE);
+			}
 		}
 	}
 
@@ -159,7 +155,11 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 
 	private void hideControlViews() {
 		for (View controlView : controlViews) {
-			fadeOutControl(controlView);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
+				fadeOutControl(controlView);
+			} else {
+				controlView.setVisibility(GONE);
+			}
 		}
 	}
 
