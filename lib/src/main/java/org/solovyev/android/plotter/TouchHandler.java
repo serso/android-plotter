@@ -49,12 +49,10 @@ final class TouchHandler implements View.OnTouchListener {
 
 	@Override
 	public boolean onTouch(@Nonnull View v, @Nonnull MotionEvent event) {
-		return handleTouchEvent(event);
-	}
-
-	public boolean handleTouchEvent(@Nonnull MotionEvent event) {
 		final float x = event.getX();
 		final float y = event.getY();
+
+		listener.onTouch(x, y);
 
 		final int pointerCount = getPointerCount(event);
 		switch (getAction(event)) {
@@ -125,17 +123,13 @@ final class TouchHandler implements View.OnTouchListener {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getPointerCount() : 1;
 	}
 
-	static interface Listener {
+	interface Listener {
+		void onTouch(float x, float y);
 		void onTouchDown(float x, float y);
-
 		void onTouchMove(float x, float y);
-
 		void onTouchUp(float x, float y);
-
 		void onTouchZoomDown(float x1, float y1, float x2, float y2);
-
 		void onTouchZoomMove(float x1, float y1, float x2, float y2);
-
 		void onTouchZoomUp(float x1, float y1, float x2, float y2);
 	}
 }

@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -16,17 +19,20 @@ import static android.os.SystemClock.uptimeMillis;
 
 public class PlotView extends GLSurfaceView implements PlottingView {
 
+	public interface Listener {
+		void onTouchStarted();
+	}
+
 	@Nullable
 	private Plotter plotter;
-
 	@Nonnull
 	private final PlotRenderer renderer;
-
 	@Nonnull
 	private final TouchListener touchListener = new TouchListener();
+	@Nonnull
+	private final List<Listener> listeners = new ArrayList<>();
 
 	private boolean attached;
-
 	private boolean d3 = Plotter.D3;
 
 	public PlotView(Context context) {
@@ -147,6 +153,10 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 		}
 	}
 
+	public void addListener(@Nonnull Listener listener) {
+		listeners.add(listener);
+	}
+
 	private enum TouchMode {
 		PAN,
 		ROTATE
@@ -159,17 +169,19 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
 		@Nonnull
 		private final PinchZoomTracker zoomTracker = new PinchZoomTracker(getContext());
-
 		@Nonnull
 		private final PointF lastTouch = new PointF();
 		@Nonnull
 		private final PointF cameraOffset = new PointF();
+
 		private boolean lastTouchMoved;
-
 		private long lastZoomTime = 0;
-
 		@Nonnull
 		private TouchMode mode = TouchMode.PAN;
+
+		@Override
+		public void onTouch(float x, float y) {
+		}
 
 		@Override
 		public void onTouchDown(float x, float y) {
@@ -179,6 +191,9 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 				}
 
 				lastZoomTime = 0;
+			}
+			for (Listener listener : listeners) {
+				listener.onTouchStarted();
 			}
 			renderer.stopRotating();
 			lastTouch.x = x;
@@ -291,5 +306,4 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			mode = d3 ? TouchMode.ROTATE : TouchMode.PAN;
 		}
 	}
-
 }

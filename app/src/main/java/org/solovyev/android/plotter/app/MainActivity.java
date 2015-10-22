@@ -2,16 +2,19 @@ package org.solovyev.android.plotter.app;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.view.View;
-import org.solovyev.android.plotter.*;
+
+import org.solovyev.android.plotter.Color;
+import org.solovyev.android.plotter.PlotData;
+import org.solovyev.android.plotter.PlotFunction;
+import org.solovyev.android.plotter.Plotter;
+import org.solovyev.android.plotter.views.PlotViewFrame;
 
 import javax.annotation.Nonnull;
 
 public class MainActivity extends Activity {
 
 	@Nonnull
-	private PlotView plotView;
+	private PlotViewFrame plotView;
 
 	@Nonnull
 	private final Plotter plotter = PlotterApplication.get().getPlotter();
@@ -41,54 +44,20 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.main);
-		plotView = (PlotView) findViewById(R.id.plotview);
+		plotView = (PlotViewFrame) findViewById(R.id.plot_view_frame);
 		plotView.setPlotter(plotter);
-
-		final View zoomOutButton = findViewById(R.id.zoom_out_button);
-		zoomOutButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				plotView.zoom(false);
-			}
-		});
-		final View zoom0Button = findViewById(R.id.zoom_0_button);
-		zoom0Button.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				plotView.resetCamera();
-				plotView.resetZoom();
-			}
-		});
-		final View zoomInButton = findViewById(R.id.zoom_in_button);
-		zoomInButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				plotView.zoom(true);
-			}
-		});
-		final View plotModeButton = findViewById(R.id.plot_mode_button);
-		plotModeButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				plotter.set3d(!plotter.is3d());
-			}
-		});
-
-
-		//plotView.post(colorUpdater);
 	}
 
 	@Override
 	protected void onSaveInstanceState(@Nonnull Bundle out) {
 		super.onSaveInstanceState(out);
-		final Parcelable plotViewState = plotView.onSaveInstanceState();
-		out.putParcelable("plotview", plotViewState);
+		out.putBundle("plotview", plotView.onSaveInstanceState());
 	}
 
 	@Override
 	protected void onRestoreInstanceState(@Nonnull Bundle in) {
 		super.onRestoreInstanceState(in);
-		final Parcelable plotviewState = in.getParcelable("plotview");
+		final Bundle plotviewState = in.getBundle("plotview");
 		if (plotviewState != null) {
 			plotView.onRestoreInstanceState(plotviewState);
 		}
