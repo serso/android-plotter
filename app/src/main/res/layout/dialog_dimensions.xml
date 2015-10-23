@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="wrap_content"
+			  android:layout_height="match_parent"
+			  android:orientation="vertical">
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+
+		<EditText
+			android:id="@+id/x_min_edittext"
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:inputType="numberDecimal|numberSigned"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text=" = x = "/>
+
+		<EditText
+			android:id="@+id/x_max_edittext"
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:inputType="numberDecimal|numberSigned"/>
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content">
+
+		<EditText
+			android:id="@+id/y_min_edittext"
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:inputType="numberDecimal|numberSigned"/>
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text=" = y = "/>
+
+		<EditText
+			android:id="@+id/y_max_edittext"
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:inputType="numberDecimal|numberSigned"/>
+	</LinearLayout>
+
+</LinearLayout>

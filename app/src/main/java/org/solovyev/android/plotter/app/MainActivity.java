@@ -1,9 +1,18 @@
 package org.solovyev.android.plotter.app;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 
 import org.solovyev.android.plotter.Color;
+import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
@@ -73,5 +82,42 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		plotView.onResume();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		final MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.menu_dimensions:
+				final Dimensions dimensions = plotter.getDimensions();
+				final View view = LayoutInflater.from(this).inflate(R.layout.dialog_dimensions, null);
+				final EditText xMin = (EditText) view.findViewById(R.id.x_min_edittext);
+				xMin.setText(String.format("%.2f", dimensions.graph.rect.left));
+				final EditText xMax = (EditText) view.findViewById(R.id.x_max_edittext);
+				xMax.setText(String.format("%.2f", dimensions.graph.rect.right));
+				final EditText yMin = (EditText) view.findViewById(R.id.y_min_edittext);
+				yMin.setText(String.format("%.2f", dimensions.graph.rect.top));
+				final EditText yMax = (EditText) view.findViewById(R.id.y_max_edittext);
+				yMax.setText(String.format("%.2f", dimensions.graph.rect.bottom));
+
+				final AlertDialog.Builder b = new AlertDialog.Builder(this);
+				b.setView(view);
+				b.setCancelable(true);
+				b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				});
+				b.show();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
 	}
 }
