@@ -7,6 +7,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public final class Frustum {
 
+	public static final float SCENE_WIDTH = 2f;
 	private static final String TAG = Plot.getTag("Frustum");
 	/*
 	View from top
@@ -29,9 +30,9 @@ public final class Frustum {
 
 	// width and height of the "near" clipping plane
 	@Nonnull
-	private final RectSizeF nearPlane = new RectSizeF();
+	private final RectSizeF nearSize = new RectSizeF();
 	@Nonnull
-	private final RectSizeF scenePlane = new RectSizeF();
+	private final RectSizeF sceneSize = new RectSizeF();
 
 	private float near;
 	private float far;
@@ -61,7 +62,7 @@ public final class Frustum {
 		recalculate();
 
 		Log.d(TAG, "Frustum: near=" + near + ", far=" + far + ", distance=" + distance);
-		Log.d(TAG, "Scene " + scenePlane);
+		Log.d(TAG, "Scene " + sceneSize);
 
 		return true;
 
@@ -73,15 +74,15 @@ public final class Frustum {
 		// 2. far = 3 * near
 		// 3. view angle is constant and equals to 60 degrees
 		near = 1f / ((K + 1) * TAN);
-		far = 3f * near;
+		far = near + 2 * K * near;
 
-		distance = 2f * near;
+		distance = (K + 1) * near;
 
-		nearPlane.width = 4f * near / (near + far);
-		nearPlane.height = nearPlane.width / aspectRatio;
+		nearSize.width = SCENE_WIDTH / (K + 1);
+		nearSize.height = nearSize.width / aspectRatio;
 
-		scenePlane.width = 4f * near * TAN;
-		scenePlane.height = scenePlane.width / aspectRatio;
+		sceneSize.width = SCENE_WIDTH;
+		sceneSize.height = sceneSize.width / aspectRatio;
 
 		multiplyBy(zoom.level);
 	}
@@ -90,15 +91,20 @@ public final class Frustum {
 		near *= value;
 		far *= value;
 		distance *= value;
-		nearPlane.multiplyBy(value);
-		scenePlane.multiplyBy(value);
+		nearSize.multiplyBy(value);
+		sceneSize.multiplyBy(value);
+	}
+
+	@Nonnull
+	public RectSizeF getSceneSize() {
+		return sceneSize;
 	}
 
 	public void updateGl(@Nonnull GL10 gl) {
 		gl.glMatrixMode(GL10.GL_PROJECTION);
 		gl.glLoadIdentity();
-		final float halfWidth = nearPlane.width / 2;
-		final float halfHeight = nearPlane.height / 2;
+		final float halfWidth = nearSize.width / 2;
+		final float halfHeight = nearSize.height / 2;
 		gl.glFrustumf(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
 	}
 

@@ -119,7 +119,7 @@ class SurfaceInitializer {
 		private final Dimensions.Graph graph;
 
 		public GraphSurfaceInitializer(@Nonnull BaseSurface surface, @Nonnull Dimensions.Graph graph) {
-			super(surface, Data.create(graph.rect));
+			super(surface, Data.create(graph.makeBounds()));
 			this.graph = graph;
 		}
 

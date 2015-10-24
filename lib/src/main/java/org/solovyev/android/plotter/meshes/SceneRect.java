@@ -19,16 +19,16 @@ public class SceneRect extends BaseMesh implements DimensionsAware {
 	public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
 		super.onInitGl(gl, config);
 
-		final float x = dimensions.scene.rect.centerX();
-		final float y = dimensions.scene.rect.centerY();
-		final float halfWidth = dimensions.scene.width() / 2;
-		final float halfHeight = dimensions.scene.height() / 2;
+		final float x = dimensions.scene.center.x;
+		final float y = dimensions.scene.center.y;
+		final float halfWidth = dimensions.scene.size.width / 2;
+		final float halfHeight = dimensions.scene.size.height / 2;
 
 		final float vertices[] = {
-				-halfWidth - x, -halfHeight - y, 0, // 0
-				halfWidth - x, -halfHeight - y, 0, // 1
-				halfWidth - x, halfHeight - y, 0, // 2
-				-halfWidth - x, halfHeight - y, 0, // 3
+				-halfWidth + x, -halfHeight + y, 0, // 0
+				halfWidth + x, -halfHeight + y, 0, // 1
+				halfWidth + x, halfHeight + y, 0, // 2
+				-halfWidth + x, halfHeight + y, 0, // 3
 		};
 
 		setVertices(vertices);

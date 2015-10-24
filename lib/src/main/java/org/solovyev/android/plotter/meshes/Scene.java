@@ -69,8 +69,8 @@ final class Scene {
 		final float multiplier = 5f;
 
 		public Axis(@Nonnull Dimensions.Scene scene, boolean y) {
-			final float width = multiplier * scene.width();
-			final float height = multiplier * scene.height();
+			final float width = multiplier * scene.size.width;
+			final float height = multiplier * scene.size.height;
 
 			lengthX = width;
 			if (y) {

@@ -73,7 +73,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final CameraManHolder cameraMan = new CameraManHolder();
 
 	@Nonnull
-	private RectSize viewSize = RectSize.empty();
+	private final RectSize viewSize = RectSize.empty();
 
 	@Nonnull
 	private final Frustum frustum = Frustum.empty();
@@ -91,7 +91,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
 			if (!viewSize.isEmpty()) {
-				this.plotter.updateDimensions(zoom, viewSize, getCamera());
+				this.plotter.updateDimensions(zoom, viewSize, getSceneSize(), getSceneCenter());
 			}
 		}
 	}
@@ -224,7 +224,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			public void run() {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
-					plotter.updateDimensions(zoom, viewSize, getCamera());
+					plotter.updateDimensions(zoom, viewSize, getSceneSize(), getSceneCenter());
 				}
 			}
 		});
@@ -309,17 +309,26 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		final Plotter plotter = getPlotter();
 		if (plotter != null) {
 			final Zoom zoom = zoomer.current();
-			plotter.updateDimensions(zoom, viewSize, getCamera());
+			plotter.updateDimensions(zoom, viewSize, getSceneSize(), getSceneCenter());
 		}
 		fader.fadeIn();
 		view.requestRender();
 	}
 
 	@Nonnull
-	private PointF getCamera() {
+	private PointF getSceneCenter() {
 		final PointF result = new PointF();
 		synchronized (lock) {
-			result.set(camera);
+			result.set(-camera.x, -camera.y);
+		}
+		return result;
+	}
+
+	@Nonnull
+	private RectSizeF getSceneSize() {
+		final RectSizeF result = new RectSizeF();
+		synchronized (lock) {
+			result.set(frustum.getSceneSize());
 		}
 		return result;
 	}
@@ -470,7 +479,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				} else if (moving) {
 					camera.set(cameraMan.getPosition());
 					moving = false;
-					plotter.updateDimensions(zoomer.current(), viewSize, getCamera());
+					plotter.updateDimensions(zoomer.current(), viewSize, getSceneSize(), camera);
 					fader.fadeIn();
 				}
 				out.set(camera);
@@ -544,7 +553,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
 						if (!pinchZoom) {
-							plotter.updateDimensions(zoomer.current(), viewSize, getCamera());
+							plotter.updateDimensions(zoomer.current(), viewSize, getSceneSize(), getSceneCenter());
 							fader.fadeIn();
 						}
 						startRotating();
@@ -581,7 +590,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			if (!viewSize.isEmpty()) {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
-					plotter.updateDimensions(zoomLevel, viewSize, getCamera());
+					plotter.updateDimensions(zoomLevel, viewSize, getSceneSize(), getSceneCenter());
 				}
 			}
 		}
@@ -644,7 +653,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					} else {
 						fader.fadeIn();
 						if (plotter != null) {
-							plotter.updateDimensions(zoomer.current(), viewSize, getCamera());
+							plotter.updateDimensions(zoomer.current(), viewSize, getSceneSize(), getSceneCenter());
 						}
 						Log.d(TAG, "Ending pinch zoom");
 					}

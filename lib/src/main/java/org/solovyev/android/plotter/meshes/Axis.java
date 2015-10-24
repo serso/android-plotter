@@ -143,8 +143,8 @@ public class Axis extends BaseMesh implements DimensionsAware {
 		private void initLine(@Nonnull Dimensions dimensions) {
 			final int[] dv = direction.vector;
 			arrays.add(0,
-					dv[0] * (axis.length / 2 - dimensions.scene.rect.centerX()),
-					dv[1] * (axis.length / 2 - dimensions.scene.rect.centerY()),
+					dv[0] * (axis.length / 2 + dimensions.scene.center.x),
+					dv[1] * (axis.length / 2 + dimensions.scene.center.y),
 					dv[2] * axis.length / 2);
 
 			arrays.add(1,

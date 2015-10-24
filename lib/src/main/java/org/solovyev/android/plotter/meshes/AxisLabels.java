@@ -2,17 +2,15 @@ package org.solovyev.android.plotter.meshes;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
-
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.text.FontAtlas;
 
+import javax.annotation.Nonnull;
+import javax.microedition.khronos.opengles.GL11;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.microedition.khronos.opengles.GL11;
 
 public class AxisLabels extends BaseMesh implements DimensionsAware {
 
@@ -83,8 +81,8 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		final List<FontAtlas.MeshData> meshDataList = new ArrayList<>();
 		final Dimensions dimensions = this.dimensions;
 
-		final float halfSceneWidth = dimensions.scene.rect.width() / 2;
-		final float halfSceneHeight = dimensions.scene.rect.height() / 2;
+		final float halfSceneWidth = dimensions.scene.size.width / 2;
+		final float halfSceneHeight = dimensions.scene.size.height / 2;
 		final float sceneX = centerX(dimensions);
 		final float sceneY = centerY(dimensions);
 
@@ -173,11 +171,11 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	}
 
 	private float centerY(@Nonnull Dimensions dimensions) {
-		return camera.y + dimensions.scene.rect.centerY();
+		return camera.y - dimensions.scene.center.y;
 	}
 
 	private float centerX(@Nonnull Dimensions dimensions) {
-		return camera.x + dimensions.scene.rect.centerX();
+		return camera.x - dimensions.scene.center.x;
 	}
 
 	@Nonnull

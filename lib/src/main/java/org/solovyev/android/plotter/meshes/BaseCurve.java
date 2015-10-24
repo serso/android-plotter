@@ -74,19 +74,19 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 	}
 
 	void fillGraph(@Nonnull Graph graph, @Nonnull Dimensions dimensions) {
-		final float add = dimensions.graph.rect.width();
-		final float newXMin = dimensions.graph.rect.left - add;
-		final float newXMax = dimensions.graph.rect.right + add;
+		final float add = dimensions.graph.size.width;
+		final float newXMin = dimensions.graph.xMin() - add;
+		final float newXMax = dimensions.graph.xMax() + add;
 		final int maxPoints = 4 * dimensions.scene.view.width;
 		final float points = maxPoints / 2;
 		final float step = Math.abs(newXMax - newXMin) / points;
 
-		if (graph.step < 0 || graph.step > step || graph.center.x != dimensions.graph.rect.centerX() || graph.center.y != dimensions.graph.rect.centerY()) {
+		if (graph.step < 0 || graph.step > step || graph.center.x != dimensions.graph.center.x || graph.center.y != dimensions.graph.center.y) {
 			graph.clear();
 		}
 		graph.step = step;
-		graph.center.x = dimensions.graph.rect.centerX();
-		graph.center.y = dimensions.graph.rect.centerY();
+		graph.center.x = dimensions.graph.center.x;
+		graph.center.y = dimensions.graph.center.y;
 
 		if (!graph.isEmpty()) {
 			final float screenXMin = dimensions.graph.toScreenX(newXMin);

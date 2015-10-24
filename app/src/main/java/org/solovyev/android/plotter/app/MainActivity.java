@@ -118,10 +118,10 @@ public class MainActivity extends Activity {
 			this.yMin = (EditText) view.findViewById(R.id.y_min_edittext);
 			this.yMax = (EditText) view.findViewById(R.id.y_max_edittext);
 
-			setDimension(xMin, dimensions.graph.rect.left);
-			setDimension(xMax, dimensions.graph.rect.right);
-			setDimension(yMin, dimensions.graph.rect.top);
-			setDimension(yMax, dimensions.graph.rect.bottom);
+			setDimension(xMin, dimensions.graph.xMin());
+			setDimension(xMax, dimensions.graph.xMax());
+			setDimension(yMin, dimensions.graph.yMin());
+			setDimension(yMax, dimensions.graph.yMax());
 		}
 
 		private void setDimension(@Nonnull EditText view, float value) {
