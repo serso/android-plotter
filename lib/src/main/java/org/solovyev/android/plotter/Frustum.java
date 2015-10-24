@@ -28,17 +28,19 @@ public final class Frustum {
 	private static final float TAN = (float) Math.tan(VIEW_ANGLE / 2f);
 
 	// width and height of the "near" clipping plane
-	public float width;
-	public float height;
+	@Nonnull
+	private final RectSizeF nearPlane = new RectSizeF();
+	@Nonnull
+	private final RectSizeF scenePlane = new RectSizeF();
 
-	public float near;
-	public float far;
+	private float near;
+	private float far;
 
-	public float distance;
+	private float distance;
 
 	@Nonnull
-	public Zoom zoom = Zoom.one();
-	public float aspectRatio;
+	private Zoom zoom = Zoom.one();
+	private float aspectRatio;
 
 	private Frustum(@Nonnull Zoom zoom, float aspectRatio) {
 		update(zoom, aspectRatio);
@@ -58,10 +60,8 @@ public final class Frustum {
 
 		recalculate();
 
-		final float sceneWidth = 4f * near * TAN;
-		final float sceneHeight = sceneWidth * aspectRatio;
 		Log.d(TAG, "Frustum: near=" + near + ", far=" + far + ", distance=" + distance);
-		Log.d(TAG, "Scene: w=" + sceneWidth + ", h=" + sceneHeight);
+		Log.d(TAG, "Scene " + scenePlane);
 
 		return true;
 
@@ -72,28 +72,37 @@ public final class Frustum {
 		// 1. if zoom == 1 then width of the scene should be 1 and height = 1 * aspectRation
 		// 2. far = 3 * near
 		// 3. view angle is constant and equals to 60 degrees
-		this.near = 1f / ((K + 1) * TAN);
-		this.far = 3f * near;
+		near = 1f / ((K + 1) * TAN);
+		far = 3f * near;
 
-		this.distance = 2f * near;
+		distance = 2f * near;
 
-		this.width = 4f * near / (near + far);
-		this.height = width * aspectRatio;
+		nearPlane.width = 4f * near / (near + far);
+		nearPlane.height = nearPlane.width * aspectRatio;
+
+		scenePlane.width = 4f * near * TAN;
+		scenePlane.height = scenePlane.width * aspectRatio;
 
 		multiplyBy(zoom.level);
 	}
 
 	private void multiplyBy(float value) {
-		this.near *= value;
-		this.far *= value;
-		this.distance *= value;
-		this.width *= value;
-		this.height *= value;
+		near *= value;
+		far *= value;
+		distance *= value;
+		nearPlane.multiplyBy(value);
+		scenePlane.multiplyBy(value);
 	}
 
 	public void updateGl(@Nonnull GL10 gl) {
 		gl.glMatrixMode(GL10.GL_PROJECTION);
 		gl.glLoadIdentity();
-		gl.glFrustumf(-width / 2, width / 2, -height / 2, height / 2, near, far);
+		final float halfWidth = nearPlane.width / 2;
+		final float halfHeight = nearPlane.height / 2;
+		gl.glFrustumf(-halfWidth, halfWidth, -halfHeight, halfHeight, near, far);
+	}
+
+	public float distance() {
+		return distance;
 	}
 }

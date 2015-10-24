@@ -181,7 +181,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glLoadIdentity();
 
 			cameraMan.onFrame(tmp, plotter);
-			gl.glTranslatef(tmp.x, tmp.y, -frustum.distance);
+			gl.glTranslatef(tmp.x, tmp.y, -frustum.distance());
 
 			rotation.onFrame(gl10);
 
