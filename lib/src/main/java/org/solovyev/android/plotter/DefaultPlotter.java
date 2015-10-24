@@ -321,11 +321,11 @@ final class DefaultPlotter implements Plotter {
 	}
 
 	@Override
-	public void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF camera) {
+	public void updateDimensions(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF camera) {
 		synchronized (lock) {
-			if (dimensions.shouldUpdate(zoom, viewWidth, viewHeight, camera)) {
+			if (dimensions.shouldUpdate(zoom, viewSize, camera)) {
 				final Dimensions newDimensions = dimensions.copy();
-				newDimensions.update(zoom, viewWidth, viewHeight, camera);
+				newDimensions.update(zoom, viewSize, camera);
 				updateDimensions(newDimensions);
 			}
 		}

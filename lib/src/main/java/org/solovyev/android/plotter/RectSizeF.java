@@ -29,4 +29,23 @@ final class RectSizeF {
 				", h=" + height +
 				']';
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		final RectSizeF that = (RectSizeF) o;
+
+		if (Float.compare(that.width, width) != 0) return false;
+		return Float.compare(that.height, height) == 0;
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = (width != +0.0f ? Float.floatToIntBits(width) : 0);
+		result = 31 * result + (height != +0.0f ? Float.floatToIntBits(height) : 0);
+		return result;
+	}
 }

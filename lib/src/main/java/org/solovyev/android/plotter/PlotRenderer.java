@@ -17,7 +17,6 @@ package org.solovyev.android.plotter;
 
 import android.content.Context;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
@@ -74,7 +73,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private final CameraManHolder cameraMan = new CameraManHolder();
 
 	@Nonnull
-	private Rect viewDimensions = new Rect();
+	private RectSize viewSize = RectSize.empty();
 
 	@Nonnull
 	private final Frustum frustum = Frustum.empty();
@@ -91,8 +90,8 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		synchronized (lock) {
 			Check.isNull(this.plotter);
 			this.plotter = plotter;
-			if (!viewDimensions.isEmpty()) {
-				this.plotter.updateDimensions(zoom, viewDimensions.width(), viewDimensions.height(), getCamera());
+			if (!viewSize.isEmpty()) {
+				this.plotter.updateDimensions(zoom, viewSize, getCamera());
 			}
 		}
 	}
@@ -204,19 +203,18 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	private void initFrustum(@Nonnull GL10 gl, @Nonnull Zoom zoom) {
 		Check.isGlThread();
 
-		if (viewDimensions.isEmpty()) {
+		if (viewSize.isEmpty()) {
 			return;
 		}
 
-		final float aspectRatio = (float) viewDimensions.height() / (float) viewDimensions.width();
-		if (frustum.update(zoom, aspectRatio)) {
+		if (frustum.update(zoom, viewSize.aspectRatio())) {
 			frustum.updateGl(gl);
 		}
 	}
 
 	@Override
 	public void onSurfaceChanged(GL10 gl, final int width, final int height) {
-		viewDimensions.set(0, 0, width, height);
+		viewSize.set(width, height);
 		gl.glViewport(0, 0, width, height);
 		zoomer.onSurfaceChanged(gl);
 		final Zoom zoom = zoomer.current();
@@ -226,7 +224,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			public void run() {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
-					plotter.updateDimensions(zoom, width, height, getCamera());
+					plotter.updateDimensions(zoom, viewSize, getCamera());
 				}
 			}
 		});
@@ -311,7 +309,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		final Plotter plotter = getPlotter();
 		if (plotter != null) {
 			final Zoom zoom = zoomer.current();
-			plotter.updateDimensions(zoom, viewDimensions.width(), viewDimensions.height(), getCamera());
+			plotter.updateDimensions(zoom, viewSize, getCamera());
 		}
 		fader.fadeIn();
 		view.requestRender();
@@ -472,7 +470,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				} else if (moving) {
 					camera.set(cameraMan.getPosition());
 					moving = false;
-					plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
+					plotter.updateDimensions(zoomer.current(), viewSize, getCamera());
 					fader.fadeIn();
 				}
 				out.set(camera);
@@ -546,7 +544,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
 						if (!pinchZoom) {
-							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
+							plotter.updateDimensions(zoomer.current(), viewSize, getCamera());
 							fader.fadeIn();
 						}
 						startRotating();
@@ -580,10 +578,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				zoomLevel = zoomer.current();
 			}
 
-			if (!viewDimensions.isEmpty()) {
+			if (!viewSize.isEmpty()) {
 				final Plotter plotter = getPlotter();
 				if (plotter != null) {
-					plotter.updateDimensions(zoomLevel, viewDimensions.width(), viewDimensions.height(), getCamera());
+					plotter.updateDimensions(zoomLevel, viewSize, getCamera());
 				}
 			}
 		}
@@ -646,7 +644,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 					} else {
 						fader.fadeIn();
 						if (plotter != null) {
-							plotter.updateDimensions(zoomer.current(), viewDimensions.width(), viewDimensions.height(), getCamera());
+							plotter.updateDimensions(zoomer.current(), viewSize, getCamera());
 						}
 						Log.d(TAG, "Ending pinch zoom");
 					}

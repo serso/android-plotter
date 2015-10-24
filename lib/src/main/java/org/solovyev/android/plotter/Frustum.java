@@ -78,10 +78,10 @@ public final class Frustum {
 		distance = 2f * near;
 
 		nearPlane.width = 4f * near / (near + far);
-		nearPlane.height = nearPlane.width * aspectRatio;
+		nearPlane.height = nearPlane.width / aspectRatio;
 
 		scenePlane.width = 4f * near * TAN;
-		scenePlane.height = scenePlane.width * aspectRatio;
+		scenePlane.height = scenePlane.width / aspectRatio;
 
 		multiplyBy(zoom.level);
 	}

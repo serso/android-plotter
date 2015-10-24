@@ -1,16 +1,14 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.util.Log;
-
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-
 import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
@@ -79,7 +77,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 		final float add = dimensions.graph.rect.width();
 		final float newXMin = dimensions.graph.rect.left - add;
 		final float newXMax = dimensions.graph.rect.right + add;
-		final int maxPoints = (int) (4 * dimensions.scene.view.width());
+		final int maxPoints = 4 * dimensions.scene.view.width;
 		final float points = maxPoints / 2;
 		final float step = Math.abs(newXMax - newXMin) / points;
 

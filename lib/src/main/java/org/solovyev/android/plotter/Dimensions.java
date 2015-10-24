@@ -91,10 +91,10 @@ public final class Dimensions {
 		return Zoom.one();
 	}
 
-	public void update(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
-		if (shouldUpdate(zoom, viewWidth, viewHeight, center)) {
+	public void update(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF center) {
+		if (shouldUpdate(zoom, viewSize, center)) {
 			final boolean cameraChanged = centerChanged(center);
-			final boolean viewChanged = scene.setViewDimensions(viewWidth, viewHeight);
+			final boolean viewChanged = scene.set(viewSize);
 			final Zoom zoomChange = setZoom(zoom);
 			final boolean zoomChanged = !zoomChange.isOne();
 			if (viewChanged) {
@@ -128,8 +128,8 @@ public final class Dimensions {
 		scene.rect.bottom = cy + height / 2f;
 	}
 
-	boolean shouldUpdate(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF center) {
-		return !this.zoom.equals(zoom) || this.scene.view.width() != viewWidth || this.scene.view.height() != viewHeight || centerChanged(center);
+	boolean shouldUpdate(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF center) {
+		return !this.zoom.equals(zoom) || !this.scene.view.equals(viewSize) || centerChanged(center);
 	}
 
 	public boolean isZero() {
@@ -143,7 +143,7 @@ public final class Dimensions {
 		@Nonnull
 		public final RectF rect = new RectF();
 		@Nonnull
-		public final RectF view = new RectF();
+		public final RectSize view = RectSize.empty();
 
 		@Override
 		public boolean equals(Object o) {
@@ -169,21 +169,19 @@ public final class Dimensions {
 			return rect.isEmpty();
 		}
 
-		public boolean setViewDimensions(int viewWidth, int viewHeight) {
-			if (view.width() != viewWidth || view.height() != viewHeight) {
-				view.right = viewWidth;
-				view.bottom = viewHeight;
-
-				final float aspectRatio = (float) viewHeight / (float) viewWidth;
-				rect.left = -WIDTH / 2f;
-				rect.right = WIDTH + rect.left;
-				final float height = rect.width() * aspectRatio;
-				rect.top = -height / 2;
-				rect.bottom = height + rect.top;
-				return true;
+		public boolean set(@Nonnull RectSize newView) {
+			if (view.equals(newView)) {
+				return false;
 			}
+			view.set(newView);
+			final float aspectRatio = (float) view.height / (float) view.width;
+			rect.left = -WIDTH / 2f;
+			rect.right = WIDTH + rect.left;
+			final float height = rect.width() * aspectRatio;
+			rect.top = -height / 2;
+			rect.bottom = height + rect.top;
+			return true;
 
-			return false;
 		}
 
 		private float getAspectRatio() {
@@ -199,26 +197,26 @@ public final class Dimensions {
 		}
 
 		public float toSceneX(float x) {
-			return -rect.centerX() + x * rect.width() / view.width() - rect.width() / 2;
+			return -rect.centerX() + x * rect.width() / view.width - rect.width() / 2;
 		}
 
 		public float toSceneDx(float dx) {
-			return dx * rect.width() / view.width();
+			return dx * rect.width() / view.width;
 		}
 
 		public float toSceneY(float y) {
-			return -rect.centerY() + -(y * rect.height() / view.height() - rect.height() / 2);
+			return -rect.centerY() + -(y * rect.height() / view.height - rect.height() / 2);
 		}
 
 		public float toSceneDy(float dy) {
-			return dy * rect.height() / view.height();
+			return dy * rect.height() / view.height;
 		}
 
 		@Override
 		public String toString() {
 			return "Scene{" +
 					"rect=" + Dimensions.toString(rect) +
-					", view=" + Dimensions.toString(view) +
+					", view=" + view.stringSize() +
 					'}';
 		}
 

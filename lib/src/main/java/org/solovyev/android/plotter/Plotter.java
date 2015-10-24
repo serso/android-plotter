@@ -42,7 +42,7 @@ public interface Plotter {
 	@Nonnull
 	Dimensions.Scene getSceneDimensions();
 
-	void updateDimensions(@Nonnull Zoom zoom, int viewWidth, int viewHeight, @Nonnull PointF camera);
+	void updateDimensions(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF camera);
 
 	boolean is3d();
 
