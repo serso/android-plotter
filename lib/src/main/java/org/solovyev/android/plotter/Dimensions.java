@@ -91,25 +91,33 @@ public final class Dimensions {
 		return Zoom.one();
 	}
 
-	public void update(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF center) {
-		if (shouldUpdate(zoom, viewSize, center)) {
-			final boolean cameraChanged = centerChanged(center);
-			final boolean viewChanged = scene.set(viewSize);
-			final Zoom zoomChange = setZoom(zoom);
-			final boolean zoomChanged = !zoomChange.isOne();
-			if (viewChanged) {
-				scaleRect(zoom.level * zoomChange.x, zoom.level * zoomChange.y);
-			} else if (zoomChanged) {
-				scaleRect(1f / (zoomChange.level * zoomChange.x), 1f / (zoomChange.level * zoomChange.y));
-			}
-
-			// camera can be changed independently from view/zoom
-			if (cameraChanged) {
-				scene.rect.offset(center.x - scene.rect.centerX(), center.y - scene.rect.centerY());
-			}
-
-			graph.update(scene.rect.centerX(), scene.rect.centerY(), scene.getAspectRatio(), zoom);
+	@Nonnull
+	public Dimensions update(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF center) {
+		if (!shouldUpdate(zoom, viewSize, center)) {
+			return this;
 		}
+		final Dimensions copy = copy();
+		copy.set(zoom, viewSize, center);
+		return copy;
+	}
+
+	private void set(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF center) {
+		final boolean cameraChanged = centerChanged(center);
+		final boolean viewChanged = scene.set(viewSize);
+		final Zoom zoomChange = setZoom(zoom);
+		final boolean zoomChanged = !zoomChange.isOne();
+		if (viewChanged) {
+			scaleRect(zoom.level * zoomChange.x, zoom.level * zoomChange.y);
+		} else if (zoomChanged) {
+			scaleRect(1f / (zoomChange.level * zoomChange.x), 1f / (zoomChange.level * zoomChange.y));
+		}
+
+		// camera can be changed independently from view/zoom
+		if (cameraChanged) {
+			scene.rect.offset(center.x - scene.rect.centerX(), center.y - scene.rect.centerY());
+		}
+
+		graph.update(scene.rect.centerX(), scene.rect.centerY(), scene.getAspectRatio(), zoom);
 	}
 
 	private boolean centerChanged(@Nonnull PointF center) {
@@ -129,11 +137,21 @@ public final class Dimensions {
 	}
 
 	boolean shouldUpdate(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull PointF center) {
-		return !this.zoom.equals(zoom) || !this.scene.view.equals(viewSize) || centerChanged(center);
+		return !this.zoom.equals(zoom) || !scene.view.equals(viewSize) || centerChanged(center);
 	}
 
 	public boolean isZero() {
 		return graph.isEmpty() || scene.isEmpty();
+	}
+
+	@Nonnull
+	public Dimensions updateViewSize(@Nonnull RectSize viewSize) {
+		if (scene.view.equals(viewSize)) {
+			return this;
+		}
+		final Dimensions copy = copy();
+		copy.scene.set(viewSize);
+		return copy;
 	}
 
 	public static final class Scene {
@@ -169,11 +187,11 @@ public final class Dimensions {
 			return rect.isEmpty();
 		}
 
-		public boolean set(@Nonnull RectSize newView) {
-			if (view.equals(newView)) {
+		public boolean set(@Nonnull RectSize viewSize) {
+			if (view.equals(viewSize)) {
 				return false;
 			}
-			view.set(newView);
+			view.set(viewSize);
 			final float aspectRatio = (float) view.height / (float) view.width;
 			rect.left = -WIDTH / 2f;
 			rect.right = WIDTH + rect.left;
