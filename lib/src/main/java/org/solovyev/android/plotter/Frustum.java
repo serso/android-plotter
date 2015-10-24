@@ -8,6 +8,18 @@ import javax.microedition.khronos.opengles.GL10;
 public final class Frustum {
 
 	private static final String TAG = Plot.getTag("Frustum");
+	/*
+	View from top
+											 +
+							  +              |
+		near   +    k*near    |    k*near    |
+	+---------------------------------------------->
+			   +              |              |
+							  +              |
+											 +
+				far=near+2*k*near
+	+---------------------------------------->
+	 */
 	// constant to calculate distance between "near" plane and scene plane (dist("near", "scene") == dist("scene", "far")),
 	// multiplier of "near" (K * near)
 	private static final int K = 2;
