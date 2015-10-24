@@ -173,7 +173,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			final GL11 gl = (GL11) gl10;
 
 			final float alpha = fader.onFrame();
-			final Zoom zoom = zoomer.onFrame(gl, plotter);
+			zoomer.onFrame(gl, plotter);
 
 			gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
 
@@ -181,7 +181,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glLoadIdentity();
 
 			cameraMan.onFrame(tmp, plotter);
-			gl.glTranslatef(tmp.x, tmp.y, -Dimensions.DISTANCE * zoom.level);
+			gl.glTranslatef(tmp.x, tmp.y, -frustum.distance);
 
 			rotation.onFrame(gl10);
 
@@ -208,10 +208,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			return;
 		}
 
-		if (frustum.update(zoom, (float) viewDimensions.height() / (float) viewDimensions.width())) {
-			gl.glMatrixMode(GL10.GL_PROJECTION);
-			gl.glLoadIdentity();
-			gl.glFrustumf(-frustum.width / 2, frustum.width / 2, -frustum.height / 2, frustum.height / 2, frustum.near, frustum.far);
+		final float aspectRatio = (float) viewDimensions.height() / (float) viewDimensions.width();
+		if (frustum.update(zoom, aspectRatio)) {
+			frustum.updateGl(gl);
 		}
 	}
 
@@ -532,9 +531,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		@Nonnull
 		private final String TAG = Plot.getTag("Zoomer");
 
-		@GuardedBy("PlotRenderer.this.lock")
-		Object frustumZoomer;
-
 		@GuardedBy("this")
 		@Nonnull
 		volatile Zoomer zoomer = new Zoomer();
@@ -542,15 +538,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		@GuardedBy("this")
 		volatile boolean pinchZoom;
 
-		@Nonnull
-		Zoom onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
-			final Zoom zoomLevel;
+		void onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
 			synchronized (this) {
 				if (zoomer.onFrame()) {
-					synchronized (lock) {
-						frustumZoomer = zoomer;
-					}
-					initFrustum(gl, zoomer.current().multiplyBy(Dimensions.DISTANCE));
+					initFrustum(gl, zoomer.current());
 
 					// if we were running and now we are stopped it's time to update the dimensions
 					if (!zoomer.isZooming()) {
@@ -563,22 +554,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 						view.requestRender();
 					}
 				} else {
-					synchronized (lock) {
-						// frustum is not initialized yet => let's do it
-						if (frustumZoomer != zoomer) {
-							frustumZoomer = zoomer;
-							initFrustum(gl, zoomer.current().multiplyBy(Dimensions.DISTANCE));
-						}
-					}
+					initFrustum(gl, zoomer.current());
 				}
-				zoomLevel = zoomer.current();
 			}
-			return zoomLevel;
 		}
 
 		void onSurfaceChanged(GL10 gl) {
 			synchronized (this) {
-				initFrustum(gl, zoomer.current().multiplyBy(Dimensions.DISTANCE));
+				initFrustum(gl, zoomer.current());
 			}
 		}
 

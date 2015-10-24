@@ -2,20 +2,12 @@ package org.solovyev.android.plotter.app;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.EditText;
-
-import org.solovyev.android.plotter.Color;
-import org.solovyev.android.plotter.Dimensions;
-import org.solovyev.android.plotter.PlotData;
-import org.solovyev.android.plotter.PlotFunction;
-import org.solovyev.android.plotter.Plotter;
+import org.solovyev.android.plotter.*;
 import org.solovyev.android.plotter.views.PlotViewFrame;
 
 import javax.annotation.Nonnull;
@@ -95,29 +87,68 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.menu_dimensions:
-				final Dimensions dimensions = plotter.getDimensions();
-				final View view = LayoutInflater.from(this).inflate(R.layout.dialog_dimensions, null);
-				final EditText xMin = (EditText) view.findViewById(R.id.x_min_edittext);
-				xMin.setText(String.format("%.2f", dimensions.graph.rect.left));
-				final EditText xMax = (EditText) view.findViewById(R.id.x_max_edittext);
-				xMax.setText(String.format("%.2f", dimensions.graph.rect.right));
-				final EditText yMin = (EditText) view.findViewById(R.id.y_min_edittext);
-				yMin.setText(String.format("%.2f", dimensions.graph.rect.top));
-				final EditText yMax = (EditText) view.findViewById(R.id.y_max_edittext);
-				yMax.setText(String.format("%.2f", dimensions.graph.rect.bottom));
-
-				final AlertDialog.Builder b = new AlertDialog.Builder(this);
-				b.setView(view);
-				b.setCancelable(true);
-				b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-					}
-				});
-				b.show();
+				final DimensionsDialog dialog = new DimensionsDialog(this, plotter.getDimensions());
+				dialog.show();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private class DimensionsDialog {
+
+		@Nonnull
+		protected final View view;
+		@Nonnull
+		private final Dimensions dimensions;
+		@Nonnull
+		protected final EditText xMin;
+		@Nonnull
+		protected final EditText xMax;
+		@Nonnull
+		protected final EditText yMin;
+		@Nonnull
+		protected final EditText yMax;
+
+		protected DimensionsDialog(@Nonnull Context context, @Nonnull Dimensions dimensions) {
+			this.view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
+			this.dimensions = dimensions;
+			this.xMin = (EditText) view.findViewById(R.id.x_min_edittext);
+			this.xMax = (EditText) view.findViewById(R.id.x_max_edittext);
+			this.yMin = (EditText) view.findViewById(R.id.y_min_edittext);
+			this.yMax = (EditText) view.findViewById(R.id.y_max_edittext);
+
+			setDimension(xMin, dimensions.graph.rect.left);
+			setDimension(xMax, dimensions.graph.rect.right);
+			setDimension(yMin, dimensions.graph.rect.top);
+			setDimension(yMax, dimensions.graph.rect.bottom);
+		}
+
+		private void setDimension(@Nonnull EditText view, float value) {
+			view.setText(String.format("%.2f", value));
+		}
+
+		public void show() {
+			final AlertDialog.Builder b = new AlertDialog.Builder(view.getContext());
+			b.setView(view);
+			b.setCancelable(true);
+			b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					/*final Dimensions newDimensions = dimensions.copy();
+					newDimensions.setGraphBounds(getDimension(xMin), getDimension(xMax), getDimension(yMin), getDimension(yMax));
+					plotter.setDimensions(newDimensions);*/
+				}
+			});
+			b.show();
+		}
+
+		private float getDimension(@Nonnull EditText view) {
+			try {
+				return Float.valueOf(view.getText().toString().replace(',', '.'));
+			} catch (NumberFormatException e) {
+				return 0f;
+			}
 		}
 	}
 }

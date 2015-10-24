@@ -33,8 +33,6 @@ public final class Dimensions {
 	@Nonnull
 	public static final PointF ZERO = new PointF();
 
-	public static final float DISTANCE = 4f;
-
 	@Nonnull
 	public final Graph graph = new Graph();
 
