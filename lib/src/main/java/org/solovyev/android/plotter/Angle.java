@@ -45,7 +45,7 @@ final class Angle implements Parcelable {
 		x += angle.x;
 		y += angle.y;
 
-		if (x >= 180) {
+/*		if (x >= 180) {
 			x -= 360;
 		}
 
@@ -59,7 +59,7 @@ final class Angle implements Parcelable {
 
 		if (y < -180) {
 			y += 360;
-		}
+		}*/
 	}
 
 	@Nonnull

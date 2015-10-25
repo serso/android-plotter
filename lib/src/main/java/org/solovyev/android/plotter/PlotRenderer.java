@@ -17,6 +17,7 @@ package org.solovyev.android.plotter;
 
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLU;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -178,7 +179,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			gl.glLoadIdentity();
 
 			cameraMan.onFrame(tmp, plotter);
-			gl.glTranslatef(tmp.x, tmp.y, -frustum.distance());
+			//gl.glTranslatef(tmp.x, tmp.y, -frustum.distance());
 
 			rotation.onFrame(gl10);
 
@@ -418,7 +419,19 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		void onFrame(@Nonnull GL10 gl) {
 			synchronized (rotation) {
 				rotation.onFrame();
-				gl.glMultMatrixf(rotation.matrix, 0);
+
+				float x = -tmp.x;
+				float y = -tmp.y;
+				float z = 0f;
+				final float distance = frustum.distance();
+
+				final float theta = (float) (-Math.PI * rotation.angle.y / 180f);
+				final float phi = (float) (-Math.PI * (rotation.angle.x) / 180f);
+				final float eyeX = (float) (x + distance * Math.sin(theta) * Math.cos(phi));
+				final float eyeY = (float) (y + distance * Math.sin(theta) * Math.sin(phi));
+				final float eyeZ = (float) (z + distance * Math.cos(theta));
+
+				GLU.gluLookAt(gl, eyeX, eyeY, eyeZ, x, y, z, 0, 1, 0);
 			}
 		}
 
