@@ -193,7 +193,8 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 				value = dimensions.graph.toGraphZ(z);
 		}
 
-		return format.format(value);
+		// better to add '−' to the font atlas
+		return format.format(value).replace('−', '-');
 	}
 
 	@Nonnull
