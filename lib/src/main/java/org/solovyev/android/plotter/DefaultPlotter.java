@@ -271,11 +271,7 @@ final class DefaultPlotter implements Plotter {
 				emptyView.shouldUpdateFunctions = false;
 				dimensionsChangedRunnable.run(emptyView, this);
 			}
-
-			if (emptyView.requested3d != null) {
-				view.set3d(emptyView.requested3d);
-				emptyView.requested3d = null;
-			}
+			view.set3d(d3);
 		}
 	}
 
@@ -470,8 +466,6 @@ final class DefaultPlotter implements Plotter {
 	private final class EmptyPlottingView implements PlottingView {
 		private boolean shouldRender;
 		private boolean shouldUpdateFunctions;
-		@Nullable
-		private Boolean requested3d;
 
 		@Override
 		public void requestRender() {
@@ -505,7 +499,6 @@ final class DefaultPlotter implements Plotter {
 
 		@Override
 		public void set3d(boolean d3) {
-			requested3d = d3;
 		}
 
 		@Override
