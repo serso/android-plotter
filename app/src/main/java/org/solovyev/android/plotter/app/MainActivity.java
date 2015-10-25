@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.*;
 import android.widget.EditText;
 import org.solovyev.android.plotter.*;
@@ -100,8 +103,6 @@ public class MainActivity extends Activity {
 		@Nonnull
 		protected final View view;
 		@Nonnull
-		private final Dimensions dimensions;
-		@Nonnull
 		protected final EditText xMin;
 		@Nonnull
 		protected final EditText xMax;
@@ -112,7 +113,6 @@ public class MainActivity extends Activity {
 
 		protected DimensionsDialog(@Nonnull Context context, @Nonnull Dimensions dimensions) {
 			this.view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
-			this.dimensions = dimensions;
 			this.xMin = (EditText) view.findViewById(R.id.x_min_edittext);
 			this.xMax = (EditText) view.findViewById(R.id.x_max_edittext);
 			this.yMin = (EditText) view.findViewById(R.id.y_min_edittext);
@@ -135,9 +135,8 @@ public class MainActivity extends Activity {
 			b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					/*final Dimensions newDimensions = dimensions.copy();
-					newDimensions.setGraphBounds(getDimension(xMin), getDimension(xMax), getDimension(yMin), getDimension(yMax));
-					plotter.setDimensions(newDimensions);*/
+					final RectF graph = new RectF(getDimension(xMin), getDimension(yMin), getDimension(xMax), getDimension(yMax));
+					plotter.updateGraph(null, new RectSizeF(graph.width(), graph.height()), new PointF(graph.centerX(), graph.centerY()));
 				}
 			});
 			b.show();
@@ -145,8 +144,9 @@ public class MainActivity extends Activity {
 
 		private float getDimension(@Nonnull EditText view) {
 			try {
-				return Float.valueOf(view.getText().toString().replace(',', '.'));
+				return Float.parseFloat(view.getText().toString().replace(",", ".").replace("−", "-"));
 			} catch (NumberFormatException e) {
+				Log.e(Plot.getTag("MainActivity"), e.getMessage(), e);
 				return 0f;
 			}
 		}

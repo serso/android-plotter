@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 public final class Dimensions {
 	@Nonnull
 	private static final Dimensions EMPTY = new Dimensions();
-	@Nonnull
-	public static final PointF ZERO = new PointF();
 
 	@Nonnull
 	public final Graph graph = new Graph();
@@ -73,16 +71,31 @@ public final class Dimensions {
 	}
 
 	@Nonnull
-	public Dimensions update(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+	public Dimensions updateScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
 		if (scene.same(viewSize, sceneSize, sceneCenter)) {
 			return this;
 		}
 		final Dimensions copy = copy();
-		copy.set(viewSize, sceneSize, sceneCenter);
+		copy.setScene(viewSize, sceneSize, sceneCenter);
 		return copy;
 	}
 
-	private void set(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+
+	@Nonnull
+	public Dimensions updateGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+		if (graph.same(graphSize, graphCenter)) {
+			return this;
+		}
+		final Dimensions copy = copy();
+		copy.setGraph(graphSize, graphCenter);
+		return copy;
+	}
+
+	private void setGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+		graph.set(graphSize, graphCenter, scene);
+	}
+
+	private void setScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
 		scene.set(viewSize, sceneSize, sceneCenter);
 		graph.update(sceneSize, sceneCenter);
 	}
@@ -223,6 +236,16 @@ public final class Dimensions {
 			center.set(toGraphX(sceneCenter.x), toGraphY(sceneCenter.y));
 		}
 
+		public void set(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter, @Nonnull Scene scene) {
+			original.set(graphSize);
+			scene.size.set(Frustum.SCENE_WIDTH, Frustum.SCENE_WIDTH / scene.size.aspectRatio());
+			scene.center.set(0f, 0f);
+			update(scene.size, scene.center);
+
+			center.set(graphCenter.x, graphCenter.y);
+			scene.center.set(toScreenX(graphCenter.x), toScreenY(graphCenter.y));
+		}
+
 		public float toGraphX(float x) {
 			return /*rect.centerX()*/ + scaleToGraphX(x);
 		}
@@ -306,6 +329,10 @@ public final class Dimensions {
 			original.set(that.original);
 			center.set(that.center);
 			scale = that.scale;
+		}
+
+		public boolean same(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+			return size.equals(graphSize) && center.equals(graphCenter);
 		}
 	}
 

@@ -4,6 +4,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
+import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.text.FontAtlas;
 
 import javax.annotation.Nonnull;
@@ -222,7 +223,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		// todo serso: might be called on GL thread, requires synchronization
 		if (!this.dimensions.equals(dimensions)) {
 			this.dimensions = dimensions;
-			this.camera.set(Dimensions.ZERO);
+			this.camera.set(Plot.ZERO);
 			setDirty();
 		}
 	}

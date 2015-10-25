@@ -9,11 +9,10 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 import static android.os.SystemClock.uptimeMillis;
 
@@ -38,13 +37,13 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	public PlotView(Context context) {
 		super(context);
 		init();
-		renderer = initGl(context, this);
+		renderer = initGl(this);
 	}
 
 	public PlotView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init();
-		renderer = initGl(context, this);
+		renderer = initGl(this);
 	}
 
 	private void init() {
@@ -53,13 +52,13 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 	}
 
 	@Nonnull
-	private static PlotRenderer initGl(@Nonnull Context context, @Nonnull PlotView view) {
+	private static PlotRenderer initGl(@Nonnull PlotView view) {
 		view.setEGLConfigChooser(new MultisampleConfigChooser());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			preserveEglContextOnPause(view);
 		}
 
-		final PlotRenderer renderer = new PlotRenderer(context, view);
+		final PlotRenderer renderer = new PlotRenderer(view);
 		view.setRenderer(renderer);
 
 		view.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
@@ -151,6 +150,11 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 			}
 			touchListener.on3d(d3);
 		}
+	}
+
+	@Override
+	public void onDimensionChanged(@Nonnull Dimensions dimensions, @Nullable Object source) {
+		renderer.onDimensionsChanged(dimensions, source);
 	}
 
 	public void addListener(@Nonnull Listener listener) {

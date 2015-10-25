@@ -97,12 +97,7 @@ final class DefaultPlotter implements Plotter {
 	private boolean d3 = D3;
 
 	@Nonnull
-	private final Runnable dimensionsChangedRunnable = new Runnable() {
-		@Override
-		public void run() {
-			onDimensionsChanged();
-		}
-	};
+	private final DimensionsChangeNotifier dimensionsChangedRunnable = new DimensionsChangeNotifier();
 
 	@Nonnull
 	private final Context context;
@@ -274,7 +269,7 @@ final class DefaultPlotter implements Plotter {
 
 			if (emptyView.shouldUpdateFunctions) {
 				emptyView.shouldUpdateFunctions = false;
-				dimensionsChangedRunnable.run();
+				dimensionsChangedRunnable.run(emptyView, this);
 			}
 
 			if (emptyView.requested3d != null) {
@@ -292,40 +287,40 @@ final class DefaultPlotter implements Plotter {
 			emptyView.shouldRender = false;
 			emptyView.shouldUpdateFunctions = false;
 			view = emptyView;
-			updateDimensions(Dimensions.empty());
+			updateDimensions(Dimensions.empty(), this);
 		}
 	}
 
-	@Override
-	public void setDimensions(@Nonnull Dimensions newDimensions) {
-		Check.isMainThread();
-		synchronized (lock) {
-			updateDimensions(newDimensions);
-			view.resetZoom();
-		}
-	}
-
-	private void updateDimensions(@Nonnull Dimensions newDimensions) {
+	private void updateDimensions(@Nonnull Dimensions newDimensions, @Nullable Object source) {
 		Check.isAnyThread();
 		synchronized (lock) {
 			if (!dimensions.equals(newDimensions)) {
 				dimensions = newDimensions;
 				if (!Plot.isMainThread() || view == emptyView) {
-					view.removeCallbacks(dimensionsChangedRunnable);
-					view.post(dimensionsChangedRunnable);
+					dimensionsChangedRunnable.post(view, source);
 				} else {
-					dimensionsChangedRunnable.run();
+					dimensionsChangedRunnable.run(view, source);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void updateDimensions(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+	public void updateScene(@Nullable Object source, @Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
 		synchronized (lock) {
-			final Dimensions newDimensions = dimensions.update(viewSize, sceneSize, sceneCenter);
+			final Dimensions newDimensions = dimensions.updateScene(viewSize, sceneSize, sceneCenter);
 			if (newDimensions != dimensions) {
-				updateDimensions(newDimensions);
+				updateDimensions(newDimensions, source);
+			}
+		}
+	}
+
+	@Override
+	public void updateGraph(@Nullable Object source, @Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+		synchronized (lock) {
+			final Dimensions newDimensions = dimensions.updateGraph(graphSize, graphCenter);
+			if (newDimensions != dimensions) {
+				updateDimensions(newDimensions, source);
 			}
 		}
 	}
@@ -513,6 +508,47 @@ final class DefaultPlotter implements Plotter {
 		public void set3d(boolean d3) {
 			requested3d = d3;
 		}
+
+		@Override
+		public void onDimensionChanged(@Nonnull Dimensions dimensions, @Nullable Object source) {
+		}
+	}
+
+	private class DimensionsChangeNotifier implements Runnable {
+		@Nullable
+		PlottingView view;
+		@Nullable
+		private Object source;
+
+		public void run(@Nonnull PlottingView view, @Nullable Object source) {
+			Check.isTrue(Thread.holdsLock(lock));
+			this.view = view;
+			this.source = source;
+			run();
+		}
+
+		@Override
+		public void run() {
+			PlottingView view;
+			Object source;
+			synchronized (lock) {
+				view = this.view;
+				this.view = null;
+				source = this.source;
+				this.source = null;
+			}
+			if (view != null) {
+				view.onDimensionChanged(getDimensions(), source);
+			}
+			onDimensionsChanged();
+		}
+
+		public void post(@Nonnull PlottingView view, @Nonnull Object source) {
+			Check.isTrue(Thread.holdsLock(lock));
+			this.view = view;
+			this.source = source;
+			view.removeCallbacks(dimensionsChangedRunnable);
+			view.post(dimensionsChangedRunnable);
+		}
 	}
 }
-

@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -8,6 +9,9 @@ import android.util.TypedValue;
 import javax.annotation.Nonnull;
 
 public final class Plot {
+
+	@Nonnull
+	public static final PointF ZERO = new PointF();
 
 	private Plot() {
 		throw new AssertionError();

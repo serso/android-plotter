@@ -3,6 +3,7 @@ package org.solovyev.android.plotter;
 import android.graphics.PointF;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL11;
 
 /**
@@ -30,8 +31,6 @@ public interface Plotter {
 	void attachView(@Nonnull PlottingView view);
 	void detachView(@Nonnull PlottingView view);
 
-	void setDimensions(@Nonnull Dimensions dimensions);
-
 	/**
 	 * @return a copy of dimensions
 	 */
@@ -42,7 +41,8 @@ public interface Plotter {
 	@Nonnull
 	Dimensions.Scene getSceneDimensions();
 
-	void updateDimensions(@Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter);
+	void updateScene(@Nullable Object source, @Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter);
+	void updateGraph(@Nullable Object source, @Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter);
 
 	boolean is3d();
 
