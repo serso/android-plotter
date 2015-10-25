@@ -315,11 +315,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 	@Nonnull
 	private PointF getSceneCenter() {
-		final PointF result = new PointF();
 		synchronized (lock) {
-			result.set(-camera.x, -camera.y);
+			return getSceneCenter(camera);
 		}
-		return result;
+	}
+
+	@Nonnull
+	private PointF getSceneCenter(@Nonnull PointF camera) {
+		return new PointF(-camera.x, -camera.y);
 	}
 
 	@Nonnull
@@ -490,7 +493,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				} else if (moving) {
 					camera.set(cameraMan.getPosition());
 					moving = false;
-					plotter.updateScene(SOURCE, zoomer.current(), viewSize, getSceneSize(), camera);
+					plotter.updateScene(SOURCE, zoomer.current(), viewSize, getSceneSize(), getSceneCenter(camera));
 					fader.fadeIn();
 				}
 				out.set(camera);
