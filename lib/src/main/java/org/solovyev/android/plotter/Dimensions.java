@@ -192,16 +192,26 @@ public final class Dimensions {
 			size.set(that.size);
 			view.set(that.view);
 		}
+
+		public void setEmpty() {
+			center.set(0f, 0f);
+			size.setEmpty();
+			view.setEmpty();
+		}
 	}
 
 	public static final class Graph {
 		@Nonnull
-		public final RectSizeF size = new RectSizeF(20f, 20f);
+		public final RectSizeF size = new RectSizeF();
 		@Nonnull
-		public final RectSizeF original = new RectSizeF(20f, 20f);
+		public final RectSizeF original = new RectSizeF();
 		@Nonnull
-		public final PointF center = new PointF(0f, 0f);
-		public float scale = original.width / Frustum.SCENE_WIDTH;
+		public final PointF center = new PointF();
+		public float scale;
+
+		public Graph() {
+			setEmpty();
+		}
 
 		@Override
 		public boolean equals(Object o) {
@@ -334,13 +344,19 @@ public final class Dimensions {
 		public boolean same(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
 			return size.equals(graphSize) && center.equals(graphCenter);
 		}
+
+		public void setEmpty() {
+			original.set(20f, 20f);
+			size.set(20f, 20f);
+			center.set(0f, 0f);
+			scale = original.width / Frustum.SCENE_WIDTH;
+		}
 	}
 
 	@Nonnull
 	public static Dimensions empty() {
-		EMPTY.scene.size.setEmpty();
-		EMPTY.scene.view.setEmpty();
-		EMPTY.graph.size.setEmpty();
+		EMPTY.scene.setEmpty();
+		EMPTY.graph.setEmpty();
 		return EMPTY;
 	}
 
