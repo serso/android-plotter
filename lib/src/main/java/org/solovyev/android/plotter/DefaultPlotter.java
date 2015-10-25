@@ -415,9 +415,9 @@ final class DefaultPlotter implements Plotter {
 		for (DoubleBufferMesh<AxisLabels> label : labels) {
 			add(label);
 		}
-		final SceneRect sceneRect = new SceneRect(dimensions);
+		/*final SceneRect sceneRect = new SceneRect(dimensions);
 		sceneRect.setColor(MeshSpec.LightColors.GREEN);
-		add(DoubleBufferMesh.wrap(sceneRect, DimensionsAwareSwapper.INSTANCE));
+		add(DoubleBufferMesh.wrap(sceneRect, DimensionsAwareSwapper.INSTANCE));*/
 		/*if(!d3) {
 			coordinates.setColor(gridColor);
 			add(coordinates);
