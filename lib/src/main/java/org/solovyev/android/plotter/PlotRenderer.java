@@ -425,11 +425,11 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				float z = 0f;
 				final float distance = frustum.distance();
 
-				final float theta = (float) (-Math.PI * rotation.angle.y / 180f);
-				final float phi = (float) (-Math.PI * (rotation.angle.x) / 180f);
-				final float eyeX = (float) (x + distance * Math.sin(theta) * Math.cos(phi));
-				final float eyeY = (float) (y + distance * Math.sin(theta) * Math.sin(phi));
-				final float eyeZ = (float) (z + distance * Math.cos(theta));
+				final float alpha = (float) (-Math.PI * rotation.angle.y / 180f);
+				final float beta = (float) (Math.PI * (rotation.angle.x) / 180f);
+				final float eyeX = (float) (x + distance * Math.sin(alpha) * Math.cos(beta));
+				final float eyeY = (float) (y + distance * Math.sin(beta));
+				final float eyeZ = (float) (z + distance * Math.cos(alpha) * Math.cos(beta));
 
 				GLU.gluLookAt(gl, eyeX, eyeY, eyeZ, x, y, z, 0, 1, 0);
 			}
