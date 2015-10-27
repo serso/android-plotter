@@ -18,7 +18,6 @@ package org.solovyev.android.plotter;
 import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
-import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -360,26 +359,19 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 		@Nonnull
 		final Angle speed;
 
-		@Nonnull
-		final float[] matrix;
-
 		private Rotation() {
 			angle = DEFAULT_ANGLE;
 			speed = DEFAULT_SPEED;
-			matrix = angle.getMatrix();
 		}
 
 		private Rotation(@Nonnull Bundle bundle) {
 			angle = restoreAngle(bundle, "rotation.angle", DEFAULT_ANGLE);
 			speed = restoreAngle(bundle, "rotation.speed", DEFAULT_SPEED);
-			final float[] array = bundle.getFloatArray("rotation.matrix");
-			matrix = array != null ? array : angle.getMatrix();
 		}
 
 		public void saveState(@Nonnull Bundle bundle) {
 			bundle.putParcelable("rotation.angle", angle);
 			bundle.putParcelable("rotation.speed", speed);
-			bundle.putFloatArray("rotation.matrix", matrix);
 		}
 
 		@Nonnull
@@ -393,7 +385,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
 		public void onFrame() {
 			angle.add(speed);
-			speed.rotateBy(matrix);
 		}
 
 		public boolean shouldRotate() {
@@ -425,13 +416,19 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 				float z = 0f;
 				final float distance = frustum.distance();
 
-				final float alpha = (float) (-Math.PI * rotation.angle.y / 180f);
-				final float beta = (float) (Math.PI * (rotation.angle.x) / 180f);
+				final boolean reverse = rotation.angle.x >= 90 && rotation.angle.x <= 270;
+				final float alphaDegrees = reverse ? 180f + rotation.angle.y : rotation.angle.y;
+				final float betaDegrees = reverse ? -(180f + rotation.angle.x) : rotation.angle.x;
+
+				Log.d("CameraAngles", "alpha=" + alphaDegrees + ", beta=" + betaDegrees );
+
+				final float alpha = (float) (-Math.PI * alphaDegrees / 180f);
+				final float beta = (float) (Math.PI * betaDegrees / 180f);
 				final float eyeX = (float) (x + distance * Math.sin(alpha) * Math.cos(beta));
 				final float eyeY = (float) (y + distance * Math.sin(beta));
 				final float eyeZ = (float) (z + distance * Math.cos(alpha) * Math.cos(beta));
 
-				GLU.gluLookAt(gl, eyeX, eyeY, eyeZ, x, y, z, 0, 1, 0);
+				GLU.gluLookAt(gl, eyeX, eyeY, eyeZ, x, y, z, 0, reverse ? -1 : 1, 0);
 			}
 		}
 
@@ -460,12 +457,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 			synchronized (rotation) {
 				rotation.angle.x = x;
 				rotation.angle.y = y;
-				if (x == 0 && y == 0) {
-					Matrix.setIdentityM(rotation.matrix, 0);
-				} else {
-					final float[] newMatrix = rotation.angle.getMatrix();
-					System.arraycopy(newMatrix, 0, rotation.matrix, 0, newMatrix.length);
-				}
 			}
 			view.requestRender();
 		}
@@ -529,8 +520,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private final class FaderHolder {
-		@Nonnull
-		private final String TAG = Plot.getTag("Fader");
 
 		@GuardedBy("PlotRenderer.this.lock")
 		@Nonnull
