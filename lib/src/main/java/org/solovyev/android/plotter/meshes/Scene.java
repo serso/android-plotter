@@ -29,9 +29,9 @@ final class Scene {
 		}
 
 		@Nonnull
-		public static AxisGrid create(@Nonnull Dimensions dimensions, @Nonnull org.solovyev.android.plotter.meshes.AxisGrid.Axes axes) {
-			final Scene.Axis xAxis = Scene.Axis.create(dimensions.scene, false);
-			final Scene.Axis yAxis = Scene.Axis.create(dimensions.scene, true);
+		public static AxisGrid create(@Nonnull Dimensions dimensions, @Nonnull org.solovyev.android.plotter.meshes.AxisGrid.Axes axes, boolean d3) {
+			final Scene.Axis xAxis = Scene.Axis.create(dimensions.scene, false, d3);
+			final Scene.Axis yAxis = Scene.Axis.create(dimensions.scene, true, d3);
 			final Scene.Ticks xTicks = Scene.Ticks.create(dimensions.graph, xAxis);
 			final Scene.Ticks yTicks = Scene.Ticks.create(dimensions.graph, yAxis);
 			final RectF bounds = new RectF();
@@ -66,9 +66,10 @@ final class Scene {
 		final float lengthX;
 		final float arrowLength;
 		final float arrowWidth;
-		final float multiplier = 5f;
+		final float multiplier;
 
-		public Axis(@Nonnull Dimensions.Scene scene, boolean y) {
+		public Axis(@Nonnull Dimensions.Scene scene, boolean y, boolean d3) {
+			multiplier = d3 ? 1 : 5;
 			final float width = multiplier * scene.size.width;
 			final float height = multiplier * scene.size.height;
 
@@ -84,8 +85,8 @@ final class Scene {
 		}
 
 		@Nonnull
-		public static Axis create(@Nonnull Dimensions.Scene scene, boolean y) {
-			return new Axis(scene, y);
+		public static Axis create(@Nonnull Dimensions.Scene scene, boolean y, boolean d3) {
+			return new Axis(scene, y, d3);
 		}
 	}
 

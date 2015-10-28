@@ -417,17 +417,17 @@ final class DefaultPlotter implements Plotter {
 		final Color axisColor = Color.create(plotData.axisStyle.axisColor);
 		final Color axisLabelsColor = Color.create(plotData.axisStyle.axisLabelsColor);
 
-		add(AxisGrid.xz(dimensions, gridColor).toDoubleBuffer());
+		add(AxisGrid.xz(dimensions, gridColor, d3).toDoubleBuffer());
 		if (d3) {
-			add(AxisGrid.xy(dimensions, gridColor).toDoubleBuffer());
-			add(AxisGrid.yz(dimensions, gridColor).toDoubleBuffer());
+			add(AxisGrid.xy(dimensions, gridColor, d3).toDoubleBuffer());
+			add(AxisGrid.yz(dimensions, gridColor, d3).toDoubleBuffer());
 		}
-		add(prepareAxis(Axis.x(dimensions), axisColor, axisWidth));
+		add(prepareAxis(Axis.x(dimensions, d3), axisColor, axisWidth));
 		labels.add(prepareAxisLabels(AxisLabels.x(fontAtlas, dimensions, d3), axisLabelsColor));
-		add(prepareAxis(Axis.y(dimensions), axisColor, axisWidth));
+		add(prepareAxis(Axis.y(dimensions, d3), axisColor, axisWidth));
 		labels.add(prepareAxisLabels(AxisLabels.y(fontAtlas, dimensions, d3), axisLabelsColor));
 		if (d3) {
-			add(prepareAxis(Axis.z(dimensions), axisColor, axisWidth));
+			add(prepareAxis(Axis.z(dimensions, d3), axisColor, axisWidth));
 			labels.add(prepareAxisLabels(AxisLabels.z(fontAtlas, dimensions, true), axisLabelsColor));
 		}
 		for (DoubleBufferMesh<AxisLabels> label : labels) {

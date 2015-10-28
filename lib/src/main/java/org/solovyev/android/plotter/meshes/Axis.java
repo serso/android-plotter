@@ -14,27 +14,29 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	private final Arrays arrays = new Arrays();
 	@Nonnull
 	private final ArrayInitializer initializer = new ArrayInitializer();
+	private final boolean d3;
 	@Nonnull
 	protected volatile Dimensions dimensions;
 
-	private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions) {
+	private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions, boolean d3) {
 		this.direction = direction;
 		this.dimensions = dimensions;
+		this.d3 = d3;
 	}
 
 	@Nonnull
-	public static Axis x(@Nonnull Dimensions dimensions) {
-		return new Axis(AxisDirection.X, dimensions);
+	public static Axis x(@Nonnull Dimensions dimensions, boolean d3) {
+		return new Axis(AxisDirection.X, dimensions, d3);
 	}
 
 	@Nonnull
-	public static Axis y(@Nonnull Dimensions dimensions) {
-		return new Axis(AxisDirection.Y, dimensions);
+	public static Axis y(@Nonnull Dimensions dimensions, boolean d3) {
+		return new Axis(AxisDirection.Y, dimensions, d3);
 	}
 
 	@Nonnull
-	public static Axis z(@Nonnull Dimensions dimensions) {
-		return new Axis(AxisDirection.Z, dimensions);
+	public static Axis z(@Nonnull Dimensions dimensions, boolean d3) {
+		return new Axis(AxisDirection.Z, dimensions, d3);
 	}
 
 	@Nonnull
@@ -65,7 +67,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new Axis(direction, dimensions);
+		return new Axis(direction, dimensions, d3);
 	}
 
 	@Nonnull
@@ -99,7 +101,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
 			final Dimensions dimensions = Axis.this.dimensions;
 
 			final boolean y = direction == AxisDirection.Y;
-			axis = Scene.Axis.create(dimensions.scene, y);
+			axis = Scene.Axis.create(dimensions.scene, y, d3);
 			ticks = Scene.Ticks.create(dimensions.graph, axis);
 			arrays.init(3 * (2 + 2 + 2 * ticks.count), 2 + 2 * 2 + 2 * ticks.count);
 

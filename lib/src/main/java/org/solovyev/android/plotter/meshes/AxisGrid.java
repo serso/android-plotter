@@ -13,34 +13,37 @@ public class AxisGrid extends BaseSurface {
 		YZ;
 	}
 
+	private final boolean d3;
+
 	@Nonnull
 	private Axes axes;
 
-	private AxisGrid(@Nonnull Dimensions dimensions, @Nonnull Axes axes, @Nonnull Color color) {
+	private AxisGrid(@Nonnull Dimensions dimensions, @Nonnull Axes axes, @Nonnull Color color, boolean d3) {
 		super(dimensions);
 		this.axes = axes;
+		this.d3 = d3;
 		setColor(color);
 	}
 
 	@Nonnull
-	public static AxisGrid yz(@Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new AxisGrid(dimensions, Axes.YZ, color);
+	public static AxisGrid yz(@Nonnull Dimensions dimensions, @Nonnull Color color, boolean d3) {
+		return new AxisGrid(dimensions, Axes.YZ, color, d3);
 	}
 
 	@Nonnull
-	public static AxisGrid xz(@Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new AxisGrid(dimensions, Axes.XZ, color);
+	public static AxisGrid xz(@Nonnull Dimensions dimensions, @Nonnull Color color, boolean d3) {
+		return new AxisGrid(dimensions, Axes.XZ, color, d3);
 	}
 
 	@Nonnull
-	public static AxisGrid xy(@Nonnull Dimensions dimensions, @Nonnull Color color) {
-		return new AxisGrid(dimensions, Axes.XY, color);
+	public static AxisGrid xy(@Nonnull Dimensions dimensions, @Nonnull Color color, boolean d3) {
+		return new AxisGrid(dimensions, Axes.XY, color, d3);
 	}
 
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new AxisGrid(dimensions, axes, getColor());
+		return new AxisGrid(dimensions, axes, getColor(), d3);
 	}
 
 	@Nonnull
@@ -51,7 +54,7 @@ public class AxisGrid extends BaseSurface {
 	@Nonnull
 	@Override
 	protected SurfaceInitializer createInitializer() {
-		final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, axes);
+		final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, axes, d3);
 		return new SurfaceInitializer(this, SurfaceInitializer.Data.create(grid.rect, grid.widthTicks.count, grid.heightTicks.count)) {
 			@Override
 			protected void rotate(float[] point) {

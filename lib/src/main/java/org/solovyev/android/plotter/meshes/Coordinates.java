@@ -134,8 +134,8 @@ public class Coordinates extends BaseMesh implements DimensionsAware {
 		final Scene.Ticks yTicks;
 
 		private Data(@Nonnull Dimensions dimensions) {
-			xAxis = Scene.Axis.create(dimensions.scene, false);
-			yAxis = Scene.Axis.create(dimensions.scene, true);
+			xAxis = Scene.Axis.create(dimensions.scene, false, false);
+			yAxis = Scene.Axis.create(dimensions.scene, true, false);
 			xTicks = Scene.Ticks.create(dimensions.graph, xAxis);
 			yTicks = Scene.Ticks.create(dimensions.graph, yAxis);
 		}

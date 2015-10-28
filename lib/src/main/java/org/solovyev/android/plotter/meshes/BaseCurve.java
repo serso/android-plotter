@@ -1,14 +1,16 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.util.Log;
+
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
-import javax.microedition.khronos.opengles.GL11;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+
+import javax.annotation.Nonnull;
+import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
@@ -52,7 +54,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 			verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
 			final short[] indices;
 			if (CUTOFF) {
-				final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, AxisGrid.Axes.XY);
+				final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, AxisGrid.Axes.XY, false);
 				indices = graph.getIndices(grid.rect.bottom, grid.rect.top);
 			} else {
 				indices = graph.getIndices();
