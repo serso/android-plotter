@@ -2,16 +2,18 @@ package org.solovyev.android.plotter.meshes;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.text.FontAtlas;
 
-import javax.annotation.Nonnull;
-import javax.microedition.khronos.opengles.GL11;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.microedition.khronos.opengles.GL11;
 
 public class AxisLabels extends BaseMesh implements DimensionsAware {
 
@@ -40,26 +42,28 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 
 	@Nonnull
 	private volatile Dimensions dimensions;
+	private final boolean d3;
 
-	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
+	private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
 		this.direction = direction;
 		this.fontAtlas = fontAtlas;
 		this.dimensions = dimensions;
+		this.d3 = d3;
 	}
 
 	@Nonnull
-	public static AxisLabels x(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
-		return new AxisLabels(AxisDirection.X, fontAtlas, dimensions);
+	public static AxisLabels x(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
+		return new AxisLabels(AxisDirection.X, fontAtlas, dimensions, d3);
 	}
 
 	@Nonnull
-	public static AxisLabels y(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
-		return new AxisLabels(AxisDirection.Y, fontAtlas, dimensions);
+	public static AxisLabels y(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
+		return new AxisLabels(AxisDirection.Y, fontAtlas, dimensions, d3);
 	}
 
 	@Nonnull
-	public static AxisLabels z(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions) {
-		return new AxisLabels(AxisDirection.Z, fontAtlas, dimensions);
+	public static AxisLabels z(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
+		return new AxisLabels(AxisDirection.Z, fontAtlas, dimensions, d3);
 	}
 
 	@Nonnull
@@ -101,12 +105,14 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		final int[] da = direction.arrow;
 		float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + sceneX - sceneX % ticks.step) + da[0] * ticks.width / 2;
 		if (isY) {
-			if (x < -halfSceneWidth - sceneX) {
-				x = -halfSceneWidth - sceneX;
-				leftEdge = true;
-			} else if (x > halfSceneWidth - sceneX) {
-				x = halfSceneWidth - sceneX;
-				rightEdge = true;
+			if (!d3) {
+				if (x < -halfSceneWidth - sceneX) {
+					x = -halfSceneWidth - sceneX;
+					leftEdge = true;
+				} else if (x > halfSceneWidth - sceneX) {
+					x = halfSceneWidth - sceneX;
+					rightEdge = true;
+				}
 			}
 
 			if (!leftEdge && !rightEdge) {
@@ -115,7 +121,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 			}
 		}
 		float y = -dv[1] * (ticks.axisLength / 2 + ticks.step + sceneY - sceneY % ticks.step) + da[1] * ticks.width / 2;
-		if (isX) {
+		if (isX && !d3) {
 			if (y < -halfSceneHeight - sceneY) {
 				y = -halfSceneHeight - sceneY;
 				bottomEdge = true;
@@ -210,7 +216,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	@Nonnull
 	@Override
 	protected BaseMesh makeCopy() {
-		return new AxisLabels(direction, fontAtlas, dimensions);
+		return new AxisLabels(direction, fontAtlas, dimensions, d3);
 	}
 
 	@Nonnull
