@@ -179,11 +179,17 @@ public final class Dimensions {
 					'}';
 		}
 
-		public float centerXForStep(float step) {
+		public float centerXForStep(float step, boolean d3) {
+			if (d3) {
+				return 0;
+			}
 			return -center.x + center.x % step;
 		}
 
-		public float centerYForStep(float step) {
+		public float centerYForStep(float step, boolean d3) {
+			if (d3) {
+				return 0;
+			}
 			return -center.y + center.y % step;
 		}
 
@@ -346,8 +352,8 @@ public final class Dimensions {
 		}
 
 		public void setEmpty() {
-			original.set(20f, 20f);
-			size.set(20f, 20f);
+			original.set(10f, 10f);
+			size.set(10f, 10f);
 			center.set(0f, 0f);
 			scale = original.width / Frustum.SCENE_WIDTH;
 		}

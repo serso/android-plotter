@@ -103,7 +103,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 		final float fontScale = 3f * ticks.width / fontAtlas.getFontHeight();
 		final int[] dv = direction.vector;
 		final int[] da = direction.arrow;
-		float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + sceneX - sceneX % ticks.step) + da[0] * ticks.width / 2;
+		float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + sceneX - sceneX % ticks.step) + da[0] * ticks.width / 2 + (d3 ? dimensions.scene.center.x : 0);
 		if (isY) {
 			if (!d3) {
 				if (x < -halfSceneWidth - sceneX) {
@@ -120,7 +120,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 				x += ticks.width / 2;
 			}
 		}
-		float y = -dv[1] * (ticks.axisLength / 2 + ticks.step + sceneY - sceneY % ticks.step) + da[1] * ticks.width / 2;
+		float y = -dv[1] * (ticks.axisLength / 2 + ticks.step + sceneY - sceneY % ticks.step) + da[1] * ticks.width / 2 + (d3 ? dimensions.scene.center.y : 0);
 		if (isX && !d3) {
 			if (y < -halfSceneHeight - sceneY) {
 				y = -halfSceneHeight - sceneY;
@@ -178,11 +178,11 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 	}
 
 	private float centerY(@Nonnull Dimensions dimensions) {
-		return camera.y - dimensions.scene.center.y;
+		return d3 ? 0 : camera.y - dimensions.scene.center.y;
 	}
 
 	private float centerX(@Nonnull Dimensions dimensions) {
-		return camera.x - dimensions.scene.center.x;
+		return d3 ? 0 : camera.x - dimensions.scene.center.x;
 	}
 
 	@Nonnull

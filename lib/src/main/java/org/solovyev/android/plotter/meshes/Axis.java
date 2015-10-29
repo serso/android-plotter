@@ -113,8 +113,8 @@ public class Axis extends BaseMesh implements DimensionsAware {
 		private void initTicks(@Nonnull Dimensions dimensions) {
 			final int[] dv = direction.vector;
 			final int[] da = direction.arrow;
-			float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + dimensions.scene.centerXForStep(ticks.step)) + da[0] * ticks.width / 2;
-			float y = -dv[1] * (ticks.axisLength / 2 + ticks.step + dimensions.scene.centerYForStep(ticks.step)) + da[1] * ticks.width / 2;
+			float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + dimensions.scene.centerXForStep(ticks.step, d3)) + da[0] * ticks.width / 2 + (d3 ? dimensions.scene.center.x : 0);
+			float y = -dv[1] * (ticks.axisLength / 2 + ticks.step + dimensions.scene.centerYForStep(ticks.step, d3)) + da[1] * ticks.width / 2 + (d3 ? dimensions.scene.center.y : 0);
 			float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
 			for (int i = 0; i < ticks.count; i++) {
 				x += dv[0] * ticks.step;
@@ -144,11 +144,11 @@ public class Axis extends BaseMesh implements DimensionsAware {
 
 		private void initLine(@Nonnull Dimensions dimensions) {
 			final int[] dv = direction.vector;
-			arrays.add(0,
-					dv[0] * (axis.length / 2 + dimensions.scene.center.x),
-					dv[1] * (axis.length / 2 + dimensions.scene.center.y),
-					dv[2] * axis.length / 2);
+			final float x = axis.length / 2 + (!d3 ? dimensions.scene.center.x : 0);
+			final float y = axis.length / 2 + (!d3 ? dimensions.scene.center.y : 0);
+			final float z = axis.length / 2;
 
+			arrays.add(0, dv[0] * x + (d3 ? dimensions.scene.center.x : 0), dv[1] * y + (d3 ? dimensions.scene.center.y : 0), dv[2] * z);
 			arrays.add(1,
 					arrays.vertices[0] - dv[0] * axis.length,
 					arrays.vertices[1] - dv[1] * axis.length,

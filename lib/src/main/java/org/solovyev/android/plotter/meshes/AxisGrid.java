@@ -75,6 +75,8 @@ public class AxisGrid extends BaseSurface {
 							break;
 					}
 				}
+				point[0] += (d3 ? dimensions.scene.center.x : 0);
+				point[2] += (d3 ? dimensions.scene.center.y : 0);
 			}
 		};
 	}
