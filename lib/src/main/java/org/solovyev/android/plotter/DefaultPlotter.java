@@ -4,26 +4,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.PointF;
 import android.util.Log;
-
-import org.solovyev.android.plotter.meshes.Axis;
-import org.solovyev.android.plotter.meshes.AxisGrid;
-import org.solovyev.android.plotter.meshes.AxisLabels;
-import org.solovyev.android.plotter.meshes.Coordinates;
-import org.solovyev.android.plotter.meshes.DimensionsAware;
-import org.solovyev.android.plotter.meshes.DoubleBufferGroup;
-import org.solovyev.android.plotter.meshes.DoubleBufferMesh;
-import org.solovyev.android.plotter.meshes.FunctionGraph;
-import org.solovyev.android.plotter.meshes.FunctionGraph2d;
-import org.solovyev.android.plotter.meshes.FunctionGraph3d;
-import org.solovyev.android.plotter.meshes.FunctionGraphSwapper;
-import org.solovyev.android.plotter.meshes.Group;
-import org.solovyev.android.plotter.meshes.ListGroup;
-import org.solovyev.android.plotter.meshes.ListPool;
-import org.solovyev.android.plotter.meshes.Mesh;
-import org.solovyev.android.plotter.meshes.MeshSpec;
-import org.solovyev.android.plotter.meshes.Pool;
+import org.solovyev.android.plotter.meshes.*;
 import org.solovyev.android.plotter.text.FontAtlas;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.microedition.khronos.opengles.GL11;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,11 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.GuardedBy;
-import javax.microedition.khronos.opengles.GL11;
 
 final class DefaultPlotter implements Plotter {
 
@@ -375,8 +357,16 @@ final class DefaultPlotter implements Plotter {
 			}
 			pool.clear();
 			otherMeshes.clear();
+			if (d3) {
+				synchronized (lock) {
+					final Dimensions newDimensions = dimensions.updateGraph(dimensions.graph.size, new PointF(dimensions.graph.center.x, 0));
+					if (newDimensions != dimensions) {
+						updateDimensions(newDimensions, this);
+					}
+				}
+			}
 			makeSetting(d3);
-			onDimensionsChanged();
+			onFunctionsChanged();
 			synchronized (lock) {
 				view.set3d(d3);
 			}
