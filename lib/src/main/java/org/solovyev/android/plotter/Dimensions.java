@@ -314,7 +314,7 @@ public final class Dimensions {
 
 		@Nonnull
 		public RectF makeBounds() {
-			return new RectF(xMin(), yMax(), xMax(), yMin());
+			return new RectF(xMin(), yMin(), xMax(), yMax());
 		}
 
 		@Override

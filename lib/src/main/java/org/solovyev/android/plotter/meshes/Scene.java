@@ -55,8 +55,8 @@ final class Scene {
 			}
 			bounds.left = -widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step, d3);
 			bounds.right = widthTicks.axisLength / 2 - dimensions.scene.centerXForStep(widthTicks.step, d3);
-			bounds.bottom = -heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step, d3);
-			bounds.top = heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step, d3);
+			bounds.top = -heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step, d3);
+			bounds.bottom = heightTicks.axisLength / 2 - dimensions.scene.centerYForStep(heightTicks.step, d3);
 			return new AxisGrid(bounds, widthTicks, heightTicks);
 		}
 	}

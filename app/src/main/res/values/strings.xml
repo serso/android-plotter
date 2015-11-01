@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Plotter Lib</string>
+	<string name="plot_dimensions_x_label" translable="false">≤ x ≤</string>
+	<string name="plot_dimensions_y_label" translable="false">≤ y ≤</string>
 </resources>

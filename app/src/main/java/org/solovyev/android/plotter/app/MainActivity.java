@@ -84,7 +84,7 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 	@Override
 	public void onShowDimensionsDialog() {
 		final Dimensions dimensions = plotter.getDimensions();
-		final DimensionsDialog dialog = new DimensionsDialog(this, dimensions.graph.xMin(), dimensions.graph.xMax(), dimensions.graph.yMin(), dimensions.graph.yMax());
+		final DimensionsDialog dialog = new DimensionsDialog(this, dimensions.graph.makeBounds(), plotter.is3d());
 		dialog.show();
 	}
 
@@ -100,18 +100,23 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 		protected final EditText yMin;
 		@Nonnull
 		protected final EditText yMax;
+		private final boolean d3;
 
-		protected DimensionsDialog(@Nonnull Context context, float xMin, float xMax, float yMin, float yMax) {
+		protected DimensionsDialog(@Nonnull Context context, @Nonnull RectF graph, boolean d3) {
+			this.d3 = d3;
 			this.view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
 			this.xMin = (EditText) view.findViewById(R.id.x_min_edittext);
 			this.xMax = (EditText) view.findViewById(R.id.x_max_edittext);
 			this.yMin = (EditText) view.findViewById(R.id.y_min_edittext);
 			this.yMax = (EditText) view.findViewById(R.id.y_max_edittext);
 
-			setDimension(this.xMin, xMin);
-			setDimension(this.xMax, xMax);
-			setDimension(this.yMin, yMin);
-			setDimension(this.yMax, yMax);
+			setDimension(this.xMin, graph.left);
+			setDimension(this.xMax, graph.right);
+			setDimension(this.yMin, graph.top);
+			setDimension(this.yMax, graph.bottom);
+			if (d3) {
+				view.findViewById(R.id.y_bounds).setVisibility(View.GONE);
+			}
 		}
 
 		private void setDimension(@Nonnull EditText view, float value) {
@@ -127,10 +132,15 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 				public void onClick(DialogInterface dialog, int which) {
 					final RectF graph = new RectF(getDimension(xMin), getDimension(yMin), getDimension(xMax), getDimension(yMax));
 					if (graph.isEmpty()) {
-						new DimensionsDialog(MainActivity.this, graph.left, graph.right, graph.top, graph.bottom).show();
+						new DimensionsDialog(MainActivity.this, graph, d3).show();
 						return;
 					}
-					plotter.updateGraph(null, new RectSizeF(graph.width(), graph.height()), new PointF(graph.centerX(), graph.centerY()));
+					if (!d3) {
+						plotter.updateGraph(null, new RectSizeF(graph.width(), graph.height()), new PointF(graph.centerX(), graph.centerY()));
+					} else {
+						final Dimensions dimensions = plotter.getDimensions();
+						plotter.updateGraph(null, new RectSizeF(graph.width(), dimensions.graph.height()), new PointF(graph.centerX(), dimensions.graph.center.y));
+					}
 				}
 			});
 			b.show();
