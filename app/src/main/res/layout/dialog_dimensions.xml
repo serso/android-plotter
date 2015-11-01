@@ -10,6 +10,7 @@
 
 		<EditText
 			android:id="@+id/x_min_edittext"
+			android:selectAllOnFocus="true"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:inputType="numberDecimal|numberSigned"/>
@@ -21,6 +22,7 @@
 
 		<EditText
 			android:id="@+id/x_max_edittext"
+			android:selectAllOnFocus="true"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:inputType="numberDecimal|numberSigned"/>
@@ -32,6 +34,7 @@
 
 		<EditText
 			android:id="@+id/y_min_edittext"
+			android:selectAllOnFocus="true"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:inputType="numberDecimal|numberSigned"/>
@@ -43,6 +46,7 @@
 
 		<EditText
 			android:id="@+id/y_max_edittext"
+			android:selectAllOnFocus="true"
 			android:layout_width="100dp"
 			android:layout_height="wrap_content"
 			android:inputType="numberDecimal|numberSigned"/>

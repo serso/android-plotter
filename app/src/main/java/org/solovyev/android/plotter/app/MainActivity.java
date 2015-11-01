@@ -8,14 +8,15 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
 import org.solovyev.android.plotter.*;
 import org.solovyev.android.plotter.views.PlotViewFrame;
 
 import javax.annotation.Nonnull;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements PlotViewFrame.Listener {
 
 	@Nonnull
 	private PlotViewFrame plotView;
@@ -50,6 +51,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main);
 		plotView = (PlotViewFrame) findViewById(R.id.plot_view_frame);
 		plotView.setPlotter(plotter);
+		plotView.setListener(this);
 	}
 
 	@Override
@@ -80,22 +82,10 @@ public class MainActivity extends Activity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		final MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.menu_dimensions:
-				final DimensionsDialog dialog = new DimensionsDialog(this, plotter.getDimensions());
-				dialog.show();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
+	public void onShowDimensionsDialog() {
+		final Dimensions dimensions = plotter.getDimensions();
+		final DimensionsDialog dialog = new DimensionsDialog(this, dimensions.graph.xMin(), dimensions.graph.xMax(), dimensions.graph.yMin(), dimensions.graph.yMax());
+		dialog.show();
 	}
 
 	private class DimensionsDialog {
@@ -111,17 +101,17 @@ public class MainActivity extends Activity {
 		@Nonnull
 		protected final EditText yMax;
 
-		protected DimensionsDialog(@Nonnull Context context, @Nonnull Dimensions dimensions) {
+		protected DimensionsDialog(@Nonnull Context context, float xMin, float xMax, float yMin, float yMax) {
 			this.view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
 			this.xMin = (EditText) view.findViewById(R.id.x_min_edittext);
 			this.xMax = (EditText) view.findViewById(R.id.x_max_edittext);
 			this.yMin = (EditText) view.findViewById(R.id.y_min_edittext);
 			this.yMax = (EditText) view.findViewById(R.id.y_max_edittext);
 
-			setDimension(xMin, dimensions.graph.xMin());
-			setDimension(xMax, dimensions.graph.xMax());
-			setDimension(yMin, dimensions.graph.yMin());
-			setDimension(yMax, dimensions.graph.yMax());
+			setDimension(this.xMin, xMin);
+			setDimension(this.xMax, xMax);
+			setDimension(this.yMin, yMin);
+			setDimension(this.yMax, yMax);
 		}
 
 		private void setDimension(@Nonnull EditText view, float value) {
@@ -136,6 +126,10 @@ public class MainActivity extends Activity {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					final RectF graph = new RectF(getDimension(xMin), getDimension(yMin), getDimension(xMax), getDimension(yMax));
+					if (graph.isEmpty()) {
+						new DimensionsDialog(MainActivity.this, graph.left, graph.right, graph.top, graph.bottom).show();
+						return;
+					}
 					plotter.updateGraph(null, new RectSizeF(graph.width(), graph.height()), new PointF(graph.centerX(), graph.centerY()));
 				}
 			});

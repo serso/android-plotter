@@ -24,9 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlotViewFrame extends FrameLayout implements PlotView.Listener, View.OnClickListener {
-
 	private static final float ALPHA = 0.8f;
-
 	@NonNull
 	private final Handler handler = new Handler();
 	@NonNull
@@ -42,6 +40,8 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 	private PlotView plotView;
 	@Nullable
 	private Plotter plotter;
+	@Nullable
+	private Listener listener;
 
 	public PlotViewFrame(Context context) {
 		super(context);
@@ -72,6 +72,7 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 		addControlView(R.id.plot_zoom_out_button);
 		addControlView(R.id.plot_zoom_reset_button);
 		addControlView(R.id.plot_3d_button);
+		addControlView(R.id.plot_dimensions);
 
 		plotView.addListener(this);
 	}
@@ -82,7 +83,7 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 	}
 
 	@Nullable
-	private View addControlView(@IdRes int viewId) {
+	protected View addControlView(@IdRes int viewId) {
 		final View view = findViewById(viewId);
 		if (view == null) {
 			return null;
@@ -175,10 +176,14 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 			plotView.resetCamera();
 			plotView.resetZoom();
 		} else if (id == R.id.plot_3d_button) {
-			if(plotter == null) {
+			if (plotter == null) {
 				return;
 			}
 			plotter.set3d(!plotter.is3d());
+		} else if (id == R.id.plot_dimensions) {
+			if (listener != null) {
+				listener.onShowDimensionsDialog();
+			}
 		}
 	}
 
@@ -188,5 +193,13 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 
 	public void onResume() {
 		plotView.onResume();
+	}
+
+	public void setListener(@Nullable Listener listener) {
+		this.listener = listener;
+	}
+
+	public interface Listener {
+		void onShowDimensionsDialog();
 	}
 }

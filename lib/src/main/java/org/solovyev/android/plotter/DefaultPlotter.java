@@ -11,9 +11,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL11;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -32,7 +32,7 @@ final class DefaultPlotter implements Plotter {
 	private final Coordinates coordinates = new Coordinates(dimensions, Color.WHITE);
 
 	@Nonnull
-	private final List<DoubleBufferMesh<AxisLabels>> labels = new ArrayList<>(3);
+	private final List<DoubleBufferMesh<AxisLabels>> labels = new CopyOnWriteArrayList<>();
 
 	@Nonnull
 	private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraphSwapper.INSTANCE);
@@ -359,7 +359,7 @@ final class DefaultPlotter implements Plotter {
 			otherMeshes.clear();
 			if (d3) {
 				synchronized (lock) {
-					final Dimensions newDimensions = dimensions.updateGraph(dimensions.graph.size, new PointF(dimensions.graph.center.x, 0));
+					final Dimensions newDimensions = dimensions.updateGraph(new RectSizeF(dimensions.graph.size.width, Dimensions.Graph.SIZE), new PointF(dimensions.graph.center.x, 0));
 					if (newDimensions != dimensions) {
 						updateDimensions(newDimensions, this);
 					}

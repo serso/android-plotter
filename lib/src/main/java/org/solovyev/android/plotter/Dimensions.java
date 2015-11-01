@@ -207,13 +207,15 @@ public final class Dimensions {
 	}
 
 	public static final class Graph {
+		public static final float SIZE = 10f;
 		@Nonnull
 		public final RectSizeF size = new RectSizeF();
 		@Nonnull
 		public final RectSizeF original = new RectSizeF();
 		@Nonnull
 		public final PointF center = new PointF();
-		public float scale;
+		@Nonnull
+		public final PointF scale = new PointF();
 
 		public Graph() {
 			setEmpty();
@@ -226,7 +228,7 @@ public final class Dimensions {
 
 			final Graph that = (Graph) o;
 
-			if (Float.compare(that.scale, scale) != 0) return false;
+			if (!scale.equals(that.scale)) return false;
 			if (!size.equals(that.size)) return false;
 			if (!original.equals(that.original)) return false;
 			return center.equals(that.center);
@@ -237,7 +239,7 @@ public final class Dimensions {
 			int result = size.hashCode();
 			result = 31 * result + original.hashCode();
 			result = 31 * result + center.hashCode();
-			result = 31 * result + (scale != +0.0f ? Float.floatToIntBits(scale) : 0);
+			result = 31 * result + scale.hashCode();
 			return result;
 		}
 
@@ -248,7 +250,7 @@ public final class Dimensions {
 		public void update(@Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
 			final float zoomLevel = sceneSize.width / Frustum.SCENE_WIDTH;
 			size.set(zoomLevel * original.width, zoomLevel * original.height);
-			scale = size.width / sceneSize.width;
+			scale.set(size.width / sceneSize.width, size.height / sceneSize.height);
 			center.set(toGraphX(sceneCenter.x), toGraphY(sceneCenter.y));
 		}
 
@@ -267,7 +269,7 @@ public final class Dimensions {
 		}
 
 		public float scaleToGraphX(float x) {
-			return x * scale;
+			return x * scale.x;
 		}
 
 		public float toGraphY(float y) {
@@ -275,7 +277,7 @@ public final class Dimensions {
 		}
 
 		public float scaleToGraphY(float y) {
-			return y * scale;
+			return y * scale.y;
 		}
 
 		public float toGraphZ(float z) {
@@ -287,7 +289,7 @@ public final class Dimensions {
 		}
 
 		public float scaleToScreenX(float x) {
-			return x / scale;
+			return x / scale.x;
 		}
 
 		public float toScreenY(float y) {
@@ -295,7 +297,7 @@ public final class Dimensions {
 		}
 
 		public float scaleToScreenY(float y) {
-			return y / scale;
+			return y / scale.y;
 		}
 
 		public float toScreenZ(float z) {
@@ -344,7 +346,7 @@ public final class Dimensions {
 			size.set(that.size);
 			original.set(that.original);
 			center.set(that.center);
-			scale = that.scale;
+			scale.set(that.scale);
 		}
 
 		public boolean same(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
@@ -352,10 +354,10 @@ public final class Dimensions {
 		}
 
 		public void setEmpty() {
-			original.set(10f, 10f);
-			size.set(10f, 10f);
+			original.set(SIZE, SIZE);
+			size.set(original);
 			center.set(0f, 0f);
-			scale = original.width / Frustum.SCENE_WIDTH;
+			scale.set(1f, 1f);
 		}
 	}
 
