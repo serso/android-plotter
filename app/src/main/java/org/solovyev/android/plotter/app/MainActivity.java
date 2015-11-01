@@ -7,10 +7,13 @@ import android.content.DialogInterface;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import org.solovyev.android.plotter.*;
 import org.solovyev.android.plotter.views.PlotViewFrame;
 
@@ -18,8 +21,8 @@ import javax.annotation.Nonnull;
 
 public class MainActivity extends Activity implements PlotViewFrame.Listener {
 
-	@Nonnull
-	private PlotViewFrame plotView;
+	@Bind(R.id.plot_view_frame)
+	PlotViewFrame plotView;
 
 	@Nonnull
 	private final Plotter plotter = PlotterApplication.get().getPlotter();
@@ -49,7 +52,8 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.main);
-		plotView = (PlotViewFrame) findViewById(R.id.plot_view_frame);
+		ButterKnife.bind(this);
+
 		plotView.setPlotter(plotter);
 		plotView.setListener(this);
 	}
@@ -82,40 +86,47 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 	}
 
 	@Override
-	public void onShowDimensionsDialog() {
-		final Dimensions dimensions = plotter.getDimensions();
-		final DimensionsDialog dialog = new DimensionsDialog(this, dimensions.graph.makeBounds(), plotter.is3d());
-		dialog.show();
+	public boolean onButtonPressed(@IdRes int id) {
+		if (id == R.id.plot_dimensions) {
+			final Dimensions dimensions = plotter.getDimensions();
+			final DimensionsDialog dialog = new DimensionsDialog(this, dimensions.graph.makeBounds(), plotter.is3d());
+			dialog.show();
+			return true;
+		} else if (id == R.id.plot_functions) {
+			final FunctionsDialog dialog = new FunctionsDialog(this, plotter.getPlotData());
+			dialog.show();
+			return true;
+		}
+		return false;
 	}
 
-	private class DimensionsDialog {
+	public class DimensionsDialog {
 
 		@Nonnull
 		protected final View view;
-		@Nonnull
-		protected final EditText xMin;
-		@Nonnull
-		protected final EditText xMax;
-		@Nonnull
-		protected final EditText yMin;
-		@Nonnull
-		protected final EditText yMax;
+		@Bind(R.id.x_min_edittext)
+		EditText xMin;
+		@Bind(R.id.x_max_edittext)
+		EditText xMax;
+		@Bind(R.id.y_min_edittext)
+		EditText yMin;
+		@Bind(R.id.y_max_edittext)
+		EditText yMax;
+		@Bind(R.id.y_bounds)
+		View yBounds;
 		private final boolean d3;
 
 		protected DimensionsDialog(@Nonnull Context context, @Nonnull RectF graph, boolean d3) {
 			this.d3 = d3;
-			this.view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
-			this.xMin = (EditText) view.findViewById(R.id.x_min_edittext);
-			this.xMax = (EditText) view.findViewById(R.id.x_max_edittext);
-			this.yMin = (EditText) view.findViewById(R.id.y_min_edittext);
-			this.yMax = (EditText) view.findViewById(R.id.y_max_edittext);
+			view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
+			ButterKnife.bind(this, view);
 
-			setDimension(this.xMin, graph.left);
-			setDimension(this.xMax, graph.right);
-			setDimension(this.yMin, graph.top);
-			setDimension(this.yMax, graph.bottom);
+			setDimension(xMin, graph.left);
+			setDimension(xMax, graph.right);
+			setDimension(yMin, graph.top);
+			setDimension(yMax, graph.bottom);
 			if (d3) {
-				view.findViewById(R.id.y_bounds).setVisibility(View.GONE);
+				yBounds.setVisibility(View.GONE);
 			}
 		}
 
@@ -127,7 +138,7 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 			final AlertDialog.Builder b = new AlertDialog.Builder(view.getContext());
 			b.setView(view);
 			b.setCancelable(true);
-			b.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+			b.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					final RectF graph = new RectF(getDimension(xMin), getDimension(yMin), getDimension(xMax), getDimension(yMax));

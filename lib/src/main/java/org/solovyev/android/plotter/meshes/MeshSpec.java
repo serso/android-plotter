@@ -70,4 +70,23 @@ public class MeshSpec {
 		mesh.setColor(color);
 		mesh.setWidth(width);
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		final MeshSpec that = (MeshSpec) o;
+
+		if (width != that.width) return false;
+		return color.equals(that.color);
+
+	}
+
+	@Override
+	public int hashCode() {
+		int result = color.hashCode();
+		result = 31 * result + width;
+		return result;
+	}
 }

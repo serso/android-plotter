@@ -73,6 +73,7 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 		addControlView(R.id.plot_zoom_reset_button);
 		addControlView(R.id.plot_3d_button);
 		addControlView(R.id.plot_dimensions);
+		addControlView(R.id.plot_functions);
 
 		plotView.addListener(this);
 	}
@@ -168,6 +169,11 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 	public void onClick(View v) {
 		final int id = v.getId();
 		prolongControlsViewShow();
+		if (listener != null) {
+			if(listener.onButtonPressed(id)) {
+				return;
+			}
+		}
 		if (id == R.id.plot_zoom_in_button) {
 			plotView.zoom(true);
 		} else if (id == R.id.plot_zoom_out_button) {
@@ -180,10 +186,6 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 				return;
 			}
 			plotter.set3d(!plotter.is3d());
-		} else if (id == R.id.plot_dimensions) {
-			if (listener != null) {
-				listener.onShowDimensionsDialog();
-			}
 		}
 	}
 
@@ -200,6 +202,6 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 	}
 
 	public interface Listener {
-		void onShowDimensionsDialog();
+		boolean onButtonPressed(@IdRes int id);
 	}
 }
