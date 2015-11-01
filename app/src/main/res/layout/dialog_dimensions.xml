@@ -15,7 +15,9 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:gravity="end|center_vertical"
+			android:imeOptions="actionNext"
 			android:inputType="numberDecimal|numberSigned"
+			android:nextFocusRight="@+id/x_max_edittext"
 			android:selectAllOnFocus="true" />
 
 		<TextView
@@ -29,7 +31,10 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:gravity="start|center_vertical"
+			android:imeOptions="actionNext"
 			android:inputType="numberDecimal|numberSigned"
+			android:nextFocusDown="@+id/y_min_edittext"
+			android:nextFocusRight="@+id/y_min_edittext"
 			android:selectAllOnFocus="true" />
 	</LinearLayout>
 
@@ -43,7 +48,9 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:gravity="end|center_vertical"
+			android:imeOptions="actionNext"
 			android:inputType="numberDecimal|numberSigned"
+			android:nextFocusRight="@+id/y_max_edittext"
 			android:selectAllOnFocus="true" />
 
 		<TextView
@@ -57,6 +64,7 @@
 			android:layout_width="80dp"
 			android:layout_height="wrap_content"
 			android:gravity="start|center_vertical"
+			android:imeOptions="actionDone"
 			android:inputType="numberDecimal|numberSigned"
 			android:selectAllOnFocus="true" />
 	</LinearLayout>
