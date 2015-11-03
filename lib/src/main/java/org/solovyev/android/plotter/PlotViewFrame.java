@@ -1,4 +1,4 @@
-package org.solovyev.android.plotter.views;
+package org.solovyev.android.plotter;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -14,11 +14,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.FrameLayout;
-
-import org.solovyev.android.plotter.Check;
-import org.solovyev.android.plotter.PlotView;
-import org.solovyev.android.plotter.Plotter;
-import org.solovyev.android.plotter.R;
 
 import java.util.ArrayList;
 import java.util.List;

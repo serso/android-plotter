@@ -12,7 +12,7 @@ import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
-import org.solovyev.android.plotter.views.PlotViewFrame;
+import org.solovyev.android.plotter.PlotViewFrame;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
