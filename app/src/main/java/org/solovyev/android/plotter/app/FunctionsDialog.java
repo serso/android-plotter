@@ -2,23 +2,36 @@ package org.solovyev.android.plotter.app;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import butterknife.Bind;
-import butterknife.ButterKnife;
+
 import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.PlotIconView;
 import org.solovyev.android.views.llm.DividerItemDecoration;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 public class FunctionsDialog {
+
+	public static final class ShowEvent {
+		@Nonnull
+		public final PlotData plotData;
+
+		public ShowEvent(@Nonnull PlotData plotData) {
+			this.plotData = plotData;
+		}
+	}
 
 	@Nonnull
 	protected final RecyclerView view;
@@ -37,6 +50,12 @@ public class FunctionsDialog {
 		b.setView(view);
 		b.setCancelable(true);
 		b.setPositiveButton(android.R.string.ok, null);
+		b.setNeutralButton("Add", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				App.getBus().post(new ShowAddFunctionEvent());
+			}
+		});
 		b.show();
 	}
 
@@ -55,15 +74,15 @@ public class FunctionsDialog {
 			itemView.setOnClickListener(this);
 		}
 
+		@Nonnull
+		public static ViewHolder create(@Nonnull LayoutInflater inflater, @Nonnull ViewGroup parent) {
+			return new ViewHolder(inflater.inflate(R.layout.dialog_function, parent, false));
+		}
+
 		void bind(@Nonnull PlotFunction function) {
 			this.function = function;
 			name.setText(function.function.getName());
 			icon.setMeshSpec(function.meshSpec);
-		}
-
-		@Nonnull
-		public static ViewHolder create(@Nonnull LayoutInflater inflater, @Nonnull ViewGroup parent) {
-			return new ViewHolder(inflater.inflate(R.layout.dialog_function, parent, false));
 		}
 
 		@Override

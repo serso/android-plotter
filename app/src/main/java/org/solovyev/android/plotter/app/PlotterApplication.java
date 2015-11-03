@@ -5,7 +5,6 @@ import android.app.Application;
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Function1;
 import org.solovyev.android.plotter.Function2;
-import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
 import org.solovyev.android.plotter.meshes.MeshSpec;
@@ -17,26 +16,13 @@ public class PlotterApplication extends Application {
 	@Nonnull
 	public static final String PARABOLOID = "x * x + y * y";
 
-	@Nonnull
-	private static PlotterApplication instance;
-
-	@Nonnull
-	private Plotter plotter;
-
-	public PlotterApplication() {
-		instance = this;
-	}
-
-	@Nonnull
-	public static PlotterApplication get() {
-		return instance;
-	}
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
-		plotter = Plot.newPlotter(this);
+		App.create(this);
+		final Plotter plotter = App.getPlotter();
+
 		final int meshWidth = MeshSpec.defaultWidth(this);
 		plotter.add(PlotFunction.create(new Function1("x") {
 			@Override
@@ -87,10 +73,5 @@ public class PlotterApplication extends Application {
 		}, this);
 		paraboloid.meshSpec.color = MeshSpec.LightColors.RED;
 		plotter.add(paraboloid);
-	}
-
-	@Nonnull
-	public Plotter getPlotter() {
-		return plotter;
 	}
 }
