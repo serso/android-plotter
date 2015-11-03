@@ -32,58 +32,57 @@ import javax.microedition.khronos.opengles.GL11;
  */
 public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
-	@Nonnull
-	protected volatile Dimensions dimensions;
+    @Nonnull
+    private final Arrays arrays = new Arrays();
+    @Nonnull
+    protected volatile Dimensions dimensions;
 
-	@Nonnull
-	private final Arrays arrays = new Arrays();
+    protected BaseSurface(@Nonnull Dimensions dimensions) {
+        this.dimensions = dimensions;
+    }
 
-	@Nonnull
-	public Dimensions getDimensions() {
-		return dimensions;
-	}
+    @Nonnull
+    public Dimensions getDimensions() {
+        return dimensions;
+    }
 
-	protected BaseSurface(@Nonnull Dimensions dimensions) {
-		this.dimensions = dimensions;
-	}
+    public void setDimensions(@Nonnull Dimensions dimensions) {
+        // todo serso: might be called on GL thread, requires synchronization
+        if (!this.dimensions.equals(dimensions)) {
+            this.dimensions = dimensions;
+            setDirty();
+        }
+    }
 
-	public void setDimensions(@Nonnull Dimensions dimensions) {
-		// todo serso: might be called on GL thread, requires synchronization
-		if (!this.dimensions.equals(dimensions)) {
-			this.dimensions = dimensions;
-			setDirty();
-		}
-	}
+    @Override
+    public void onInit() {
+        super.onInit();
 
-	@Override
-	public void onInit() {
-		super.onInit();
+        if (!dimensions.isZero()) {
+            Log.d(Plot.getTag("Dimensions"), String.valueOf(dimensions));
+            createInitializer().init(arrays);
+            arrays.createBuffers();
+        } else {
+            setDirty();
+        }
+    }
 
-		if (!dimensions.isZero()) {
-			Log.d(Plot.getTag("Dimensions"), String.valueOf(dimensions));
-			createInitializer().init(arrays);
-			arrays.createBuffers();
-		} else {
-			setDirty();
-		}
-	}
+    @Nonnull
+    protected abstract SurfaceInitializer createInitializer();
 
-	@Nonnull
-	protected abstract SurfaceInitializer createInitializer();
+    @Override
+    public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+        super.onInitGl(gl, config);
 
-	@Override
-	public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		super.onInitGl(gl, config);
+        setVertices(arrays.getVerticesBuffer());
+        setIndices(arrays.getIndicesBuffer(), IndicesOrder.LINE_STRIP);
+    }
 
-		setVertices(arrays.getVerticesBuffer());
-		setIndices(arrays.getIndicesBuffer(), IndicesOrder.LINE_STRIP);
-	}
+    @Override
+    protected void onPostDraw(@Nonnull GL11 gl) {
+        super.onPostDraw(gl);
+        gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, arrays.vertices.length / 3);
+    }
 
-	@Override
-	protected void onPostDraw(@Nonnull GL11 gl) {
-		super.onPostDraw(gl);
-		gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, arrays.vertices.length / 3);
-	}
-
-	protected abstract float z(float x, float y, int xi, int yi);
+    protected abstract float z(float x, float y, int xi, int yi);
 }

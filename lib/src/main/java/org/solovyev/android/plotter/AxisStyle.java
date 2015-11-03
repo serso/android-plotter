@@ -26,26 +26,26 @@ import javax.annotation.Nonnull;
 
 public final class AxisStyle {
 
-	public int axisColor = 0xFFF5F5F5;
-	public int axisLabelsColor = 0xFFF5F5F5;
-	public int gridColor = 0x99424242;
-	public int backgroundColor = 0xFF101010;
+    public int axisColor = 0xFFF5F5F5;
+    public int axisLabelsColor = 0xFFF5F5F5;
+    public int gridColor = 0x99424242;
+    public int backgroundColor = 0xFF101010;
 
-	private AxisStyle() {
-	}
+    private AxisStyle() {
+    }
 
-	@Nonnull
-	public static AxisStyle create() {
-		return new AxisStyle();
-	}
+    @Nonnull
+    public static AxisStyle create() {
+        return new AxisStyle();
+    }
 
-	@Nonnull
-	public AxisStyle copy() {
-		final AxisStyle copy = new AxisStyle();
-		copy.axisColor = axisColor;
-		copy.axisLabelsColor = axisLabelsColor;
-		copy.gridColor = gridColor;
-		copy.backgroundColor = backgroundColor;
-		return copy;
-	}
+    @Nonnull
+    public AxisStyle copy() {
+        final AxisStyle copy = new AxisStyle();
+        copy.axisColor = axisColor;
+        copy.axisLabelsColor = axisLabelsColor;
+        copy.gridColor = gridColor;
+        copy.backgroundColor = backgroundColor;
+        return copy;
+    }
 }

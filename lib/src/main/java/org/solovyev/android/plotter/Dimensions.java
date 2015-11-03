@@ -28,361 +28,360 @@ import android.graphics.RectF;
 import javax.annotation.Nonnull;
 
 public final class Dimensions {
-	@Nonnull
-	private static final Dimensions EMPTY = new Dimensions();
-
-	@Nonnull
-	public final Graph graph = new Graph();
-
-	@Nonnull
-	public final Scene scene = new Scene();
-
-	@Nonnull
-	public Dimensions copy() {
-		return copy(new Dimensions());
-	}
-
-	@Nonnull
-	public Dimensions copy(@Nonnull Dimensions that) {
-		that.graph.copy(this.graph);
-		that.scene.copy(this.scene);
-
-		return that;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		Dimensions that = (Dimensions) o;
-
-		if (!graph.equals(that.graph)) return false;
-		if (!scene.equals(that.scene)) return false;
-
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		int result = graph.hashCode();
-		result = 31 * result + scene.hashCode();
-		return result;
-	}
-
-	@Nonnull
-	public Dimensions updateScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
-		if (scene.same(viewSize, sceneSize, sceneCenter)) {
-			return this;
-		}
-		final Dimensions copy = copy();
-		copy.setScene(viewSize, sceneSize, sceneCenter);
-		return copy;
-	}
-
-
-	@Nonnull
-	public Dimensions updateGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
-		if (graph.same(graphSize, graphCenter)) {
-			return this;
-		}
-		final Dimensions copy = copy();
-		copy.setGraph(graphSize, graphCenter);
-		return copy;
-	}
-
-	private void setGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
-		graph.set(graphSize, graphCenter, scene);
-	}
-
-	private void setScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
-		scene.set(viewSize, sceneSize, sceneCenter);
-		graph.update(sceneSize, sceneCenter);
-	}
-
-	public boolean isZero() {
-		return graph.isEmpty() || scene.isEmpty();
-	}
-
-	public static final class Scene {
-
-		@Nonnull
-		public final PointF center = new PointF();
-		@Nonnull
-		public final RectSizeF size = new RectSizeF();
-		@Nonnull
-		public final RectSize view = RectSize.empty();
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (!(o instanceof Scene)) return false;
-
-			Scene scene = (Scene) o;
-
-			if (!center.equals(scene.center)) return false;
-			if (!size.equals(scene.size)) return false;
-			if (!view.equals(scene.view)) return false;
-
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			int result = center.hashCode();
-			result = 31 * result + size.hashCode();
-			result = 31 * result + view.hashCode();
-			return result;
-		}
-
-		public boolean isEmpty() {
-			return size.isEmpty();
-		}
-
-		public boolean set(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
-			if (same(viewSize, sceneSize, sceneCenter)) {
-				return false;
-			}
-			view.set(viewSize);
-			size.set(sceneSize);
-			center.set(sceneCenter);
-			return true;
-
-		}
-
-		private boolean same(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
-			return view.equals(viewSize) && size.equals(sceneSize) && center.equals(sceneCenter);
-		}
-
-		public float toSceneX(float viewX) {
-			return center.x + viewX * size.width / view.width - size.width / 2;
-		}
-
-		public float toSceneDx(float viewDx) {
-			return viewDx * size.width / view.width;
-		}
-
-		public float toSceneY(float viewY) {
-			return center.y + -(viewY * size.height / view.height - size.height / 2);
-		}
-
-		public float toSceneDy(float viewDy) {
-			return viewDy * size.height / view.height;
-		}
-
-		@Override
-		public String toString() {
-			return "Scene{" +
-					"center=" + center +
-					", size=" + size.stringSize() +
-					", view=" + view.stringSize() +
-					'}';
-		}
-
-		public float centerXForStep(float step, boolean d3) {
-			if (d3) {
-				return 0;
-			}
-			return -center.x + center.x % step;
-		}
-
-		public float centerYForStep(float step, boolean d3) {
-			if (d3) {
-				return 0;
-			}
-			return -center.y + center.y % step;
-		}
-
-		public void copy(@Nonnull Scene that) {
-			center.set(that.center);
-			size.set(that.size);
-			view.set(that.view);
-		}
-
-		public void setEmpty() {
-			center.set(0f, 0f);
-			size.setEmpty();
-			view.setEmpty();
-		}
-	}
-
-	public static final class Graph {
-		public static final float SIZE = 10f;
-		@Nonnull
-		public final RectSizeF size = new RectSizeF();
-		@Nonnull
-		public final RectSizeF original = new RectSizeF();
-		@Nonnull
-		public final PointF center = new PointF();
-		@Nonnull
-		public final PointF scale = new PointF();
-
-		public Graph() {
-			setEmpty();
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-
-			final Graph that = (Graph) o;
-
-			if (!scale.equals(that.scale)) return false;
-			if (!size.equals(that.size)) return false;
-			if (!original.equals(that.original)) return false;
-			return center.equals(that.center);
-		}
-
-		@Override
-		public int hashCode() {
-			int result = size.hashCode();
-			result = 31 * result + original.hashCode();
-			result = 31 * result + center.hashCode();
-			result = 31 * result + scale.hashCode();
-			return result;
-		}
-
-		public boolean isEmpty() {
-			return size.isEmpty();
-		}
-
-		public void update(@Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
-			final float zoomLevel = sceneSize.width / Frustum.SCENE_WIDTH;
-			size.set(zoomLevel * original.width, zoomLevel * original.height);
-			scale.set(size.width / sceneSize.width, size.height / sceneSize.height);
-			center.set(toGraphX(sceneCenter.x), toGraphY(sceneCenter.y));
-		}
-
-		public void set(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter, @Nonnull Scene scene) {
-			original.set(graphSize);
-			scene.size.set(Frustum.SCENE_WIDTH, Frustum.SCENE_WIDTH / scene.size.aspectRatio());
-			scene.center.set(0f, 0f);
-			update(scene.size, scene.center);
-
-			center.set(graphCenter.x, graphCenter.y);
-			scene.center.set(toScreenX(graphCenter.x), toScreenY(graphCenter.y));
-		}
-
-		public float toGraphX(float x) {
-			return /*rect.centerX()*/ + scaleToGraphX(x);
-		}
-
-		public float scaleToGraphX(float x) {
-			return x * scale.x;
-		}
-
-		public float toGraphY(float y) {
-			return /*rect.centerY()*/ + scaleToGraphY(y);
-		}
-
-		public float scaleToGraphY(float y) {
-			return y * scale.y;
-		}
-
-		public float toGraphZ(float z) {
-			return toGraphY(z);
-		}
-
-		public float toScreenX(float x) {
-			return /*scaleToScreenX(-rect.centerX())*/ + scaleToScreenX(x);
-		}
-
-		public float scaleToScreenX(float x) {
-			return x / scale.x;
-		}
-
-		public float toScreenY(float y) {
-			return /*scaleToScreenY(-rect.centerY())*/ + scaleToScreenY(y);
-		}
-
-		public float scaleToScreenY(float y) {
-			return y / scale.y;
-		}
-
-		public float toScreenZ(float z) {
-			return toScreenY(z);
-		}
-
-		public float width() {
-			return size.width;
-		}
-
-		public float height() {
-			return size.height;
-		}
-
-		@Nonnull
-		public RectF makeBounds() {
-			return new RectF(xMin(), yMin(), xMax(), yMax());
-		}
-
-		@Override
-		public String toString() {
-			return "Graph{" +
-					"size=" + size +
-					", original=" + original +
-					", center=" + center +
-					'}';
-		}
-
-		public float xMin() {
-			return -size.width / 2 + center.x;
-		}
-
-		public float xMax() {
-			return size.width / 2 + center.x;
-		}
-
-		public float yMin() {
-			return -size.height / 2 + center.y;
-		}
-
-		public float yMax() {
-			return size.height / 2 + center.y;
-		}
-
-		public void copy(@Nonnull Graph that) {
-			size.set(that.size);
-			original.set(that.original);
-			center.set(that.center);
-			scale.set(that.scale);
-		}
-
-		public boolean same(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
-			return size.equals(graphSize) && center.equals(graphCenter);
-		}
-
-		public void setEmpty() {
-			original.set(SIZE, SIZE);
-			size.set(original);
-			center.set(0f, 0f);
-			scale.set(1f, 1f);
-		}
-	}
-
-	@Nonnull
-	public static Dimensions empty() {
-		EMPTY.scene.setEmpty();
-		EMPTY.graph.setEmpty();
-		return EMPTY;
-	}
-
-	@Override
-	public String toString() {
-		return "Dimensions{" +
-				"graph=" + graph +
-				", scene=" + scene +
-				'}';
-	}
-
-	@Nonnull
-	static String toString(@Nonnull PointF point) {
-		return "(x=" + point.x + ", y=" + point.y + ")";
-	}
-
-	@Nonnull
-	static String toString(@Nonnull RectF rect) {
-		return "[x=" + rect.left + ", y=" + rect.top + ", w=" + rect.width() + ", h=" + rect.height() + "]";
-	}
+    @Nonnull
+    private static final Dimensions EMPTY = new Dimensions();
+
+    @Nonnull
+    public final Graph graph = new Graph();
+
+    @Nonnull
+    public final Scene scene = new Scene();
+
+    @Nonnull
+    public static Dimensions empty() {
+        EMPTY.scene.setEmpty();
+        EMPTY.graph.setEmpty();
+        return EMPTY;
+    }
+
+    @Nonnull
+    static String toString(@Nonnull PointF point) {
+        return "(x=" + point.x + ", y=" + point.y + ")";
+    }
+
+    @Nonnull
+    static String toString(@Nonnull RectF rect) {
+        return "[x=" + rect.left + ", y=" + rect.top + ", w=" + rect.width() + ", h=" + rect.height() + "]";
+    }
+
+    @Nonnull
+    public Dimensions copy() {
+        return copy(new Dimensions());
+    }
+
+    @Nonnull
+    public Dimensions copy(@Nonnull Dimensions that) {
+        that.graph.copy(this.graph);
+        that.scene.copy(this.scene);
+
+        return that;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Dimensions that = (Dimensions) o;
+
+        if (!graph.equals(that.graph)) return false;
+        if (!scene.equals(that.scene)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = graph.hashCode();
+        result = 31 * result + scene.hashCode();
+        return result;
+    }
+
+    @Nonnull
+    public Dimensions updateScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+        if (scene.same(viewSize, sceneSize, sceneCenter)) {
+            return this;
+        }
+        final Dimensions copy = copy();
+        copy.setScene(viewSize, sceneSize, sceneCenter);
+        return copy;
+    }
+
+    @Nonnull
+    public Dimensions updateGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+        if (graph.same(graphSize, graphCenter)) {
+            return this;
+        }
+        final Dimensions copy = copy();
+        copy.setGraph(graphSize, graphCenter);
+        return copy;
+    }
+
+    private void setGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+        graph.set(graphSize, graphCenter, scene);
+    }
+
+    private void setScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+        scene.set(viewSize, sceneSize, sceneCenter);
+        graph.update(sceneSize, sceneCenter);
+    }
+
+    public boolean isZero() {
+        return graph.isEmpty() || scene.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+        return "Dimensions{" +
+                "graph=" + graph +
+                ", scene=" + scene +
+                '}';
+    }
+
+    public static final class Scene {
+
+        @Nonnull
+        public final PointF center = new PointF();
+        @Nonnull
+        public final RectSizeF size = new RectSizeF();
+        @Nonnull
+        public final RectSize view = RectSize.empty();
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Scene)) return false;
+
+            Scene scene = (Scene) o;
+
+            if (!center.equals(scene.center)) return false;
+            if (!size.equals(scene.size)) return false;
+            if (!view.equals(scene.view)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = center.hashCode();
+            result = 31 * result + size.hashCode();
+            result = 31 * result + view.hashCode();
+            return result;
+        }
+
+        public boolean isEmpty() {
+            return size.isEmpty();
+        }
+
+        public boolean set(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+            if (same(viewSize, sceneSize, sceneCenter)) {
+                return false;
+            }
+            view.set(viewSize);
+            size.set(sceneSize);
+            center.set(sceneCenter);
+            return true;
+
+        }
+
+        private boolean same(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+            return view.equals(viewSize) && size.equals(sceneSize) && center.equals(sceneCenter);
+        }
+
+        public float toSceneX(float viewX) {
+            return center.x + viewX * size.width / view.width - size.width / 2;
+        }
+
+        public float toSceneDx(float viewDx) {
+            return viewDx * size.width / view.width;
+        }
+
+        public float toSceneY(float viewY) {
+            return center.y + -(viewY * size.height / view.height - size.height / 2);
+        }
+
+        public float toSceneDy(float viewDy) {
+            return viewDy * size.height / view.height;
+        }
+
+        @Override
+        public String toString() {
+            return "Scene{" +
+                    "center=" + center +
+                    ", size=" + size.stringSize() +
+                    ", view=" + view.stringSize() +
+                    '}';
+        }
+
+        public float centerXForStep(float step, boolean d3) {
+            if (d3) {
+                return 0;
+            }
+            return -center.x + center.x % step;
+        }
+
+        public float centerYForStep(float step, boolean d3) {
+            if (d3) {
+                return 0;
+            }
+            return -center.y + center.y % step;
+        }
+
+        public void copy(@Nonnull Scene that) {
+            center.set(that.center);
+            size.set(that.size);
+            view.set(that.view);
+        }
+
+        public void setEmpty() {
+            center.set(0f, 0f);
+            size.setEmpty();
+            view.setEmpty();
+        }
+    }
+
+    public static final class Graph {
+        public static final float SIZE = 10f;
+        @Nonnull
+        public final RectSizeF size = new RectSizeF();
+        @Nonnull
+        public final RectSizeF original = new RectSizeF();
+        @Nonnull
+        public final PointF center = new PointF();
+        @Nonnull
+        public final PointF scale = new PointF();
+
+        public Graph() {
+            setEmpty();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            final Graph that = (Graph) o;
+
+            if (!scale.equals(that.scale)) return false;
+            if (!size.equals(that.size)) return false;
+            if (!original.equals(that.original)) return false;
+            return center.equals(that.center);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = size.hashCode();
+            result = 31 * result + original.hashCode();
+            result = 31 * result + center.hashCode();
+            result = 31 * result + scale.hashCode();
+            return result;
+        }
+
+        public boolean isEmpty() {
+            return size.isEmpty();
+        }
+
+        public void update(@Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+            final float zoomLevel = sceneSize.width / Frustum.SCENE_WIDTH;
+            size.set(zoomLevel * original.width, zoomLevel * original.height);
+            scale.set(size.width / sceneSize.width, size.height / sceneSize.height);
+            center.set(toGraphX(sceneCenter.x), toGraphY(sceneCenter.y));
+        }
+
+        public void set(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter, @Nonnull Scene scene) {
+            original.set(graphSize);
+            scene.size.set(Frustum.SCENE_WIDTH, Frustum.SCENE_WIDTH / scene.size.aspectRatio());
+            scene.center.set(0f, 0f);
+            update(scene.size, scene.center);
+
+            center.set(graphCenter.x, graphCenter.y);
+            scene.center.set(toScreenX(graphCenter.x), toScreenY(graphCenter.y));
+        }
+
+        public float toGraphX(float x) {
+            return /*rect.centerX()*/ +scaleToGraphX(x);
+        }
+
+        public float scaleToGraphX(float x) {
+            return x * scale.x;
+        }
+
+        public float toGraphY(float y) {
+            return /*rect.centerY()*/ +scaleToGraphY(y);
+        }
+
+        public float scaleToGraphY(float y) {
+            return y * scale.y;
+        }
+
+        public float toGraphZ(float z) {
+            return toGraphY(z);
+        }
+
+        public float toScreenX(float x) {
+            return /*scaleToScreenX(-rect.centerX())*/ +scaleToScreenX(x);
+        }
+
+        public float scaleToScreenX(float x) {
+            return x / scale.x;
+        }
+
+        public float toScreenY(float y) {
+            return /*scaleToScreenY(-rect.centerY())*/ +scaleToScreenY(y);
+        }
+
+        public float scaleToScreenY(float y) {
+            return y / scale.y;
+        }
+
+        public float toScreenZ(float z) {
+            return toScreenY(z);
+        }
+
+        public float width() {
+            return size.width;
+        }
+
+        public float height() {
+            return size.height;
+        }
+
+        @Nonnull
+        public RectF makeBounds() {
+            return new RectF(xMin(), yMin(), xMax(), yMax());
+        }
+
+        @Override
+        public String toString() {
+            return "Graph{" +
+                    "size=" + size +
+                    ", original=" + original +
+                    ", center=" + center +
+                    '}';
+        }
+
+        public float xMin() {
+            return -size.width / 2 + center.x;
+        }
+
+        public float xMax() {
+            return size.width / 2 + center.x;
+        }
+
+        public float yMin() {
+            return -size.height / 2 + center.y;
+        }
+
+        public float yMax() {
+            return size.height / 2 + center.y;
+        }
+
+        public void copy(@Nonnull Graph that) {
+            size.set(that.size);
+            original.set(that.original);
+            center.set(that.center);
+            scale.set(that.scale);
+        }
+
+        public boolean same(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+            return size.equals(graphSize) && center.equals(graphCenter);
+        }
+
+        public void setEmpty() {
+            original.set(SIZE, SIZE);
+            size.set(original);
+            center.set(0f, 0f);
+            scale.set(1f, 1f);
+        }
+    }
 }

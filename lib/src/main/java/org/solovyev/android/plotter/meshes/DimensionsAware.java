@@ -6,8 +6,8 @@ import javax.annotation.Nonnull;
 
 public interface DimensionsAware extends Mesh {
 
-	@Nonnull
-	Dimensions getDimensions();
+    @Nonnull
+    Dimensions getDimensions();
 
-	void setDimensions(@Nonnull Dimensions dimensions);
+    void setDimensions(@Nonnull Dimensions dimensions);
 }

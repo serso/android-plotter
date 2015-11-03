@@ -7,60 +7,60 @@ import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class SceneRect extends BaseMesh implements DimensionsAware {
-	@Nonnull
-	private Dimensions dimensions;
+    @Nonnull
+    private Dimensions dimensions;
 
-	public SceneRect(@Nonnull Dimensions dimensions) {
-		this.dimensions = dimensions;
+    public SceneRect(@Nonnull Dimensions dimensions) {
+        this.dimensions = dimensions;
 
-	}
+    }
 
-	@Override
-	public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		super.onInitGl(gl, config);
+    @Override
+    public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+        super.onInitGl(gl, config);
 
-		final float x = dimensions.scene.center.x;
-		final float y = dimensions.scene.center.y;
-		final float halfWidth = dimensions.scene.size.width / 2;
-		final float halfHeight = dimensions.scene.size.height / 2;
+        final float x = dimensions.scene.center.x;
+        final float y = dimensions.scene.center.y;
+        final float halfWidth = dimensions.scene.size.width / 2;
+        final float halfHeight = dimensions.scene.size.height / 2;
 
-		final float vertices[] = {
-				-halfWidth + x, -halfHeight + y, 0, // 0
-				halfWidth + x, -halfHeight + y, 0, // 1
-				halfWidth + x, halfHeight + y, 0, // 2
-				-halfWidth + x, halfHeight + y, 0, // 3
-		};
+        final float vertices[] = {
+                -halfWidth + x, -halfHeight + y, 0, // 0
+                halfWidth + x, -halfHeight + y, 0, // 1
+                halfWidth + x, halfHeight + y, 0, // 2
+                -halfWidth + x, halfHeight + y, 0, // 3
+        };
 
-		setVertices(vertices);
+        setVertices(vertices);
 
-		final short indices[] = {
-				0, 1,
-				1, 2,
-				2, 3,
-				3, 0
-		};
+        final short indices[] = {
+                0, 1,
+                1, 2,
+                2, 3,
+                3, 0
+        };
 
-		setIndices(indices, IndicesOrder.LINES);
-	}
+        setIndices(indices, IndicesOrder.LINES);
+    }
 
 
-	@Nonnull
-	@Override
-	protected BaseMesh makeCopy() {
-		return new SceneRect(dimensions);
-	}
+    @Nonnull
+    @Override
+    protected BaseMesh makeCopy() {
+        return new SceneRect(dimensions);
+    }
 
-	@Nonnull
-	@Override
-	public Dimensions getDimensions() {
-		return this.dimensions;
-	}
+    @Nonnull
+    @Override
+    public Dimensions getDimensions() {
+        return this.dimensions;
+    }
 
-	@Override
-	public void setDimensions(@Nonnull Dimensions dimensions) {
-		if (!this.dimensions.equals(dimensions)) {
-			this.dimensions = dimensions;
-			setDirty();
-		}
-	}
+    @Override
+    public void setDimensions(@Nonnull Dimensions dimensions) {
+        if (!this.dimensions.equals(dimensions)) {
+            this.dimensions = dimensions;
+            setDirty();
+        }
+    }
 }

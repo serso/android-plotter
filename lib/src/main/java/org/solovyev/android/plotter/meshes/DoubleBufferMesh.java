@@ -14,161 +14,155 @@ import javax.microedition.khronos.opengles.GL11;
 @ThreadSafe
 public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 
-	@Nonnull
-	private static final String TAG = Meshes.getTag("DoubleBufferMesh");
+    @Nonnull
+    private static final String TAG = Meshes.getTag("DoubleBufferMesh");
+    @Nonnull
+    private final Object lock = new Object();
+    @Nonnull
+    private final M first;
+    @Nonnull
+    private final M second;
+    @Nullable
+    private final Swapper<? super M> swapper;
+    @GuardedBy("lock")
+    private M current;
+    @GuardedBy("lock")
+    private M next;
 
-	public static interface Swapper<M> {
-		void swap(@Nonnull M current, @Nonnull M next);
-	}
+    private DoubleBufferMesh(@Nonnull M first, @Nonnull M second, @Nullable Swapper<? super M> swapper) {
+        this.first = first;
+        this.second = second;
+        this.swapper = swapper;
+    }
 
-	@Nonnull
-	private final Object lock = new Object();
+    @Nonnull
+    public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh, @Nullable Swapper<? super M> swapper) {
+        return new DoubleBufferMesh<M>(mesh, (M) mesh.copy(), swapper);
+    }
 
-	@GuardedBy("lock")
-	private M current;
+    @Override
+    public boolean init() {
+        final M next = getNext();
+        final boolean initialized = next.init();
+        if (initialized) {
+            Log.d(TAG, "Initializing next=" + next);
+        }
+        return initialized;
+    }
 
-	@GuardedBy("lock")
-	private M next;
+    @Override
+    public boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+        final M next = getNext();
+        final boolean initGl = next.initGl(gl, config);
+        if (initGl) {
+            swap(next);
+            return true;
+        }
 
-	@Nonnull
-	private final M first;
+        // initGl must be called for current mesh also as GL instance might have changed
+        return getOther(next).initGl(gl, config);
+    }
 
-	@Nonnull
-	private final M second;
+    private void swap(@Nonnull M next) {
+        synchronized (lock) {
+            Log.d(TAG, "Swapping current=" + getMeshName(this.current) + " with next=" + getMeshName(next));
+            if (this.current == null) {
+                this.next = this.second;
+            } else {
+                this.next = this.current;
+            }
+            this.current = next;
+            if (swapper != null) {
+                swapper.swap(current, this.next);
+            }
+        }
+    }
 
-	@Nullable
-	private final Swapper<? super M> swapper;
+    @Nonnull
+    private String getMeshName(@Nonnull M mesh) {
+        return mesh + "(" + (mesh == this.first ? 0 : 1) + ")";
+    }
 
-	private DoubleBufferMesh(@Nonnull M first, @Nonnull M second, @Nullable Swapper<? super M> swapper) {
-		this.first = first;
-		this.second = second;
-		this.swapper = swapper;
-	}
+    @Nonnull
+    public M getNext() {
+        M next;
+        synchronized (lock) {
+            next = this.next != null ? this.next : this.first;
+        }
+        return next;
+    }
 
-	@Nonnull
-	public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh, @Nullable Swapper<? super M> swapper) {
-		return new DoubleBufferMesh<M>(mesh, (M) mesh.copy(), swapper);
-	}
+    @Nonnull
+    public M getFirst() {
+        return first;
+    }
 
-	@Override
-	public boolean init() {
-		final M next = getNext();
-		final boolean initialized = next.init();
-		if (initialized) {
-			Log.d(TAG, "Initializing next=" + next);
-		}
-		return initialized;
-	}
+    @Nonnull
+    public M getSecond() {
+        return second;
+    }
 
-	@Override
-	public boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
-		final M next = getNext();
-		final boolean initGl = next.initGl(gl, config);
-		if (initGl) {
-			swap(next);
-			return true;
-		}
+    @Nonnull
+    public M getOther(@Nonnull M mesh) {
+        return this.first == mesh ? this.second : this.first;
+    }
 
-		// initGl must be called for current mesh also as GL instance might have changed
-		return getOther(next).initGl(gl, config);
-	}
+    @Override
+    public void draw(@Nonnull GL11 gl) {
+        final M current;
+        synchronized (lock) {
+            current = this.current;
+        }
 
-	private void swap(@Nonnull M next) {
-		synchronized (lock) {
-			Log.d(TAG, "Swapping current=" + getMeshName(this.current) + " with next=" + getMeshName(next));
-			if (this.current == null) {
-				this.next = this.second;
-			} else {
-				this.next = this.current;
-			}
-			this.current = next;
-			if (swapper != null) {
-				swapper.swap(current, this.next);
-			}
-		}
-	}
+        if (current != null) {
+            current.draw(gl);
+        }
+    }
 
-	@Nonnull
-	private String getMeshName(@Nonnull M mesh) {
-		return mesh + "(" + (mesh == this.first ? 0 : 1) + ")";
-	}
+    @Nonnull
+    @Override
+    public M copy() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Nonnull
-	public M getNext() {
-		M next;
-		synchronized (lock) {
-			next = this.next != null ? this.next : this.first;
-		}
-		return next;
-	}
+    @Nonnull
+    @Override
+    public State getState() {
+        throw new UnsupportedOperationException();
+    }
 
-	@Nonnull
-	public M getFirst() {
-		return first;
-	}
+    @Override
+    public void setAlpha(float alpha) {
+        this.first.setAlpha(alpha);
+        this.second.setAlpha(alpha);
+    }
 
-	@Nonnull
-	public M getSecond() {
-		return second;
-	}
+    @Override
+    public boolean setColor(@Nonnull Color color) {
+        final boolean f = this.first.setColor(color);
+        final boolean s = this.second.setColor(color);
+        return f || s;
+    }
 
-	@Nonnull
-	public M getOther(@Nonnull M mesh) {
-		return this.first == mesh ? this.second : this.first;
-	}
+    @Nonnull
+    @Override
+    public Color getColor() {
+        return this.first.getColor();
+    }
 
-	@Override
-	public void draw(@Nonnull GL11 gl) {
-		final M current;
-		synchronized (lock) {
-			current = this.current;
-		}
+    @Override
+    public boolean setWidth(int width) {
+        final boolean f = this.first.setWidth(width);
+        final boolean s = this.second.setWidth(width);
+        return f || s;
+    }
 
-		if (current != null) {
-			current.draw(gl);
-		}
-	}
+    @Override
+    public int getWidth() {
+        return this.first.getWidth();
+    }
 
-	@Nonnull
-	@Override
-	public M copy() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Nonnull
-	@Override
-	public State getState() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setAlpha(float alpha) {
-		this.first.setAlpha(alpha);
-		this.second.setAlpha(alpha);
-	}
-
-	@Override
-	public boolean setColor(@Nonnull Color color) {
-		final boolean f = this.first.setColor(color);
-		final boolean s = this.second.setColor(color);
-		return f || s;
-	}
-
-	@Nonnull
-	@Override
-	public Color getColor() {
-		return this.first.getColor();
-	}
-
-	@Override
-	public boolean setWidth(int width) {
-		final boolean f = this.first.setWidth(width);
-		final boolean s = this.second.setWidth(width);
-		return f || s;
-	}
-
-	@Override
-	public int getWidth() {
-		return this.first.getWidth();
-	}
+    public static interface Swapper<M> {
+        void swap(@Nonnull M current, @Nonnull M next);
+    }
 }

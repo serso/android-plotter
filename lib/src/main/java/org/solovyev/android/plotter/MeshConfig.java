@@ -4,22 +4,22 @@ import javax.annotation.Nonnull;
 
 public final class MeshConfig {
 
-	public boolean useVbo = true;
-	public boolean cullFace = false;
+    public boolean useVbo = true;
+    public boolean cullFace = false;
 
-	private MeshConfig() {
-	}
+    private MeshConfig() {
+    }
 
-	@Nonnull
-	public static MeshConfig create() {
-		return new MeshConfig();
-	}
+    @Nonnull
+    public static MeshConfig create() {
+        return new MeshConfig();
+    }
 
-	@Nonnull
-	public MeshConfig copy() {
-		final MeshConfig copy = new MeshConfig();
-		copy.useVbo = useVbo;
-		copy.cullFace = cullFace;
-		return copy;
-	}
+    @Nonnull
+    public MeshConfig copy() {
+        final MeshConfig copy = new MeshConfig();
+        copy.useVbo = useVbo;
+        copy.cullFace = cullFace;
+        return copy;
+    }
 }

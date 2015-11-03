@@ -8,40 +8,40 @@ import javax.microedition.khronos.opengles.GL11;
 
 public interface Mesh {
 
-	boolean init();
+    boolean init();
 
-	boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config);
+    boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config);
 
-	void draw(@Nonnull GL11 gl);
+    void draw(@Nonnull GL11 gl);
 
-	@Nonnull
-	Mesh copy();
+    @Nonnull
+    Mesh copy();
 
-	@Nonnull
-	State getState();
+    @Nonnull
+    State getState();
 
-	void setAlpha(float alpha);
+    void setAlpha(float alpha);
 
-	boolean setColor(@Nonnull Color color);
+    boolean setColor(@Nonnull Color color);
 
-	@Nonnull
-	Color getColor();
+    @Nonnull
+    Color getColor();
 
-	boolean setWidth(int width);
+    boolean setWidth(int width);
 
-	int getWidth();
+    int getWidth();
 
-	enum State {
-		DIRTY(0),
-		INITIALIZING(1),
-		INIT(2),
-		INITIALIZING_GL(3),
-		INIT_GL(4);
+    enum State {
+        DIRTY(0),
+        INITIALIZING(1),
+        INIT(2),
+        INITIALIZING_GL(3),
+        INIT_GL(4);
 
-		final int order;
+        final int order;
 
-		State(int order) {
-			this.order = order;
-		}
-	}
+        State(int order) {
+            this.order = order;
+        }
+    }
 }

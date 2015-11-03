@@ -2,84 +2,83 @@ package org.solovyev.android.plotter.meshes;
 
 import org.solovyev.android.plotter.Check;
 
-import javax.annotation.Nonnull;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
+import javax.annotation.Nonnull;
+
 final class Arrays {
 
-	// create on the background thread and accessed from GL thread
-	private volatile FloatBuffer verticesBuffer;
-	private volatile ShortBuffer indicesBuffer;
+    float[] vertices;
+    short[] indices;
+    int vertex = 0;
+    int index = 0;
+    // create on the background thread and accessed from GL thread
+    private volatile FloatBuffer verticesBuffer;
+    private volatile ShortBuffer indicesBuffer;
 
-	float[] vertices;
-	short[] indices;
+    public Arrays() {
+    }
 
-	int vertex = 0;
-	int index = 0;
+    public Arrays(int verticesCount, int indicesCount) {
+        this.vertices = new float[verticesCount];
+        this.indices = new short[indicesCount];
+    }
 
-	public Arrays() {
-	}
+    public boolean isCreated() {
+        return vertices != null && indices != null;
+    }
 
-	public Arrays(int verticesCount, int indicesCount) {
-		this.vertices = new float[verticesCount];
-		this.indices = new short[indicesCount];
-	}
+    public void add(int i, float x, float y, float z) {
+        add((short) i, x, y, z);
+    }
 
-	public boolean isCreated() {
-		return vertices != null && indices != null;
-	}
+    public void add(short i, float x, float y, float z) {
+        Check.isTrue(vertex < vertices.length, "Vertices must be allocated properly");
+        Check.isTrue(index < indices.length, "Indices must be allocated properly");
 
-	public void add(int i, float x, float y, float z) {
-		add((short) i, x, y, z);
-	}
+        indices[index++] = i;
+        vertices[vertex++] = x;
+        vertices[vertex++] = y;
+        vertices[vertex++] = z;
+    }
 
-	public void add(short i, float x, float y, float z) {
-		Check.isTrue(vertex < vertices.length, "Vertices must be allocated properly");
-		Check.isTrue(index < indices.length, "Indices must be allocated properly");
+    public void init() {
+        vertex = 0;
+        index = 0;
+        verticesBuffer = null;
+        indicesBuffer = null;
+    }
 
-		indices[index++] = i;
-		vertices[vertex++] = x;
-		vertices[vertex++] = y;
-		vertices[vertex++] = z;
-	}
+    public void init(int verticesCount, int indicesCount) {
+        if (vertices == null || vertices.length != verticesCount) {
+            vertices = new float[verticesCount];
+        }
 
-	public void init() {
-		vertex = 0;
-		index = 0;
-		verticesBuffer = null;
-		indicesBuffer = null;
-	}
+        if (indices == null || indices.length != indicesCount) {
+            indices = new short[indicesCount];
+        }
 
-	public void init(int verticesCount, int indicesCount) {
-		if (vertices == null || vertices.length != verticesCount) {
-			vertices = new float[verticesCount];
-		}
+        init();
+    }
 
-		if (indices == null || indices.length != indicesCount) {
-			indices = new short[indicesCount];
-		}
+    public void createBuffers() {
+        Check.isTrue(isCreated(), "Arrays should be initialized");
+        verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
+        indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
+    }
 
-		init();
-	}
+    @Nonnull
+    public FloatBuffer getVerticesBuffer() {
+        Check.isTrue(isCreated(), "Arrays should be initialized");
+        Check.isNotNull(verticesBuffer);
+        return verticesBuffer;
+    }
 
-	public void createBuffers() {
-		Check.isTrue(isCreated(), "Arrays should be initialized");
-		verticesBuffer = Meshes.allocateOrPutBuffer(vertices, verticesBuffer);
-		indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
-	}
-
-	@Nonnull
-	public FloatBuffer getVerticesBuffer() {
-		Check.isTrue(isCreated(), "Arrays should be initialized");
-		Check.isNotNull(verticesBuffer);
-		return verticesBuffer;
-	}
-
-	@Nonnull
-	public ShortBuffer getIndicesBuffer() {
-		Check.isTrue(isCreated(), "Arrays should be initialized");
-		Check.isNotNull(indicesBuffer);
-		return indicesBuffer;
-	}
+    @Nonnull
+    public ShortBuffer getIndicesBuffer() {
+        Check.isTrue(isCreated(), "Arrays should be initialized");
+        Check.isNotNull(indicesBuffer);
+        return indicesBuffer;
+    }
 }

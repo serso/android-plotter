@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="match_parent"
-	android:layout_height="@dimen/list_item_height"
-	android:gravity="center_vertical|start"
-	android:orientation="horizontal"
-	android:paddingLeft="16dp"
-	android:paddingRight="16dp">
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_item_height"
+    android:gravity="center_vertical|start"
+    android:orientation="horizontal"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
 
-	<org.solovyev.android.plotter.PlotIconView
-		android:id="@+id/function_icon"
-		android:layout_width="40dp"
-		android:layout_height="match_parent" />
+    <org.solovyev.android.plotter.PlotIconView
+        android:id="@+id/function_icon"
+        android:layout_width="40dp"
+        android:layout_height="match_parent" />
 
-	<TextView
-		android:id="@+id/function_name"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginLeft="16dp"
-		android:layout_marginStart="16dp"
-		android:drawablePadding="16dp"
-		android:drawableEnd="@drawable/ic_edit_white_18dp"
-		android:drawableRight="@drawable/ic_edit_white_18dp"/>
+    <TextView
+        android:id="@+id/function_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:drawableEnd="@drawable/ic_edit_white_18dp"
+        android:drawablePadding="16dp"
+        android:drawableRight="@drawable/ic_edit_white_18dp" />
 </LinearLayout>

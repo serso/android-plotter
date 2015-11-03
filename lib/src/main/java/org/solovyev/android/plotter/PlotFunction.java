@@ -30,37 +30,37 @@ import javax.annotation.Nonnull;
 
 public final class PlotFunction {
 
-	@Nonnull
-	public Function function;
+    @Nonnull
+    public Function function;
 
-	@Nonnull
-	public MeshSpec meshSpec;
+    @Nonnull
+    public MeshSpec meshSpec;
 
-	public boolean visible = true;
+    public boolean visible = true;
 
-	private PlotFunction(@Nonnull Function function,
-						 @Nonnull MeshSpec meshSpec) {
-		this.function = function;
-		this.meshSpec = meshSpec;
-	}
+    private PlotFunction(@Nonnull Function function,
+                         @Nonnull MeshSpec meshSpec) {
+        this.function = function;
+        this.meshSpec = meshSpec;
+    }
 
-	@Nonnull
-	public static PlotFunction create(@Nonnull Function function, @Nonnull Context context) {
-		return new PlotFunction(function, MeshSpec.createDefault(context));
-	}
+    @Nonnull
+    public static PlotFunction create(@Nonnull Function function, @Nonnull Context context) {
+        return new PlotFunction(function, MeshSpec.createDefault(context));
+    }
 
-	@Nonnull
-	public static PlotFunction create(@Nonnull Function function,
-									  @Nonnull MeshSpec meshSpec) {
-		return new PlotFunction(function, meshSpec);
-	}
+    @Nonnull
+    public static PlotFunction create(@Nonnull Function function,
+                                      @Nonnull MeshSpec meshSpec) {
+        return new PlotFunction(function, meshSpec);
+    }
 
-	@Nonnull
-	public PlotFunction copy() {
-		final PlotFunction copy = create(this.function, this.meshSpec.copy());
+    @Nonnull
+    public PlotFunction copy() {
+        final PlotFunction copy = create(this.function, this.meshSpec.copy());
 
-		copy.visible = this.visible;
+        copy.visible = this.visible;
 
-		return copy;
-	}
+        return copy;
+    }
 }

@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <org.solovyev.android.plotter.views.PlotViewFrame xmlns:a="http://schemas.android.com/apk/res/android"
-	a:id="@id/plot_view_frame"
-	a:layout_width="match_parent"
-	a:layout_height="match_parent">
+    a:id="@id/plot_view_frame"
+    a:layout_width="match_parent"
+    a:layout_height="match_parent">
 
-	<org.solovyev.android.plotter.PlotView
-		a:id="@id/plot_view"
-		a:layout_width="match_parent"
-		a:layout_height="match_parent" />
+    <org.solovyev.android.plotter.PlotView
+        a:id="@id/plot_view"
+        a:layout_width="match_parent"
+        a:layout_height="match_parent" />
 
-	<ImageButton
-		a:id="@id/plot_functions"
-		style="@style/ZoomControlButton"
-		a:layout_gravity="top|start"
-		a:src="@drawable/ic_list_white_24dp" />
+    <ImageButton
+        a:id="@id/plot_functions"
+        style="@style/ZoomControlButton"
+        a:layout_gravity="top|start"
+        a:src="@drawable/ic_list_white_24dp" />
 
-	<Button
-		a:id="@id/plot_3d_button"
-		style="@style/ZoomControlButton"
-		a:layout_gravity="top|end"
-		a:text="3D" />
+    <Button
+        a:id="@id/plot_3d_button"
+        style="@style/ZoomControlButton"
+        a:layout_gravity="top|end"
+        a:text="3D" />
 
-	<ImageButton
-		a:id="@id/plot_dimensions"
-		style="@style/ZoomControlButton"
-		a:layout_gravity="bottom|start"
-		a:src="@drawable/ic_straighten_white_24dp" />
+    <ImageButton
+        a:id="@id/plot_dimensions"
+        style="@style/ZoomControlButton"
+        a:layout_gravity="bottom|start"
+        a:src="@drawable/ic_straighten_white_24dp" />
 
-	<LinearLayout
-		a:layout_width="wrap_content"
-		a:layout_height="wrap_content"
-		a:layout_gravity="bottom|end"
-		a:orientation="vertical">
+    <LinearLayout
+        a:layout_width="wrap_content"
+        a:layout_height="wrap_content"
+        a:layout_gravity="bottom|end"
+        a:orientation="vertical">
 
-		<Button
-			a:id="@id/plot_zoom_in_button"
-			style="@style/ZoomControlButton"
-			a:text="+" />
+        <Button
+            a:id="@id/plot_zoom_in_button"
+            style="@style/ZoomControlButton"
+            a:text="+" />
 
-		<Button
-			a:id="@id/plot_zoom_reset_button"
-			style="@style/ZoomControlButton"
-			a:text="0" />
+        <Button
+            a:id="@id/plot_zoom_reset_button"
+            style="@style/ZoomControlButton"
+            a:text="0" />
 
-		<Button
-			a:id="@id/plot_zoom_out_button"
-			style="@style/ZoomControlButton"
-			a:text="−" />
-	</LinearLayout>
+        <Button
+            a:id="@id/plot_zoom_out_button"
+            style="@style/ZoomControlButton"
+            a:text="−" />
+    </LinearLayout>
 
 </org.solovyev.android.plotter.views.PlotViewFrame>

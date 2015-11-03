@@ -14,43 +14,48 @@ import javax.microedition.khronos.opengles.GL11;
  * all meshes (including functions' graphs) are initialized prior to draw.
  */
 public interface Plotter {
-	boolean D3 = true;
+    boolean D3 = true;
 
-	void add(@Nonnull Function function);
-	void add(@Nonnull PlotFunction function);
-	void clearFunctions();
+    void add(@Nonnull Function function);
 
-	void update(@Nonnull PlotFunction function);
+    void add(@Nonnull PlotFunction function);
 
-	void initGl(@Nonnull GL11 gl, boolean firstTime);
-	void draw(@Nonnull GL11 gl, float labelsAlpha);
+    void clearFunctions();
 
-	@Nonnull
-	PlotData getPlotData();
+    void update(@Nonnull PlotFunction function);
 
-	void attachView(@Nonnull PlottingView view);
-	void detachView(@Nonnull PlottingView view);
+    void initGl(@Nonnull GL11 gl, boolean firstTime);
 
-	/**
-	 * @return a copy of dimensions
-	 */
-	@Nonnull
-	Dimensions getDimensions();
+    void draw(@Nonnull GL11 gl, float labelsAlpha);
 
-	// should not be modified!
-	@Nonnull
-	Dimensions.Scene getSceneDimensions();
+    @Nonnull
+    PlotData getPlotData();
 
-	void updateScene(@Nullable Object source, @Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter);
-	void updateGraph(@Nullable Object source, @Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter);
+    void attachView(@Nonnull PlottingView view);
 
-	boolean is3d();
+    void detachView(@Nonnull PlottingView view);
 
-	void set3d(boolean d3);
+    /**
+     * @return a copy of dimensions
+     */
+    @Nonnull
+    Dimensions getDimensions();
 
-	void showCoordinates(float x, float y);
+    // should not be modified!
+    @Nonnull
+    Dimensions.Scene getSceneDimensions();
 
-	void hideCoordinates();
+    void updateScene(@Nullable Object source, @Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter);
 
-	void onCameraMoved(float dx, float dy);
+    void updateGraph(@Nullable Object source, @Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter);
+
+    boolean is3d();
+
+    void set3d(boolean d3);
+
+    void showCoordinates(float x, float y);
+
+    void hideCoordinates();
+
+    void onCameraMoved(float dx, float dy);
 }

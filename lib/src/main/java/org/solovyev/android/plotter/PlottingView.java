@@ -5,17 +5,19 @@ import javax.annotation.Nullable;
 
 public interface PlottingView {
 
-	void requestRender();
+    void requestRender();
 
-	void zoom(boolean in);
+    void zoom(boolean in);
 
-	void resetZoom();
-	void resetCamera();
+    void resetZoom();
 
-	boolean removeCallbacks(@Nonnull Runnable runnable);
-	boolean post(@Nonnull Runnable runnable);
+    void resetCamera();
 
-	void set3d(boolean d3);
+    boolean removeCallbacks(@Nonnull Runnable runnable);
 
-	void onDimensionChanged(@Nonnull Dimensions dimensions, @Nullable Object source);
+    boolean post(@Nonnull Runnable runnable);
+
+    void set3d(boolean d3);
+
+    void onDimensionChanged(@Nonnull Dimensions dimensions, @Nullable Object source);
 }

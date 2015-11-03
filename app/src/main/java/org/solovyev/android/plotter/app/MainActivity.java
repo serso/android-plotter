@@ -20,110 +20,110 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends Activity implements PlotViewFrame.Listener {
 
-	@Nonnull
-	private final Plotter plotter = App.getPlotter();
-	@Nonnull
-	private final EventHandler eventHandler = new EventHandler();
-	@Bind(R.id.plot_view_frame)
-	PlotViewFrame plotView;
-	@Nonnull
-	private final Runnable colorUpdater = new Runnable() {
-		private int direction = -1;
+    @Nonnull
+    private final Plotter plotter = App.getPlotter();
+    @Nonnull
+    private final EventHandler eventHandler = new EventHandler();
+    @Bind(R.id.plot_view_frame)
+    PlotViewFrame plotView;
+    @Nonnull
+    private final Runnable colorUpdater = new Runnable() {
+        private int direction = -1;
 
-		@Override
-		public void run() {
-			final PlotData plotData = plotter.getPlotData();
-			final PlotFunction function = plotData.get(PlotterApplication.PARABOLOID);
-			if (function == null) {
-				return;
-			}
-			final Color color = function.meshSpec.color;
-			if (color.equals(Color.BLACK) || color.equals(Color.RED)) {
-				direction = -direction;
-			}
-			function.meshSpec.color = color.add(direction * 0.01f, 0, 0);
-			plotter.update(function);
-			plotView.postDelayed(this, 10L);
-		}
-	};
+        @Override
+        public void run() {
+            final PlotData plotData = plotter.getPlotData();
+            final PlotFunction function = plotData.get(PlotterApplication.PARABOLOID);
+            if (function == null) {
+                return;
+            }
+            final Color color = function.meshSpec.color;
+            if (color.equals(Color.BLACK) || color.equals(Color.RED)) {
+                direction = -direction;
+            }
+            function.meshSpec.color = color.add(direction * 0.01f, 0, 0);
+            plotter.update(function);
+            plotView.postDelayed(this, 10L);
+        }
+    };
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.main);
-		ButterKnife.bind(this);
-		App.getBus().register(eventHandler);
+        setContentView(R.layout.main);
+        ButterKnife.bind(this);
+        App.getBus().register(eventHandler);
 
-		plotView.setPlotter(plotter);
-		plotView.setListener(this);
-	}
+        plotView.setPlotter(plotter);
+        plotView.setListener(this);
+    }
 
-	@Override
-	protected void onSaveInstanceState(@Nonnull Bundle out) {
-		super.onSaveInstanceState(out);
-		out.putBundle("plotview", plotView.onSaveInstanceState());
-	}
+    @Override
+    protected void onSaveInstanceState(@Nonnull Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putBundle("plotview", plotView.onSaveInstanceState());
+    }
 
-	@Override
-	protected void onRestoreInstanceState(@Nonnull Bundle in) {
-		super.onRestoreInstanceState(in);
-		final Bundle plotviewState = in.getBundle("plotview");
-		if (plotviewState != null) {
-			plotView.onRestoreInstanceState(plotviewState);
-		}
-	}
+    @Override
+    protected void onRestoreInstanceState(@Nonnull Bundle in) {
+        super.onRestoreInstanceState(in);
+        final Bundle plotviewState = in.getBundle("plotview");
+        if (plotviewState != null) {
+            plotView.onRestoreInstanceState(plotviewState);
+        }
+    }
 
-	@Override
-	protected void onPause() {
-		plotView.onPause();
-		super.onPause();
-	}
+    @Override
+    protected void onPause() {
+        plotView.onPause();
+        super.onPause();
+    }
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		plotView.onResume();
-	}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        plotView.onResume();
+    }
 
-	@Override
-	protected void onDestroy() {
-		App.getBus().unregister(eventHandler);
-		super.onDestroy();
-	}
+    @Override
+    protected void onDestroy() {
+        App.getBus().unregister(eventHandler);
+        super.onDestroy();
+    }
 
-	@Override
-	public boolean onButtonPressed(@IdRes int id) {
-		if (id == R.id.plot_dimensions) {
-			final Dimensions dimensions = plotter.getDimensions();
-			App.getBus().post(new DimensionsDialog.ShowEvent(dimensions.graph.makeBounds(), plotter.is3d()));
-			return true;
-		} else if (id == R.id.plot_functions) {
-			App.getBus().post(new FunctionsDialog.ShowEvent(plotter.getPlotData()));
-			return true;
-		}
-		return false;
-	}
+    @Override
+    public boolean onButtonPressed(@IdRes int id) {
+        if (id == R.id.plot_dimensions) {
+            final Dimensions dimensions = plotter.getDimensions();
+            App.getBus().post(new DimensionsDialog.ShowEvent(dimensions.graph.makeBounds(), plotter.is3d()));
+            return true;
+        } else if (id == R.id.plot_functions) {
+            App.getBus().post(new FunctionsDialog.ShowEvent(plotter.getPlotData()));
+            return true;
+        }
+        return false;
+    }
 
-	public class EventHandler {
+    public class EventHandler {
 
-		@Nonnull
-		private final MainActivity activity = MainActivity.this;
+        @Nonnull
+        private final MainActivity activity = MainActivity.this;
 
-		@Subscribe
-		public void onShowAddFunction(@Nonnull ShowAddFunctionEvent e) {
-		}
+        @Subscribe
+        public void onShowAddFunction(@Nonnull ShowAddFunctionEvent e) {
+        }
 
-		@Subscribe
-		public void onShowDimensionsDialog(@Nonnull DimensionsDialog.ShowEvent e) {
-			final DimensionsDialog dialog = new DimensionsDialog(activity, e.graph, e.d3);
-			dialog.show();
-		}
+        @Subscribe
+        public void onShowDimensionsDialog(@Nonnull DimensionsDialog.ShowEvent e) {
+            final DimensionsDialog dialog = new DimensionsDialog(activity, e.graph, e.d3);
+            dialog.show();
+        }
 
-		@Subscribe
-		public void onShowFunctionsDialog(@Nonnull FunctionsDialog.ShowEvent e) {
-			final FunctionsDialog dialog = new FunctionsDialog(activity, e.plotData);
-			dialog.show();
-		}
-	}
+        @Subscribe
+        public void onShowFunctionsDialog(@Nonnull FunctionsDialog.ShowEvent e) {
+            final FunctionsDialog dialog = new FunctionsDialog(activity, e.plotData);
+            dialog.show();
+        }
+    }
 }

@@ -3,15 +3,15 @@ package org.solovyev.android.plotter.meshes;
 import javax.annotation.Nonnull;
 
 public interface Group<M extends Mesh> extends Mesh, Iterable<M> {
-	boolean add(@Nonnull M mesh);
+    boolean add(@Nonnull M mesh);
 
-	void clear();
+    void clear();
 
-	@Nonnull
-	M get(int location);
+    @Nonnull
+    M get(int location);
 
-	int size();
+    int size();
 
-	@Nonnull
-	M remove(int i);
+    @Nonnull
+    M remove(int i);
 }

@@ -10,42 +10,42 @@ import javax.annotation.Nonnull;
 
 public final class Plot {
 
-	@Nonnull
-	public static final PointF ZERO = new PointF();
+    @Nonnull
+    public static final PointF ZERO = new PointF();
 
-	private Plot() {
-		throw new AssertionError();
-	}
+    private Plot() {
+        throw new AssertionError();
+    }
 
-	@Nonnull
-	public static String getTag() {
-		return "Plot";
-	}
+    @Nonnull
+    public static String getTag() {
+        return "Plot";
+    }
 
-	@Nonnull
-	public static String getTag(@Nonnull String tag) {
-		return getTag() + "/" + tag;
-	}
+    @Nonnull
+    public static String getTag(@Nonnull String tag) {
+        return getTag() + "/" + tag;
+    }
 
-	@Nonnull
-	public static Plotter newPlotter(@Nonnull Context context) {
-		return new DefaultPlotter(context);
-	}
+    @Nonnull
+    public static Plotter newPlotter(@Nonnull Context context) {
+        return new DefaultPlotter(context);
+    }
 
-	static boolean isMainThread() {
-		return Looper.getMainLooper() == Looper.myLooper();
-	}
+    static boolean isMainThread() {
+        return Looper.getMainLooper() == Looper.myLooper();
+    }
 
-	public static float dpsToPxs(@Nonnull Context context, float dps) {
-		final DisplayMetrics dm = context.getResources().getDisplayMetrics();
-		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps, dm);
-	}
+    public static float dpsToPxs(@Nonnull Context context, float dps) {
+        final DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps, dm);
+    }
 
-	public static long animationTime() {
-		return System.nanoTime() / (1000L * 1000L);
-	}
+    public static long animationTime() {
+        return System.nanoTime() / (1000L * 1000L);
+    }
 
-	static int getAvailableProcessors() {
-		return Math.max(1, Runtime.getRuntime().availableProcessors());
-	}
+    static int getAvailableProcessors() {
+        return Math.max(1, Runtime.getRuntime().availableProcessors());
+    }
 }

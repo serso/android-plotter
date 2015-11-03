@@ -31,105 +31,109 @@ import javax.annotation.Nonnull;
 
 final class TouchHandler implements View.OnTouchListener {
 
-	@Nonnull
-	private final VelocityTracker tracker = VelocityTracker.obtain();
+    @Nonnull
+    private final VelocityTracker tracker = VelocityTracker.obtain();
+    @Nonnull
+    private final Listener listener;
+    private boolean afterZoom;
 
-	private boolean afterZoom;
+    private TouchHandler(@Nonnull Listener listener) {
+        this.listener = listener;
+    }
 
-	@Nonnull
-	private final Listener listener;
+    static TouchHandler create(@Nonnull Listener listener) {
+        return new TouchHandler(listener);
+    }
 
-	private TouchHandler(@Nonnull Listener listener) {
-		this.listener = listener;
-	}
+    private static float getX(@Nonnull MotionEvent event, int pointer) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getX(pointer) : 0;
+    }
 
-	static TouchHandler create(@Nonnull Listener listener) {
-		return new TouchHandler(listener);
-	}
+    private static float getY(@Nonnull MotionEvent event, int pointer) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getY(pointer) : 0;
+    }
 
-	@Override
-	public boolean onTouch(@Nonnull View v, @Nonnull MotionEvent event) {
-		final float x = event.getX();
-		final float y = event.getY();
+    private static int getPointerCount(@Nonnull MotionEvent event) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getPointerCount() : 1;
+    }
 
-		listener.onTouch(x, y);
+    @Override
+    public boolean onTouch(@Nonnull View v, @Nonnull MotionEvent event) {
+        final float x = event.getX();
+        final float y = event.getY();
 
-		final int pointerCount = getPointerCount(event);
-		switch (getAction(event)) {
-			case MotionEvent.ACTION_DOWN:
-				afterZoom = false;
-				tracker.clear();
-				tracker.addMovement(event);
-				listener.onTouchDown(x, y);
-				break;
+        listener.onTouch(x, y);
 
-			case MotionEvent.ACTION_MOVE:
-				if (pointerCount == 1) {
-					if (afterZoom) {
-						tracker.clear();
-						listener.onTouchDown(x, y);
-						afterZoom = false;
-					}
-					tracker.addMovement(event);
-					listener.onTouchMove(x, y);
-				} else if (pointerCount == 2) {
-					listener.onTouchZoomMove(x, y, getX(event, 1), getY(event, 1));
-				}
-				break;
+        final int pointerCount = getPointerCount(event);
+        switch (getAction(event)) {
+            case MotionEvent.ACTION_DOWN:
+                afterZoom = false;
+                tracker.clear();
+                tracker.addMovement(event);
+                listener.onTouchDown(x, y);
+                break;
 
-			case MotionEvent.ACTION_UP:
-				tracker.addMovement(event);
-				tracker.computeCurrentVelocity(1000);
-				listener.onTouchUp(x, y);
-				break;
+            case MotionEvent.ACTION_MOVE:
+                if (pointerCount == 1) {
+                    if (afterZoom) {
+                        tracker.clear();
+                        listener.onTouchDown(x, y);
+                        afterZoom = false;
+                    }
+                    tracker.addMovement(event);
+                    listener.onTouchMove(x, y);
+                } else if (pointerCount == 2) {
+                    listener.onTouchZoomMove(x, y, getX(event, 1), getY(event, 1));
+                }
+                break;
 
-			case MotionEvent.ACTION_POINTER_DOWN:
-				if (pointerCount == 2) {
-					listener.onTouchZoomDown(x, y, getX(event, 1), getY(event, 1));
-				}
-				break;
+            case MotionEvent.ACTION_UP:
+                tracker.addMovement(event);
+                tracker.computeCurrentVelocity(1000);
+                listener.onTouchUp(x, y);
+                break;
 
-			case MotionEvent.ACTION_POINTER_UP:
-				if (pointerCount == 2) {
-					listener.onTouchZoomUp(x, y, getX(event, 1), getY(event, 1));
-					afterZoom = true;
-				}
-				break;
-		}
-		return true;
-	}
+            case MotionEvent.ACTION_POINTER_DOWN:
+                if (pointerCount == 2) {
+                    listener.onTouchZoomDown(x, y, getX(event, 1), getY(event, 1));
+                }
+                break;
 
-	private int getAction(MotionEvent event) {
-		return event.getAction() & MotionEvent.ACTION_MASK;
-	}
+            case MotionEvent.ACTION_POINTER_UP:
+                if (pointerCount == 2) {
+                    listener.onTouchZoomUp(x, y, getX(event, 1), getY(event, 1));
+                    afterZoom = true;
+                }
+                break;
+        }
+        return true;
+    }
 
-	public float getXVelocity() {
-		return tracker.getXVelocity();
-	}
+    private int getAction(MotionEvent event) {
+        return event.getAction() & MotionEvent.ACTION_MASK;
+    }
 
-	public float getYVelocity() {
-		return tracker.getYVelocity();
-	}
+    public float getXVelocity() {
+        return tracker.getXVelocity();
+    }
 
-	private static float getX(@Nonnull MotionEvent event, int pointer) {
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getX(pointer) : 0;
-	}
+    public float getYVelocity() {
+        return tracker.getYVelocity();
+    }
 
-	private static float getY(@Nonnull MotionEvent event, int pointer) {
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getY(pointer) : 0;
-	}
+    interface Listener {
+        void onTouch(float x, float y);
 
-	private static int getPointerCount(@Nonnull MotionEvent event) {
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getPointerCount() : 1;
-	}
+        void onTouchDown(float x, float y);
 
-	interface Listener {
-		void onTouch(float x, float y);
-		void onTouchDown(float x, float y);
-		void onTouchMove(float x, float y);
-		void onTouchUp(float x, float y);
-		void onTouchZoomDown(float x1, float y1, float x2, float y2);
-		void onTouchZoomMove(float x1, float y1, float x2, float y2);
-		void onTouchZoomUp(float x1, float y1, float x2, float y2);
-	}
+        void onTouchMove(float x, float y);
+
+        void onTouchUp(float x, float y);
+
+        void onTouchZoomDown(float x1, float y1, float x2, float y2);
+
+        void onTouchZoomMove(float x1, float y1, float x2, float y2);
+
+        void onTouchZoomUp(float x1, float y1, float x2, float y2);
+    }
 }

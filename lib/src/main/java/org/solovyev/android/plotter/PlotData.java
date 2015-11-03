@@ -32,60 +32,59 @@ import javax.annotation.Nullable;
 
 public final class PlotData {
 
-	@Nonnull
-	public AxisStyle axisStyle = AxisStyle.create();
+    @Nonnull
+    public final List<PlotFunction> functions = new ArrayList<PlotFunction>();
+    @Nonnull
+    public AxisStyle axisStyle = AxisStyle.create();
 
-	@Nonnull
-	public final List<PlotFunction> functions = new ArrayList<PlotFunction>();
+    private PlotData() {
+    }
 
-	private PlotData() {
-	}
+    @Nonnull
+    public static PlotData create() {
+        Check.isMainThread();
+        return new PlotData();
+    }
 
-	@Nonnull
-	public static PlotData create() {
-		Check.isMainThread();
-		return new PlotData();
-	}
+    @Nonnull
+    public PlotData copy() {
+        Check.isMainThread();
+        final PlotData copy = create();
 
-	@Nonnull
-	public PlotData copy() {
-		Check.isMainThread();
-		final PlotData copy = create();
+        copy.axisStyle = axisStyle.copy();
+        for (PlotFunction function : functions) {
+            copy.functions.add(function.copy());
+        }
 
-		copy.axisStyle = axisStyle.copy();
-		for (PlotFunction function : functions) {
-			copy.functions.add(function.copy());
-		}
+        return copy;
+    }
 
-		return copy;
-	}
+    public void add(@Nonnull PlotFunction function) {
+        Check.isMainThread();
+        if (!update(function)) {
+            functions.add(function);
+        }
+    }
 
-	public void add(@Nonnull PlotFunction function) {
-		Check.isMainThread();
-		if (!update(function)) {
-			functions.add(function);
-		}
-	}
+    boolean update(@Nonnull PlotFunction function) {
+        Check.isMainThread();
+        for (int i = 0; i < functions.size(); i++) {
+            final PlotFunction oldFunction = functions.get(i);
+            if (oldFunction.function == function.function) {
+                functions.set(i, function);
+                return true;
+            }
+        }
+        return false;
+    }
 
-	boolean update(@Nonnull PlotFunction function) {
-		Check.isMainThread();
-		for (int i = 0; i < functions.size(); i++) {
-			final PlotFunction oldFunction = functions.get(i);
-			if (oldFunction.function == function.function) {
-				functions.set(i, function);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Nullable
-	public PlotFunction get(@Nonnull String name) {
-		for (PlotFunction function : functions) {
-			if (TextUtils.equals(function.function.getName(), name)) {
-				return function;
-			}
-		}
-		return null;
-	}
+    @Nullable
+    public PlotFunction get(@Nonnull String name) {
+        for (PlotFunction function : functions) {
+            if (TextUtils.equals(function.function.getName(), name)) {
+                return function;
+            }
+        }
+        return null;
+    }
 }
