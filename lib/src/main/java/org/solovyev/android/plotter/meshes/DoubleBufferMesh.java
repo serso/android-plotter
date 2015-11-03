@@ -1,12 +1,12 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.microedition.khronos.opengles.GL11;
@@ -14,13 +14,13 @@ import javax.microedition.khronos.opengles.GL11;
 @ThreadSafe
 public class DoubleBufferMesh<M extends Mesh> implements Mesh {
 
-    @Nonnull
+    @NonNull
     private static final String TAG = Meshes.getTag("DoubleBufferMesh");
-    @Nonnull
+    @NonNull
     private final Object lock = new Object();
-    @Nonnull
+    @NonNull
     private final M first;
-    @Nonnull
+    @NonNull
     private final M second;
     @Nullable
     private final Swapper<? super M> swapper;
@@ -29,14 +29,14 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
     @GuardedBy("lock")
     private M next;
 
-    private DoubleBufferMesh(@Nonnull M first, @Nonnull M second, @Nullable Swapper<? super M> swapper) {
+    private DoubleBufferMesh(@NonNull M first, @NonNull M second, @Nullable Swapper<? super M> swapper) {
         this.first = first;
         this.second = second;
         this.swapper = swapper;
     }
 
-    @Nonnull
-    public static <M extends Mesh> DoubleBufferMesh<M> wrap(@Nonnull M mesh, @Nullable Swapper<? super M> swapper) {
+    @NonNull
+    public static <M extends Mesh> DoubleBufferMesh<M> wrap(@NonNull M mesh, @Nullable Swapper<? super M> swapper) {
         return new DoubleBufferMesh<M>(mesh, (M) mesh.copy(), swapper);
     }
 
@@ -51,7 +51,7 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
     }
 
     @Override
-    public boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public boolean initGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         final M next = getNext();
         final boolean initGl = next.initGl(gl, config);
         if (initGl) {
@@ -63,7 +63,7 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
         return getOther(next).initGl(gl, config);
     }
 
-    private void swap(@Nonnull M next) {
+    private void swap(@NonNull M next) {
         synchronized (lock) {
             Log.d(TAG, "Swapping current=" + getMeshName(this.current) + " with next=" + getMeshName(next));
             if (this.current == null) {
@@ -78,12 +78,12 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
         }
     }
 
-    @Nonnull
-    private String getMeshName(@Nonnull M mesh) {
+    @NonNull
+    private String getMeshName(@NonNull M mesh) {
         return mesh + "(" + (mesh == this.first ? 0 : 1) + ")";
     }
 
-    @Nonnull
+    @NonNull
     public M getNext() {
         M next;
         synchronized (lock) {
@@ -92,23 +92,23 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
         return next;
     }
 
-    @Nonnull
+    @NonNull
     public M getFirst() {
         return first;
     }
 
-    @Nonnull
+    @NonNull
     public M getSecond() {
         return second;
     }
 
-    @Nonnull
-    public M getOther(@Nonnull M mesh) {
+    @NonNull
+    public M getOther(@NonNull M mesh) {
         return this.first == mesh ? this.second : this.first;
     }
 
     @Override
-    public void draw(@Nonnull GL11 gl) {
+    public void draw(@NonNull GL11 gl) {
         final M current;
         synchronized (lock) {
             current = this.current;
@@ -119,13 +119,13 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
         }
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public M copy() {
         throw new UnsupportedOperationException();
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public State getState() {
         throw new UnsupportedOperationException();
@@ -138,13 +138,13 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
     }
 
     @Override
-    public boolean setColor(@Nonnull Color color) {
+    public boolean setColor(@NonNull Color color) {
         final boolean f = this.first.setColor(color);
         final boolean s = this.second.setColor(color);
         return f || s;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Color getColor() {
         return this.first.getColor();
@@ -163,6 +163,6 @@ public class DoubleBufferMesh<M extends Mesh> implements Mesh {
     }
 
     public static interface Swapper<M> {
-        void swap(@Nonnull M current, @Nonnull M next);
+        void swap(@NonNull M current, @NonNull M next);
     }
 }

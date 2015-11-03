@@ -1,17 +1,17 @@
 package org.solovyev.android.plotter.meshes;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 public interface Group<M extends Mesh> extends Mesh, Iterable<M> {
-    boolean add(@Nonnull M mesh);
+    boolean add(@NonNull M mesh);
 
     void clear();
 
-    @Nonnull
+    @NonNull
     M get(int location);
 
     int size();
 
-    @Nonnull
+    @NonNull
     M remove(int i);
 }

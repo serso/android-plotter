@@ -22,11 +22,11 @@
 
 package org.solovyev.android.plotter;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static java.lang.Thread.currentThread;
 
@@ -77,7 +77,7 @@ public final class Check {
         isNotNull(o, "Object should not be null");
     }
 
-    public static void isNotNull(@Nullable Object o, @Nonnull String message) {
+    public static void isNotNull(@Nullable Object o, @NonNull String message) {
         if (o == null) {
             throw new AssertionException(message);
         }
@@ -101,13 +101,13 @@ public final class Check {
         }
     }
 
-    public static void isTrue(boolean expression, @Nonnull String message) {
+    public static void isTrue(boolean expression, @NonNull String message) {
         if (!expression) {
             throw new AssertionException(message);
         }
     }
 
-    static void isFalse(boolean expression, @Nonnull String message) {
+    static void isFalse(boolean expression, @NonNull String message) {
         if (expression) {
             throw new AssertionException(message);
         }
@@ -117,7 +117,7 @@ public final class Check {
         isNull(o, "Object should be null");
     }
 
-    static void isNull(@Nullable Object o, @Nonnull String message) {
+    static void isNull(@Nullable Object o, @NonNull String message) {
         if (o != null) {
             throw new AssertionException(message);
         }
@@ -154,7 +154,7 @@ public final class Check {
     }
 
     private static final class AssertionException extends RuntimeException {
-        private AssertionException(@Nonnull String message) {
+        private AssertionException(@NonNull String message) {
             super(message);
         }
     }

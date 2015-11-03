@@ -1,13 +1,12 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.solovyev.android.plotter.Dimensions;
-
-import javax.annotation.Nonnull;
 
 import static org.junit.Assert.assertEquals;
 
@@ -50,7 +49,7 @@ public class BaseSurfaceTest {
 
     private short[] fillIndices(final int w, final int h) {
         final SurfaceInitializer si = new SurfaceInitializer(new BaseSurface(Dimensions.empty()) {
-            @Nonnull
+            @NonNull
             @Override
             protected SurfaceInitializer createInitializer() {
                 return null;
@@ -61,7 +60,7 @@ public class BaseSurfaceTest {
                 return 0;
             }
 
-            @Nonnull
+            @NonNull
             @Override
             protected BaseMesh makeCopy() {
                 return null;

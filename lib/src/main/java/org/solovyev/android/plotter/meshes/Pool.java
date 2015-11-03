@@ -1,12 +1,12 @@
 package org.solovyev.android.plotter.meshes;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 public interface Pool<M extends Mesh> {
-    @Nonnull
+    @NonNull
     M obtain();
 
-    void release(@Nonnull M mesh);
+    void release(@NonNull M mesh);
 
     void clear();
 }

@@ -3,6 +3,8 @@ package org.solovyev.android.plotter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.solovyev.android.plotter.meshes.Axis;
@@ -32,64 +34,62 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL11;
 
 final class DefaultPlotter implements Plotter {
 
-    @Nonnull
+    @NonNull
     private static final String TAG = Plot.getTag("Plotter");
-    @Nonnull
+    @NonNull
     private final List<DoubleBufferMesh<AxisLabels>> labels = new CopyOnWriteArrayList<>();
-    @Nonnull
+    @NonNull
     private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraphSwapper.INSTANCE);
-    @Nonnull
+    @NonNull
     private final DoubleBufferGroup<Mesh> otherMeshes = DoubleBufferGroup.create(null);
-    @Nonnull
+    @NonNull
     private final Group<Mesh> allMeshes = ListGroup.create(Arrays.<Mesh>asList(functionMeshes, otherMeshes));
-    @Nonnull
+    @NonNull
     private final Initializer initializer = new Initializer();
-    @Nonnull
+    @NonNull
     private final MeshConfig config = MeshConfig.create();
-    @Nonnull
+    @NonNull
     private final ExecutorService background = Executors.newFixedThreadPool(Plot.getAvailableProcessors(), new ThreadFactory() {
 
-        @Nonnull
+        @NonNull
         private final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
-        public Thread newThread(@Nonnull Runnable r) {
+        public Thread newThread(@NonNull Runnable r) {
             return new Thread(r, "PlotBackground #" + counter.getAndIncrement());
         }
     });
-    @Nonnull
+    @NonNull
     private final Object lock = new Object();
     @GuardedBy("lock")
-    @Nonnull
+    @NonNull
     private final EmptyPlottingView emptyView = new EmptyPlottingView();
-    @Nonnull
+    @NonNull
     private final DimensionsChangeNotifier dimensionsChangedRunnable = new DimensionsChangeNotifier();
-    @Nonnull
+    @NonNull
     private final Context context;
-    @Nonnull
+    @NonNull
     private final FontAtlas fontAtlas;
     @GuardedBy("lock")
-    @Nonnull
+    @NonNull
     private Dimensions dimensions = new Dimensions();
-    @Nonnull
+    @NonNull
     private final Coordinates coordinates = new Coordinates(dimensions, Color.WHITE);
-    @Nonnull
+    @NonNull
     private PlotData plotData = PlotData.create();
     @GuardedBy("lock")
-    @Nonnull
+    @NonNull
     private PlottingView view = emptyView;
     @GuardedBy("lock")
     private boolean d3 = D3;
-    @Nonnull
+    @NonNull
     private final Pool<FunctionGraph> pool = new ListPool<>(new ListPool.Callback<FunctionGraph>() {
-        @Nonnull
+        @NonNull
         @Override
         public FunctionGraph create() {
             if (is3d()) {
@@ -100,29 +100,29 @@ final class DefaultPlotter implements Plotter {
         }
 
         @Override
-        public void release(@Nonnull FunctionGraph mesh) {
+        public void release(@NonNull FunctionGraph mesh) {
             mesh.setFunction(Function0.ZERO);
         }
     });
 
-    DefaultPlotter(@Nonnull Context context) {
+    DefaultPlotter(@NonNull Context context) {
         this.context = context;
         this.fontAtlas = new FontAtlas(context);
         set3d(false);
     }
 
-    public void add(@Nonnull Mesh mesh) {
+    public void add(@NonNull Mesh mesh) {
         otherMeshes.addMesh(mesh);
         setDirty();
     }
 
-    public void add(@Nonnull DoubleBufferMesh<? extends Mesh> mesh) {
+    public void add(@NonNull DoubleBufferMesh<? extends Mesh> mesh) {
         otherMeshes.add((DoubleBufferMesh<Mesh>) mesh);
         setDirty();
     }
 
     @Override
-    public void initGl(@Nonnull GL11 gl, boolean firstTime) {
+    public void initGl(@NonNull GL11 gl, boolean firstTime) {
         if (firstTime) {
             final Resources resources = context.getResources();
             final int fontSize = resources.getDimensionPixelSize(R.dimen.font_size);
@@ -140,7 +140,7 @@ final class DefaultPlotter implements Plotter {
         }
     }
 
-    private boolean existsNotInitializedMesh(@Nonnull Group<Mesh> meshes) {
+    private boolean existsNotInitializedMesh(@NonNull Group<Mesh> meshes) {
         for (Mesh mesh : meshes) {
             if (mesh instanceof Group) {
                 if (existsNotInitializedMesh((Group<Mesh>) mesh)) {
@@ -161,7 +161,7 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    public void draw(@Nonnull GL11 gl, float labelsAlpha) {
+    public void draw(@NonNull GL11 gl, float labelsAlpha) {
         for (DoubleBufferMesh<AxisLabels> label : labels) {
             label.setAlpha(labelsAlpha);
         }
@@ -207,7 +207,7 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    public void add(@Nonnull Function function) {
+    public void add(@NonNull Function function) {
         plotData.add(PlotFunction.create(function, context));
         onFunctionsChanged();
     }
@@ -232,13 +232,13 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    public void add(@Nonnull PlotFunction function) {
+    public void add(@NonNull PlotFunction function) {
         plotData.add(function.copy());
         onFunctionsChanged();
     }
 
     @Override
-    public void update(@Nonnull PlotFunction function) {
+    public void update(@NonNull PlotFunction function) {
         plotData.update(function.copy());
         onFunctionsChanged();
     }
@@ -250,14 +250,14 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public PlotData getPlotData() {
         Check.isMainThread();
         return plotData.copy();
     }
 
     @Override
-    public void attachView(@Nonnull PlottingView newView) {
+    public void attachView(@NonNull PlottingView newView) {
         Check.isMainThread();
         synchronized (lock) {
             Check.same(emptyView, view);
@@ -276,7 +276,7 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    public void detachView(@Nonnull PlottingView oldView) {
+    public void detachView(@NonNull PlottingView oldView) {
         Check.isMainThread();
         synchronized (lock) {
             Check.same(oldView, view);
@@ -286,7 +286,7 @@ final class DefaultPlotter implements Plotter {
         }
     }
 
-    private void updateDimensions(@Nonnull Dimensions newDimensions, @Nullable Object source) {
+    private void updateDimensions(@NonNull Dimensions newDimensions, @Nullable Object source) {
         Check.isAnyThread();
         synchronized (lock) {
             if (!dimensions.equals(newDimensions)) {
@@ -301,7 +301,7 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    public void updateScene(@Nullable Object source, @Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+    public void updateScene(@Nullable Object source, @NonNull Zoom zoom, @NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter) {
         synchronized (lock) {
             final Dimensions newDimensions = dimensions.updateScene(viewSize, sceneSize, sceneCenter);
             if (newDimensions != dimensions) {
@@ -311,7 +311,7 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    public void updateGraph(@Nullable Object source, @Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+    public void updateGraph(@Nullable Object source, @NonNull RectSizeF graphSize, @NonNull PointF graphCenter) {
         synchronized (lock) {
             final Dimensions newDimensions = dimensions.updateGraph(graphSize, graphCenter);
             if (newDimensions != dimensions) {
@@ -321,14 +321,14 @@ final class DefaultPlotter implements Plotter {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Dimensions getDimensions() {
         synchronized (lock) {
             return dimensions.copy();
         }
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Dimensions.Scene getSceneDimensions() {
         synchronized (lock) {
@@ -423,23 +423,23 @@ final class DefaultPlotter implements Plotter {
         for (DoubleBufferMesh<AxisLabels> label : labels) {
             add(label);
         }
-		/*final SceneRect sceneRect = new SceneRect(dimensions);
-		sceneRect.setColor(MeshSpec.LightColors.GREEN);
-		add(DoubleBufferMesh.wrap(sceneRect, DimensionsAwareSwapper.INSTANCE));*/
-		/*if(!d3) {
-			coordinates.setColor(gridColor);
-			add(coordinates);
-		}*/
+        /*final SceneRect sceneRect = new SceneRect(dimensions);
+        sceneRect.setColor(MeshSpec.LightColors.GREEN);
+        add(DoubleBufferMesh.wrap(sceneRect, DimensionsAwareSwapper.INSTANCE));*/
+        /*if (!d3) {
+            coordinates.setColor(gridColor);
+            add(coordinates);
+        }*/
     }
 
-    @Nonnull
-    private DoubleBufferMesh<AxisLabels> prepareAxisLabels(@Nonnull AxisLabels labels, @Nonnull Color color) {
+    @NonNull
+    private DoubleBufferMesh<AxisLabels> prepareAxisLabels(@NonNull AxisLabels labels, @NonNull Color color) {
         labels.setColor(color);
         return labels.toDoubleBuffer();
     }
 
-    @Nonnull
-    private DoubleBufferMesh<Axis> prepareAxis(@Nonnull Axis axis, @Nonnull Color color, int width) {
+    @NonNull
+    private DoubleBufferMesh<Axis> prepareAxis(@NonNull Axis axis, @NonNull Color color, int width) {
         axis.setColor(color);
         axis.setWidth(width);
         return axis.toDoubleBuffer();
@@ -455,7 +455,6 @@ final class DefaultPlotter implements Plotter {
         }
     }
 
-    @Nonnull
     public final class Initializer implements Runnable {
 
         @Override
@@ -493,12 +492,12 @@ final class DefaultPlotter implements Plotter {
         }
 
         @Override
-        public boolean removeCallbacks(@Nonnull Runnable runnable) {
+        public boolean removeCallbacks(@NonNull Runnable runnable) {
             return false;
         }
 
         @Override
-        public boolean post(@Nonnull Runnable runnable) {
+        public boolean post(@NonNull Runnable runnable) {
             if (!shouldUpdateFunctions) {
                 shouldUpdateFunctions = dimensionsChangedRunnable == runnable;
             }
@@ -510,7 +509,7 @@ final class DefaultPlotter implements Plotter {
         }
 
         @Override
-        public void onDimensionChanged(@Nonnull Dimensions dimensions, @Nullable Object source) {
+        public void onDimensionChanged(@NonNull Dimensions dimensions, @Nullable Object source) {
         }
     }
 
@@ -520,7 +519,7 @@ final class DefaultPlotter implements Plotter {
         @Nullable
         private Object source;
 
-        public void run(@Nonnull PlottingView view, @Nullable Object source) {
+        public void run(@NonNull PlottingView view, @Nullable Object source) {
             Check.isTrue(Thread.holdsLock(lock));
             this.view = view;
             this.source = source;
@@ -543,7 +542,7 @@ final class DefaultPlotter implements Plotter {
             onDimensionsChanged();
         }
 
-        public void post(@Nonnull PlottingView view, @Nonnull Object source) {
+        public void post(@NonNull PlottingView view, @Nullable Object source) {
             Check.isTrue(Thread.holdsLock(lock));
             this.view = view;
             this.source = source;

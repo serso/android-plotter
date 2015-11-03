@@ -1,10 +1,9 @@
 package org.solovyev.android.plotter;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
 
 import static java.lang.System.nanoTime;
 
@@ -13,7 +12,7 @@ import static java.lang.System.nanoTime;
  */
 final class Spf {
 
-    @Nonnull
+    @NonNull
     private static final String TAG = Plot.getTag("SPF");
 
     private static final long SECOND = TimeUnit.SECONDS.toNanos(1);

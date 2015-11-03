@@ -1,19 +1,19 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import javax.annotation.Nonnull;
-
 @RunWith(RobolectricTestRunner.class)
 public class GraphTest {
 
     public static final float EPS = 0.00005f;
 
-    @Nonnull
+    @NonNull
     private Graph graph;
 
     @Before
@@ -101,7 +101,7 @@ public class GraphTest {
         verify(graph, expected);
     }
 
-    private void verify(@Nonnull Graph graph, float... values) {
+    private void verify(@NonNull Graph graph, float... values) {
         Assert.assertEquals(3 * values.length, graph.length());
         for (int i = 0; i < values.length; i++) {
             final int v = graph.start + 3 * i;

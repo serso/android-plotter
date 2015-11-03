@@ -1,17 +1,17 @@
 package org.solovyev.android.plotter.meshes;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 public final class FunctionGraphSwapper implements DoubleBufferMesh.Swapper<FunctionGraph> {
 
-    @Nonnull
+    @NonNull
     public static final DoubleBufferMesh.Swapper<FunctionGraph> INSTANCE = new FunctionGraphSwapper();
 
     private FunctionGraphSwapper() {
     }
 
     @Override
-    public void swap(@Nonnull FunctionGraph current, @Nonnull FunctionGraph next) {
+    public void swap(@NonNull FunctionGraph current, @NonNull FunctionGraph next) {
         DimensionsAwareSwapper.INSTANCE.swap(current, next);
         next.setFunction(current.getFunction());
     }

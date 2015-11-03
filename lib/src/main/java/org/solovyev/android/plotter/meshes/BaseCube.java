@@ -1,9 +1,10 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseCube extends BaseMesh {
@@ -18,7 +19,7 @@ public abstract class BaseCube extends BaseMesh {
         this.depth = depth;
     }
 
-    @Nonnull
+    @NonNull
     protected static float[] rainbowVertices() {
         final float colors[] = new float[8 * Color.COMPONENTS];
         Color.fillVertex(colors, 0, Color.RED);
@@ -33,7 +34,7 @@ public abstract class BaseCube extends BaseMesh {
     }
 
     @Override
-    public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         final float x = width / 2;

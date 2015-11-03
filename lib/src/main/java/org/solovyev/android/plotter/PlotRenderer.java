@@ -20,10 +20,10 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -32,32 +32,32 @@ import javax.microedition.khronos.opengles.GL11;
 @SuppressWarnings("SynchronizeOnNonFinalField")
 final class PlotRenderer implements GLSurfaceView.Renderer {
 
-    @Nonnull
+    @NonNull
     private static final Object SOURCE = new Object();
 
-    @Nonnull
+    @NonNull
     private static final PointF tmp = new PointF();
 
-    @Nonnull
+    @NonNull
     private final Spf spf = new Spf();
 
     // lock for synchronization GL objects
-    @Nonnull
+    @NonNull
     private final Object lock = new Object();
 
-    @Nonnull
+    @NonNull
     private final PlottingView view;
-    @Nonnull
+    @NonNull
     private final RotationHolder rotation = new RotationHolder();
-    @Nonnull
+    @NonNull
     private final ZoomerHolder zoomer = new ZoomerHolder();
-    @Nonnull
+    @NonNull
     private final FaderHolder fader = new FaderHolder();
-    @Nonnull
+    @NonNull
     private final CameraManHolder cameraMan = new CameraManHolder();
-    @Nonnull
+    @NonNull
     private final RectSize viewSize = RectSize.empty();
-    @Nonnull
+    @NonNull
     private final Frustum frustum = Frustum.empty();
     @GuardedBy("lock")
     @Nullable
@@ -65,11 +65,11 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
     @GuardedBy("lock")
     private boolean glInitialized;
     @GuardedBy("lock")
-    @Nonnull
+    @NonNull
     private PointF camera = new PointF();
     private volatile boolean rotating = rotation.shouldRotate();
 
-    public PlotRenderer(@Nonnull PlottingView view) {
+    public PlotRenderer(@NonNull PlottingView view) {
         this.view = view;
     }
 
@@ -87,7 +87,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         return localPlotter;
     }
 
-    public void setPlotter(@Nonnull Plotter plotter) {
+    public void setPlotter(@NonNull Plotter plotter) {
         final Zoom zoom = zoomer.current();
         synchronized (lock) {
             Check.isNull(this.plotter);
@@ -115,7 +115,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         tryInitGl(gl, false);
     }
 
-    private void tryInitGl(@Nonnull GL10 gl, boolean fromFrameDraw) {
+    private void tryInitGl(@NonNull GL10 gl, boolean fromFrameDraw) {
         Check.isGlThread();
 
         // state might be changed only from false to true. If change is already visible from GL thread there is no
@@ -134,7 +134,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    private void initGl(@Nonnull GL11 gl, @Nonnull Plotter plotter, boolean fromFrameDraw) {
+    private void initGl(@NonNull GL11 gl, @NonNull Plotter plotter, boolean fromFrameDraw) {
         Check.isTrue(Thread.holdsLock(lock), "Should be called from synchronized block");
         Check.isTrue(!glInitialized, "Should be not initialized");
         Check.isGlThread();
@@ -188,7 +188,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         spf.logFrameEnd();
     }
 
-    private void initFrustum(@Nonnull GL10 gl, @Nonnull Zoom zoom) {
+    private void initFrustum(@NonNull GL10 gl, @NonNull Zoom zoom) {
         Check.isGlThread();
 
         if (viewSize.isEmpty()) {
@@ -247,14 +247,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public void saveState(@Nonnull Bundle bundle) {
+    public void saveState(@NonNull Bundle bundle) {
         Check.isMainThread();
         rotation.saveState(bundle);
         zoomer.saveState(bundle);
         cameraMan.saveState(bundle);
     }
 
-    public void restoreState(@Nonnull Bundle bundle) {
+    public void restoreState(@NonNull Bundle bundle) {
         Check.isMainThread();
         rotation.restoreState(bundle);
         zoomer.restoreState(bundle);
@@ -270,7 +270,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         zoomer.reset();
     }
 
-    public void zoomBy(@Nonnull ZoomLevels level) {
+    public void zoomBy(@NonNull ZoomLevels level) {
         zoomer.zoomBy(level);
     }
 
@@ -303,19 +303,19 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         view.requestRender();
     }
 
-    @Nonnull
+    @NonNull
     private PointF getSceneCenter() {
         synchronized (lock) {
             return getSceneCenter(camera);
         }
     }
 
-    @Nonnull
-    private PointF getSceneCenter(@Nonnull PointF camera) {
+    @NonNull
+    private PointF getSceneCenter(@NonNull PointF camera) {
         return new PointF(-camera.x, -camera.y);
     }
 
-    @Nonnull
+    @NonNull
     private RectSizeF getSceneSize() {
         final RectSizeF result = new RectSizeF();
         synchronized (lock) {
@@ -328,7 +328,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         cameraMan.reset();
     }
 
-    public void onDimensionsChanged(@Nonnull Dimensions dimensions, @Nullable Object source) {
+    public void onDimensionsChanged(@NonNull Dimensions dimensions, @Nullable Object source) {
         if (SOURCE == source) {
             return;
         }
@@ -343,10 +343,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         private static final Angle DEFAULT_ANGLE = new Angle(0, 0);
         private static final Angle DEFAULT_SPEED = new Angle(0f, 0.5f);
 
-        @Nonnull
+        @NonNull
         final Angle angle;
 
-        @Nonnull
+        @NonNull
         final Angle speed;
 
         private Rotation() {
@@ -354,13 +354,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             speed = DEFAULT_SPEED;
         }
 
-        private Rotation(@Nonnull Bundle bundle) {
+        private Rotation(@NonNull Bundle bundle) {
             angle = restoreAngle(bundle, "rotation.angle", DEFAULT_ANGLE);
             speed = restoreAngle(bundle, "rotation.speed", DEFAULT_SPEED);
         }
 
-        @Nonnull
-        private static Angle restoreAngle(@Nonnull Bundle bundle, @Nonnull String name, @Nonnull Angle def) {
+        @NonNull
+        private static Angle restoreAngle(@NonNull Bundle bundle, @NonNull String name, @NonNull Angle def) {
             final Parcelable angle = bundle.getParcelable(name);
             if (angle instanceof Angle) {
                 return (Angle) angle;
@@ -368,7 +368,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             return def;
         }
 
-        public void saveState(@Nonnull Bundle bundle) {
+        public void saveState(@NonNull Bundle bundle) {
             bundle.putParcelable("rotation.angle", angle);
             bundle.putParcelable("rotation.speed", speed);
         }
@@ -388,7 +388,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
          * Synchronization is done on the current instance of the field, so it's always in a good state on GL thread
          */
         @GuardedBy("rotation")
-        @Nonnull
+        @NonNull
         Rotation rotation = new Rotation();
 
         boolean shouldRotate() {
@@ -397,7 +397,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        void onFrame(@Nonnull GL10 gl) {
+        void onFrame(@NonNull GL10 gl) {
             synchronized (rotation) {
                 rotation.onFrame();
 
@@ -430,13 +430,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             view.requestRender();
         }
 
-        void saveState(@Nonnull Bundle bundle) {
+        void saveState(@NonNull Bundle bundle) {
             synchronized (rotation) {
                 rotation.saveState(bundle);
             }
         }
 
-        void restoreState(@Nonnull Bundle bundle) {
+        void restoreState(@NonNull Bundle bundle) {
             synchronized (rotation) {
                 rotation = new Rotation(bundle);
                 rotating = rotation.shouldRotate();
@@ -454,7 +454,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
     private final class CameraManHolder {
         @GuardedBy("PlotRenderer.this.lock")
-        @Nonnull
+        @NonNull
         private final CameraMan cameraMan = new CameraMan();
         @GuardedBy("PlotRenderer.this.lock")
         private boolean moving;
@@ -474,7 +474,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        public void onFrame(@Nonnull PointF out, @Nonnull Plotter plotter) {
+        public void onFrame(@NonNull PointF out, @NonNull Plotter plotter) {
             synchronized (lock) {
                 if (!moving) {
                     out.set(camera);
@@ -494,14 +494,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        public void saveState(@Nonnull Bundle bundle) {
+        public void saveState(@NonNull Bundle bundle) {
             synchronized (lock) {
                 bundle.putFloat("camera.x", camera.x);
                 bundle.putFloat("camera.y", camera.y);
             }
         }
 
-        public void restoreState(@Nonnull Bundle bundle) {
+        public void restoreState(@NonNull Bundle bundle) {
             synchronized (lock) {
                 camera.x = bundle.getFloat("camera.x", camera.x);
                 camera.y = bundle.getFloat("camera.y", camera.y);
@@ -512,7 +512,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
     private final class FaderHolder {
 
         @GuardedBy("PlotRenderer.this.lock")
-        @Nonnull
+        @NonNull
         private final Fader fader = new Fader();
 
         float onFrame() {
@@ -541,17 +541,17 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
     private final class ZoomerHolder {
 
-        @Nonnull
+        @NonNull
         private final String TAG = Plot.getTag("Zoomer");
 
         @GuardedBy("this")
-        @Nonnull
+        @NonNull
         volatile Zoomer zoomer = new Zoomer();
 
         @GuardedBy("this")
         volatile boolean pinchZoom;
 
-        void onFrame(@Nonnull GL11 gl, @Nonnull Plotter plotter) {
+        void onFrame(@NonNull GL11 gl, @NonNull Plotter plotter) {
             synchronized (this) {
                 if (zoomer.onFrame()) {
                     initFrustum(gl, zoomer.current());
@@ -578,14 +578,14 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        void saveState(@Nonnull Bundle bundle) {
+        void saveState(@NonNull Bundle bundle) {
             synchronized (this) {
                 Log.d(TAG, "Saving state: " + zoomer);
                 zoomer.saveState(bundle);
             }
         }
 
-        void restoreState(@Nonnull Bundle bundle) {
+        void restoreState(@NonNull Bundle bundle) {
             final Zoom zoomLevel;
             synchronized (this) {
                 zoomer = new Zoomer(bundle);
@@ -624,7 +624,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        public void zoomBy(@Nonnull ZoomLevels levels) {
+        public void zoomBy(@NonNull ZoomLevels levels) {
             if (!levels.isChanged()) {
                 return;
             }
@@ -667,7 +667,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        @Nonnull
+        @NonNull
         private Zoom current() {
             final Zoom zoom;
             synchronized (this) {

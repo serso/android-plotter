@@ -1,12 +1,12 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Function;
 
-import javax.annotation.Nonnull;
-
 public interface FunctionGraph extends DimensionsAware {
-    @Nonnull
+    @NonNull
     Function getFunction();
 
-    void setFunction(@Nonnull Function function);
+    void setFunction(@NonNull Function function);
 }

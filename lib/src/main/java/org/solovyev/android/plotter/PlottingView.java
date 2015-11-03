@@ -1,7 +1,7 @@
 package org.solovyev.android.plotter;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public interface PlottingView {
 
@@ -13,11 +13,11 @@ public interface PlottingView {
 
     void resetCamera();
 
-    boolean removeCallbacks(@Nonnull Runnable runnable);
+    boolean removeCallbacks(@NonNull Runnable runnable);
 
-    boolean post(@Nonnull Runnable runnable);
+    boolean post(@NonNull Runnable runnable);
 
     void set3d(boolean d3);
 
-    void onDimensionChanged(@Nonnull Dimensions dimensions, @Nullable Object source);
+    void onDimensionChanged(@NonNull Dimensions dimensions, @Nullable Object source);
 }

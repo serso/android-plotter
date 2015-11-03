@@ -107,7 +107,7 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
     }
 
     @Override
-    public void onRestoreInstanceState(@javax.annotation.Nullable Parcelable in) {
+    public void onRestoreInstanceState(@android.support.annotation.Nullable Parcelable in) {
         if (in instanceof Bundle) {
             final Bundle state = (Bundle) in;
             in = state.getParcelable("super");

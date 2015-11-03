@@ -1,6 +1,6 @@
 package org.solovyev.android.plotter;
 
-import javax.annotation.Nullable;
+import android.support.annotation.Nullable;
 
 public abstract class Function1 extends Function {
 

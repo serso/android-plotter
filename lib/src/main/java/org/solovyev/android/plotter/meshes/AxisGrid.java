@@ -1,50 +1,50 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
-
-import javax.annotation.Nonnull;
 
 public class AxisGrid extends BaseSurface {
 
     private final boolean d3;
-    @Nonnull
+    @NonNull
     private Axes axes;
 
-    private AxisGrid(@Nonnull Dimensions dimensions, @Nonnull Axes axes, @Nonnull Color color, boolean d3) {
+    private AxisGrid(@NonNull Dimensions dimensions, @NonNull Axes axes, @NonNull Color color, boolean d3) {
         super(dimensions);
         this.axes = axes;
         this.d3 = d3;
         setColor(color);
     }
 
-    @Nonnull
-    public static AxisGrid yz(@Nonnull Dimensions dimensions, @Nonnull Color color, boolean d3) {
+    @NonNull
+    public static AxisGrid yz(@NonNull Dimensions dimensions, @NonNull Color color, boolean d3) {
         return new AxisGrid(dimensions, Axes.YZ, color, d3);
     }
 
-    @Nonnull
-    public static AxisGrid xz(@Nonnull Dimensions dimensions, @Nonnull Color color, boolean d3) {
+    @NonNull
+    public static AxisGrid xz(@NonNull Dimensions dimensions, @NonNull Color color, boolean d3) {
         return new AxisGrid(dimensions, Axes.XZ, color, d3);
     }
 
-    @Nonnull
-    public static AxisGrid xy(@Nonnull Dimensions dimensions, @Nonnull Color color, boolean d3) {
+    @NonNull
+    public static AxisGrid xy(@NonNull Dimensions dimensions, @NonNull Color color, boolean d3) {
         return new AxisGrid(dimensions, Axes.XY, color, d3);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new AxisGrid(dimensions, axes, getColor(), d3);
     }
 
-    @Nonnull
+    @NonNull
     public DoubleBufferMesh<AxisGrid> toDoubleBuffer() {
         return DoubleBufferMesh.wrap(this, DimensionsAwareSwapper.INSTANCE);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected SurfaceInitializer createInitializer() {
         final Scene.AxisGrid grid = Scene.AxisGrid.create(dimensions, axes, d3);

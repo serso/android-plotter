@@ -1,45 +1,46 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class Axis extends BaseMesh implements DimensionsAware {
 
-    @Nonnull
+    @NonNull
     private final AxisDirection direction;
-    @Nonnull
+    @NonNull
     private final Arrays arrays = new Arrays();
-    @Nonnull
+    @NonNull
     private final ArrayInitializer initializer = new ArrayInitializer();
     private final boolean d3;
-    @Nonnull
+    @NonNull
     protected volatile Dimensions dimensions;
 
-    private Axis(@Nonnull AxisDirection direction, @Nonnull Dimensions dimensions, boolean d3) {
+    private Axis(@NonNull AxisDirection direction, @NonNull Dimensions dimensions, boolean d3) {
         this.direction = direction;
         this.dimensions = dimensions;
         this.d3 = d3;
     }
 
-    @Nonnull
-    public static Axis x(@Nonnull Dimensions dimensions, boolean d3) {
+    @NonNull
+    public static Axis x(@NonNull Dimensions dimensions, boolean d3) {
         return new Axis(AxisDirection.X, dimensions, d3);
     }
 
-    @Nonnull
-    public static Axis y(@Nonnull Dimensions dimensions, boolean d3) {
+    @NonNull
+    public static Axis y(@NonNull Dimensions dimensions, boolean d3) {
         return new Axis(AxisDirection.Y, dimensions, d3);
     }
 
-    @Nonnull
-    public static Axis z(@Nonnull Dimensions dimensions, boolean d3) {
+    @NonNull
+    public static Axis z(@NonNull Dimensions dimensions, boolean d3) {
         return new Axis(AxisDirection.Z, dimensions, d3);
     }
 
-    @Nonnull
+    @NonNull
     public DoubleBufferMesh<Axis> toDoubleBuffer() {
         return DoubleBufferMesh.wrap(this, DimensionsAwareSwapper.INSTANCE);
     }
@@ -57,27 +58,27 @@ public class Axis extends BaseMesh implements DimensionsAware {
     }
 
     @Override
-    protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         setVertices(arrays.getVerticesBuffer());
         setIndices(arrays.getIndicesBuffer(), IndicesOrder.LINES);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new Axis(direction, dimensions, d3);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Dimensions getDimensions() {
         return this.dimensions;
     }
 
     @Override
-    public void setDimensions(@Nonnull Dimensions dimensions) {
+    public void setDimensions(@NonNull Dimensions dimensions) {
         // todo serso: might be called on GL thread, requires synchronization
         if (!this.dimensions.equals(dimensions)) {
             this.dimensions = dimensions;
@@ -110,7 +111,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
             initTicks(dimensions);
         }
 
-        private void initTicks(@Nonnull Dimensions dimensions) {
+        private void initTicks(@NonNull Dimensions dimensions) {
             final int[] dv = direction.vector;
             final int[] da = direction.arrow;
             float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + dimensions.scene.centerXForStep(ticks.step, d3)) + da[0] * ticks.width / 2 + (d3 ? dimensions.scene.center.x : 0);
@@ -142,7 +143,7 @@ public class Axis extends BaseMesh implements DimensionsAware {
             arrays.indices[arrays.index++] = 3;
         }
 
-        private void initLine(@Nonnull Dimensions dimensions) {
+        private void initLine(@NonNull Dimensions dimensions) {
             final int[] dv = direction.vector;
             final float x = axis.length / 2 + (!d3 ? dimensions.scene.center.x : 0);
             final float y = axis.length / 2 + (!d3 ? dimensions.scene.center.y : 0);

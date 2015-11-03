@@ -1,6 +1,6 @@
 package org.solovyev.android.plotter;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 public final class MeshConfig {
 
@@ -10,12 +10,12 @@ public final class MeshConfig {
     private MeshConfig() {
     }
 
-    @Nonnull
+    @NonNull
     public static MeshConfig create() {
         return new MeshConfig();
     }
 
-    @Nonnull
+    @NonNull
     public MeshConfig copy() {
         final MeshConfig copy = new MeshConfig();
         copy.useVbo = useVbo;

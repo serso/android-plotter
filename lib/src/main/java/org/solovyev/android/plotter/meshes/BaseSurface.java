@@ -1,12 +1,12 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.Plot;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
@@ -32,21 +32,21 @@ import javax.microedition.khronos.opengles.GL11;
  */
 public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
 
-    @Nonnull
+    @NonNull
     private final Arrays arrays = new Arrays();
-    @Nonnull
+    @NonNull
     protected volatile Dimensions dimensions;
 
-    protected BaseSurface(@Nonnull Dimensions dimensions) {
+    protected BaseSurface(@NonNull Dimensions dimensions) {
         this.dimensions = dimensions;
     }
 
-    @Nonnull
+    @NonNull
     public Dimensions getDimensions() {
         return dimensions;
     }
 
-    public void setDimensions(@Nonnull Dimensions dimensions) {
+    public void setDimensions(@NonNull Dimensions dimensions) {
         // todo serso: might be called on GL thread, requires synchronization
         if (!this.dimensions.equals(dimensions)) {
             this.dimensions = dimensions;
@@ -67,11 +67,11 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
         }
     }
 
-    @Nonnull
+    @NonNull
     protected abstract SurfaceInitializer createInitializer();
 
     @Override
-    public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         setVertices(arrays.getVerticesBuffer());
@@ -79,7 +79,7 @@ public abstract class BaseSurface extends BaseMesh implements DimensionsAware {
     }
 
     @Override
-    protected void onPostDraw(@Nonnull GL11 gl) {
+    protected void onPostDraw(@NonNull GL11 gl) {
         super.onPostDraw(gl);
         gl.glDrawArrays(GL10.GL_LINE_STRIP, 0, arrays.vertices.length / 3);
     }

@@ -1,29 +1,28 @@
 package org.solovyev.android.plotter;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static android.os.SystemClock.uptimeMillis;
 
 final class Zoomer {
 
     static final long DURATION = 1000L;
-    @Nonnull
+    @NonNull
     private final Interpolator interpolator = new AccelerateDecelerateInterpolator();
     private long duration = DURATION;
-    @Nonnull
+    @NonNull
     private Zoom current = Zoom.one();
-    @Nonnull
+    @NonNull
     private Zoom to = current;
     @Nullable
     private Zoom from = null;
     private long startTime = -1;
 
-    public Zoomer(@Nonnull Bundle bundle) {
+    public Zoomer(@NonNull Bundle bundle) {
         current = Zoom.load(bundle);
         to = current;
     }
@@ -31,7 +30,7 @@ final class Zoomer {
     public Zoomer() {
     }
 
-    @Nonnull
+    @NonNull
     public Zoom current() {
         return current;
     }
@@ -112,7 +111,7 @@ final class Zoomer {
         return true;
     }
 
-    private void zoomTo(@Nonnull Zoom newZoom) {
+    private void zoomTo(@NonNull Zoom newZoom) {
         to = newZoom;
         from = current;
         duration = DURATION;
@@ -158,7 +157,7 @@ final class Zoomer {
         return to.biggerThan(current);
     }
 
-    public void saveState(@Nonnull Bundle bundle) {
+    public void saveState(@NonNull Bundle bundle) {
         final Zoom zoom = isZooming() ? to : current;
         zoom.save(bundle);
     }

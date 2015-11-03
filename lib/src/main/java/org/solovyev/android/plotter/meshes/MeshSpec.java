@@ -2,47 +2,46 @@ package org.solovyev.android.plotter.meshes;
 
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Plot;
 
-import javax.annotation.Nonnull;
-
 public class MeshSpec {
     public static final int COLOR_MAP = 0;
     public static final int WIDTH_DEFAULT = 1;
-    @Nonnull
+    @NonNull
     public static final Color COLOR_NO = Color.TRANSPARENT;
-    @Nonnull
+    @NonNull
     public static final Color COLOR_DEFAULT = Color.WHITE;
-    @Nonnull
+    @NonNull
     public Color color;
     public int width;
-    private MeshSpec(@Nonnull Color color, int width) {
+    private MeshSpec(@NonNull Color color, int width) {
         this.color = color;
         this.width = width;
     }
 
-    @Nonnull
-    public static MeshSpec create(@Nonnull Color color, int width) {
+    @NonNull
+    public static MeshSpec create(@NonNull Color color, int width) {
         return new MeshSpec(color, width);
     }
 
-    @Nonnull
-    public static MeshSpec createDefault(@Nonnull Context context) {
+    @NonNull
+    public static MeshSpec createDefault(@NonNull Context context) {
         return new MeshSpec(COLOR_NO, defaultWidth(context));
     }
 
-    public static int defaultWidth(@Nonnull Context context) {
+    public static int defaultWidth(@NonNull Context context) {
         return (int) Plot.dpsToPxs(context, 1.5f);
     }
 
-    @Nonnull
+    @NonNull
     public MeshSpec copy() {
         return this;
     }
 
-    public void applyTo(@Nonnull DimensionsAware mesh) {
+    public void applyTo(@NonNull DimensionsAware mesh) {
         mesh.setColor(color);
         mesh.setWidth(width);
     }

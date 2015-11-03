@@ -7,23 +7,22 @@ import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import static android.os.SystemClock.uptimeMillis;
 
 public class PlotView extends GLSurfaceView implements PlottingView {
 
-    @Nonnull
+    @NonNull
     private final PlotRenderer renderer;
-    @Nonnull
+    @NonNull
     private final TouchListener touchListener = new TouchListener();
-    @Nonnull
+    @NonNull
     private final List<Listener> listeners = new ArrayList<>();
     @Nullable
     private Plotter plotter;
@@ -41,8 +40,8 @@ public class PlotView extends GLSurfaceView implements PlottingView {
         renderer = initGl(this);
     }
 
-    @Nonnull
-    private static PlotRenderer initGl(@Nonnull PlotView view) {
+    @NonNull
+    private static PlotRenderer initGl(@NonNull PlotView view) {
         view.setEGLConfigChooser(new MultisampleConfigChooser());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             preserveEglContextOnPause(view);
@@ -56,7 +55,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private static void preserveEglContextOnPause(@Nonnull PlotView view) {
+    private static void preserveEglContextOnPause(@NonNull PlotView view) {
         view.setPreserveEGLContextOnPause(true);
     }
 
@@ -83,7 +82,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
         super.onDetachedFromWindow();
     }
 
-    public void setPlotter(@Nonnull Plotter plotter) {
+    public void setPlotter(@NonNull Plotter plotter) {
         Check.isMainThread();
         Check.isNull(this.plotter);
         this.plotter = plotter;
@@ -148,11 +147,11 @@ public class PlotView extends GLSurfaceView implements PlottingView {
     }
 
     @Override
-    public void onDimensionChanged(@Nonnull Dimensions dimensions, @Nullable Object source) {
+    public void onDimensionChanged(@NonNull Dimensions dimensions, @Nullable Object source) {
         renderer.onDimensionsChanged(dimensions, source);
     }
 
-    public void addListener(@Nonnull Listener listener) {
+    public void addListener(@NonNull Listener listener) {
         listeners.add(listener);
     }
 
@@ -167,19 +166,19 @@ public class PlotView extends GLSurfaceView implements PlottingView {
 
     private class TouchListener implements TouchHandler.Listener {
 
-        @Nonnull
+        @NonNull
         private final TouchHandler handler = TouchHandler.create(this);
 
-        @Nonnull
+        @NonNull
         private final PinchZoomTracker zoomTracker = new PinchZoomTracker(getContext());
-        @Nonnull
+        @NonNull
         private final PointF lastTouch = new PointF();
-        @Nonnull
+        @NonNull
         private final PointF cameraOffset = new PointF();
 
         private boolean lastTouchMoved;
         private long lastZoomTime = 0;
-        @Nonnull
+        @NonNull
         private TouchMode mode = TouchMode.PAN;
 
         @Override

@@ -1,5 +1,8 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Plot;
 
@@ -7,9 +10,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public final class Meshes {
 
@@ -19,22 +19,22 @@ public final class Meshes {
     private Meshes() {
     }
 
-    @Nonnull
+    @NonNull
     static String getTag() {
         return Plot.getTag("Meshes");
     }
 
-    @Nonnull
-    static String getTag(@Nonnull String tag) {
+    @NonNull
+    static String getTag(@NonNull String tag) {
         return getTag() + "/" + tag;
     }
 
-    @Nonnull
+    @NonNull
     public static FloatBuffer allocateBuffer(float[] array) {
         return allocateBuffer(array, 0, array.length);
     }
 
-    @Nonnull
+    @NonNull
     public static FloatBuffer allocateBuffer(float[] array, int start, int length) {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(length * BYTES_IN_FLOAT);
         buffer.order(ByteOrder.nativeOrder());
@@ -42,8 +42,8 @@ public final class Meshes {
         return putBuffer(array, start, length, floatBuffer);
     }
 
-    @Nonnull
-    public static FloatBuffer putBuffer(float[] array, int start, int length, @Nonnull FloatBuffer to) {
+    @NonNull
+    public static FloatBuffer putBuffer(float[] array, int start, int length, @NonNull FloatBuffer to) {
         if (to.capacity() != length) {
             throw new IllegalArgumentException("Arrays should have save size");
         }
@@ -53,8 +53,8 @@ public final class Meshes {
         return to;
     }
 
-    @Nonnull
-    static FloatBuffer allocateOrPutBuffer(@Nonnull float[] array, int start, int length, @Nullable FloatBuffer buffer) {
+    @NonNull
+    static FloatBuffer allocateOrPutBuffer(@NonNull float[] array, int start, int length, @Nullable FloatBuffer buffer) {
         FloatBuffer newBuffer;
         if (buffer != null && buffer.capacity() == length) {
             newBuffer = putBuffer(array, start, length, buffer);
@@ -64,12 +64,12 @@ public final class Meshes {
         return newBuffer;
     }
 
-    @Nonnull
-    static FloatBuffer allocateOrPutBuffer(@Nonnull float[] array, @Nullable FloatBuffer buffer) {
+    @NonNull
+    static FloatBuffer allocateOrPutBuffer(@NonNull float[] array, @Nullable FloatBuffer buffer) {
         return allocateOrPutBuffer(array, 0, array.length, buffer);
     }
 
-    @Nonnull
+    @NonNull
     public static ShortBuffer allocateBuffer(short[] array, int start, int length) {
         final ByteBuffer buffer = ByteBuffer.allocateDirect(length * BYTES_IN_SHORT);
         buffer.order(ByteOrder.nativeOrder());
@@ -77,8 +77,8 @@ public final class Meshes {
         return putBuffer(array, start, length, shortBuffer);
     }
 
-    @Nonnull
-    public static ShortBuffer putBuffer(short[] array, int start, int length, @Nonnull ShortBuffer to) {
+    @NonNull
+    public static ShortBuffer putBuffer(short[] array, int start, int length, @NonNull ShortBuffer to) {
         if (to.capacity() != length) {
             throw new IllegalArgumentException("Arrays should have save size");
         }
@@ -88,13 +88,13 @@ public final class Meshes {
         return to;
     }
 
-    @Nonnull
-    static ShortBuffer allocateOrPutBuffer(@Nonnull short[] array, @Nullable ShortBuffer buffer) {
+    @NonNull
+    static ShortBuffer allocateOrPutBuffer(@NonNull short[] array, @Nullable ShortBuffer buffer) {
         return allocateOrPutBuffer(array, 0, array.length, buffer);
     }
 
-    @Nonnull
-    static ShortBuffer allocateOrPutBuffer(@Nonnull short[] array, int start, int length, @Nullable ShortBuffer buffer) {
+    @NonNull
+    static ShortBuffer allocateOrPutBuffer(@NonNull short[] array, int start, int length, @Nullable ShortBuffer buffer) {
         ShortBuffer newBuffer;
         if (buffer != null && buffer.capacity() == length) {
             newBuffer = putBuffer(array, start, length, buffer);

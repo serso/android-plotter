@@ -3,6 +3,7 @@ package org.solovyev.android.plotter.app;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
+import android.support.annotation.NonNull;
 
 import com.squareup.otto.Subscribe;
 
@@ -13,20 +14,18 @@ import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
 import org.solovyev.android.plotter.views.PlotViewFrame;
 
-import javax.annotation.Nonnull;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class MainActivity extends Activity implements PlotViewFrame.Listener {
 
-    @Nonnull
+    @NonNull
     private final Plotter plotter = App.getPlotter();
-    @Nonnull
+    @NonNull
     private final EventHandler eventHandler = new EventHandler();
     @Bind(R.id.plot_view_frame)
     PlotViewFrame plotView;
-    @Nonnull
+    @NonNull
     private final Runnable colorUpdater = new Runnable() {
         private int direction = -1;
 
@@ -60,13 +59,13 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
     }
 
     @Override
-    protected void onSaveInstanceState(@Nonnull Bundle out) {
+    protected void onSaveInstanceState(@NonNull Bundle out) {
         super.onSaveInstanceState(out);
         out.putBundle("plotview", plotView.onSaveInstanceState());
     }
 
     @Override
-    protected void onRestoreInstanceState(@Nonnull Bundle in) {
+    protected void onRestoreInstanceState(@NonNull Bundle in) {
         super.onRestoreInstanceState(in);
         final Bundle plotviewState = in.getBundle("plotview");
         if (plotviewState != null) {
@@ -107,21 +106,21 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 
     public class EventHandler {
 
-        @Nonnull
+        @NonNull
         private final MainActivity activity = MainActivity.this;
 
         @Subscribe
-        public void onShowAddFunction(@Nonnull ShowAddFunctionEvent e) {
+        public void onShowAddFunction(@NonNull ShowAddFunctionEvent e) {
         }
 
         @Subscribe
-        public void onShowDimensionsDialog(@Nonnull DimensionsDialog.ShowEvent e) {
+        public void onShowDimensionsDialog(@NonNull DimensionsDialog.ShowEvent e) {
             final DimensionsDialog dialog = new DimensionsDialog(activity, e.graph, e.d3);
             dialog.show();
         }
 
         @Subscribe
-        public void onShowFunctionsDialog(@Nonnull FunctionsDialog.ShowEvent e) {
+        public void onShowFunctionsDialog(@NonNull FunctionsDialog.ShowEvent e) {
             final FunctionsDialog dialog = new FunctionsDialog(activity, e.plotData);
             dialog.show();
         }

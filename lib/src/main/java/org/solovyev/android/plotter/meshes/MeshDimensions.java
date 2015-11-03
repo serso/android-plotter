@@ -1,19 +1,19 @@
 package org.solovyev.android.plotter.meshes;
 
-import org.solovyev.android.plotter.Dimensions;
+import android.support.annotation.NonNull;
 
-import javax.annotation.Nonnull;
+import org.solovyev.android.plotter.Dimensions;
 
 final class MeshDimensions {
 
-    @Nonnull
+    @NonNull
     private Dimensions dimensions;
 
-    MeshDimensions(@Nonnull Dimensions dimensions) {
+    MeshDimensions(@NonNull Dimensions dimensions) {
         this.dimensions = dimensions;
     }
 
-    public synchronized boolean set(@Nonnull Dimensions dimensions) {
+    public synchronized boolean set(@NonNull Dimensions dimensions) {
         if (this.dimensions.equals(dimensions)) {
             return false;
         }
@@ -22,7 +22,7 @@ final class MeshDimensions {
         return true;
     }
 
-    @Nonnull
+    @NonNull
     public synchronized Dimensions get() {
         return dimensions;
     }

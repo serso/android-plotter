@@ -3,32 +3,31 @@ package org.solovyev.android.plotter;
 import android.content.Context;
 import android.graphics.PointF;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
-import javax.annotation.Nonnull;
-
 public final class Plot {
 
-    @Nonnull
+    @NonNull
     public static final PointF ZERO = new PointF();
 
     private Plot() {
         throw new AssertionError();
     }
 
-    @Nonnull
+    @NonNull
     public static String getTag() {
         return "Plot";
     }
 
-    @Nonnull
-    public static String getTag(@Nonnull String tag) {
+    @NonNull
+    public static String getTag(@NonNull String tag) {
         return getTag() + "/" + tag;
     }
 
-    @Nonnull
-    public static Plotter newPlotter(@Nonnull Context context) {
+    @NonNull
+    public static Plotter newPlotter(@NonNull Context context) {
         return new DefaultPlotter(context);
     }
 
@@ -36,7 +35,7 @@ public final class Plot {
         return Looper.getMainLooper() == Looper.myLooper();
     }
 
-    public static float dpsToPxs(@Nonnull Context context, float dps) {
+    public static float dpsToPxs(@NonNull Context context, float dps) {
         final DisplayMetrics dm = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps, dm);
     }

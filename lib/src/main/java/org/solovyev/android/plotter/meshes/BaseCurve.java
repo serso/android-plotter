@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.solovyev.android.plotter.Check;
@@ -9,33 +10,32 @@ import org.solovyev.android.plotter.MeshConfig;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
     private static final boolean CUTOFF = true;
 
-    @Nonnull
+    @NonNull
     protected final MeshDimensions dimensions;
-    @Nonnull
+    @NonNull
     private final Graph graph = Graph.create();
     // create on the background thread and accessed from GL thread
     private volatile FloatBuffer verticesBuffer;
     private volatile ShortBuffer indicesBuffer;
 
-    protected BaseCurve(@Nonnull Dimensions dimensions) {
+    protected BaseCurve(@NonNull Dimensions dimensions) {
         this.dimensions = new MeshDimensions(dimensions);
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public Dimensions getDimensions() {
         return dimensions.get();
     }
 
     @Override
-    public void setDimensions(@Nonnull Dimensions dimensions) {
+    public void setDimensions(@NonNull Dimensions dimensions) {
         if (this.dimensions.set(dimensions)) {
             Log.d(TAG, this + ": dimensions=" + dimensions);
             setDirty();
@@ -64,7 +64,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
     }
 
     @Override
-    public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         Check.isNotNull(verticesBuffer);
@@ -73,7 +73,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
         setIndices(indicesBuffer, CUTOFF ? IndicesOrder.LINES : IndicesOrder.LINE_STRIP);
     }
 
-    void fillGraph(@Nonnull Graph graph, @Nonnull Dimensions dimensions) {
+    void fillGraph(@NonNull Graph graph, @NonNull Dimensions dimensions) {
         final float add = dimensions.graph.size.width;
         final float newXMin = dimensions.graph.xMin() - add;
         final float newXMax = dimensions.graph.xMax() + add;
@@ -133,7 +133,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
         }
     }
 
-    private boolean fillGraphIfCantGrow(Graph graph, float newXMin, float newXMax, float step, int maxPoints, @Nonnull Dimensions dimensions) {
+    private boolean fillGraphIfCantGrow(Graph graph, float newXMin, float newXMax, float step, int maxPoints, @NonNull Dimensions dimensions) {
         if (!graph.canGrow(maxPoints)) {
             // if we can't grow anymore we must clear the graph and recalculate all values
             graph.clear();
@@ -145,7 +145,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
     protected abstract float y(float x);
 
-    private void calculate(float from, float to, float step, @Nonnull Graph graph, @Nonnull Dimensions.Graph g) {
+    private void calculate(float from, float to, float step, @NonNull Graph graph, @NonNull Dimensions.Graph g) {
         float x = from;
         while (x < to) {
             float y = y(x);

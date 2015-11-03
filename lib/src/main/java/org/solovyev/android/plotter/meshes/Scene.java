@@ -1,10 +1,9 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.Dimensions;
-
-import javax.annotation.Nonnull;
 
 // Spx = Scene pixels
 // Gpx = Graph pixels
@@ -15,21 +14,21 @@ final class Scene {
 
     static final class AxisGrid {
 
-        @Nonnull
+        @NonNull
         final RectF rect;
-        @Nonnull
+        @NonNull
         final Scene.Ticks widthTicks;
-        @Nonnull
+        @NonNull
         final Scene.Ticks heightTicks;
 
-        AxisGrid(@Nonnull RectF rect, @Nonnull Ticks widthTicks, @Nonnull Ticks heightTicks) {
+        AxisGrid(@NonNull RectF rect, @NonNull Ticks widthTicks, @NonNull Ticks heightTicks) {
             this.rect = rect;
             this.widthTicks = widthTicks;
             this.heightTicks = heightTicks;
         }
 
-        @Nonnull
-        public static AxisGrid create(@Nonnull Dimensions dimensions, @Nonnull org.solovyev.android.plotter.meshes.AxisGrid.Axes axes, boolean d3) {
+        @NonNull
+        public static AxisGrid create(@NonNull Dimensions dimensions, @NonNull org.solovyev.android.plotter.meshes.AxisGrid.Axes axes, boolean d3) {
             final Scene.Axis xAxis = Scene.Axis.create(dimensions.scene, false, d3);
             final Scene.Axis yAxis = Scene.Axis.create(dimensions.scene, true, d3);
             final Scene.Ticks xTicks = Scene.Ticks.create(dimensions.graph, xAxis);
@@ -69,7 +68,7 @@ final class Scene {
         final float arrowWidth;
         final float multiplier;
 
-        public Axis(@Nonnull Dimensions.Scene scene, boolean y, boolean d3) {
+        public Axis(@NonNull Dimensions.Scene scene, boolean y, boolean d3) {
             multiplier = d3 ? 1 : 5;
             final float width = multiplier * scene.size.width;
             final float height = multiplier * scene.size.height;
@@ -85,8 +84,8 @@ final class Scene {
             arrowWidth = minLength / (multiplier * 40);
         }
 
-        @Nonnull
-        public static Axis create(@Nonnull Dimensions.Scene scene, boolean y, boolean d3) {
+        @NonNull
+        public static Axis create(@NonNull Dimensions.Scene scene, boolean y, boolean d3) {
             return new Axis(scene, y, d3);
         }
     }
@@ -108,8 +107,8 @@ final class Scene {
             this.axisLength = (count - 1) * step;
         }
 
-        @Nonnull
-        public static Ticks create(@Nonnull Dimensions.Graph graph, @Nonnull Axis axis) {
+        @NonNull
+        public static Ticks create(@NonNull Dimensions.Graph graph, @NonNull Axis axis) {
             final float sidePaddingSpx = 1.2f * axis.arrowLength;
             final float sidePaddingGpx = graph.scaleToGraphX(sidePaddingSpx);
             final float tickWidthSpx = axis.arrowWidth / 3;

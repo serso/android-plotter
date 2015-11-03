@@ -1,26 +1,26 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.Function;
 
-import javax.annotation.Nonnull;
-
 public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 
-    @Nonnull
+    @NonNull
     private volatile Function function;
 
-    FunctionGraph3d(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+    FunctionGraph3d(@NonNull Dimensions dimensions, @NonNull Function function) {
         super(dimensions);
         this.function = function;
     }
 
-    @Nonnull
-    public static FunctionGraph3d create(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+    @NonNull
+    public static FunctionGraph3d create(@NonNull Dimensions dimensions, @NonNull Function function) {
         return new FunctionGraph3d(dimensions, function);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected SurfaceInitializer createInitializer() {
         return new SurfaceInitializer.GraphSurfaceInitializer(this, dimensions.graph);
@@ -41,14 +41,14 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
         }
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Function getFunction() {
         return function;
     }
 
     @Override
-    public void setFunction(@Nonnull Function function) {
+    public void setFunction(@NonNull Function function) {
         // todo serso: might be called on GL thread, requires synchronization
         if (!this.function.equals(function)) {
             this.function = function;
@@ -56,7 +56,7 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
         }
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new FunctionGraph3d(dimensions, function);

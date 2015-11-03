@@ -2,26 +2,25 @@ package org.solovyev.android.plotter;
 
 import android.content.Context;
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
 import android.util.Log;
-
-import javax.annotation.Nonnull;
 
 final class PinchZoomTracker {
 
-    @Nonnull
+    @NonNull
     private static final String TAG = Plot.getTag("PinchZoom");
 
     private static final float EPS = 1.5f;
 
-    @Nonnull
+    @NonNull
     private final PointF distance = new PointF();
 
-    @Nonnull
+    @NonNull
     private final ZoomLevels current = new ZoomLevels();
 
     private final float minDistance;
 
-    PinchZoomTracker(@Nonnull Context context) {
+    PinchZoomTracker(@NonNull Context context) {
         minDistance = Plot.dpsToPxs(context, 15);
     }
 
@@ -36,7 +35,7 @@ final class PinchZoomTracker {
         distance.y = distance(y1, y2);
     }
 
-    @Nonnull
+    @NonNull
     ZoomLevels update(float x1, float y1, float x2, float y2) {
         current.reset();
 

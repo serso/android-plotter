@@ -22,7 +22,7 @@
 
 package org.solovyev.android.plotter;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 public final class AxisStyle {
 
@@ -34,12 +34,12 @@ public final class AxisStyle {
     private AxisStyle() {
     }
 
-    @Nonnull
+    @NonNull
     public static AxisStyle create() {
         return new AxisStyle();
     }
 
-    @Nonnull
+    @NonNull
     public AxisStyle copy() {
         final AxisStyle copy = new AxisStyle();
         copy.axisColor = axisColor;

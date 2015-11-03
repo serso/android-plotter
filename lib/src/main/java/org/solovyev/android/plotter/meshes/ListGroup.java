@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
@@ -7,42 +9,41 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.microedition.khronos.opengles.GL11;
 
 @ThreadSafe
 public final class ListGroup<M extends Mesh> implements Group<M> {
 
-    @Nonnull
+    @NonNull
     private final CopyOnWriteArrayList<M> list;
 
     private ListGroup() {
         list = new CopyOnWriteArrayList<M>();
     }
 
-    private ListGroup(@Nonnull CopyOnWriteArrayList<M> list) {
+    private ListGroup(@NonNull CopyOnWriteArrayList<M> list) {
         this.list = list;
     }
 
-    @Nonnull
+    @NonNull
     public static <M extends Mesh> ListGroup<M> create() {
         return new ListGroup<M>();
     }
 
-    @Nonnull
-    public static <M extends Mesh> ListGroup<M> create(@Nonnull Collection<M> meshes) {
+    @NonNull
+    public static <M extends Mesh> ListGroup<M> create(@NonNull Collection<M> meshes) {
         return new ListGroup<M>(new CopyOnWriteArrayList<M>(meshes));
     }
 
     @Override
-    public void draw(@Nonnull GL11 gl) {
+    public void draw(@NonNull GL11 gl) {
         for (M mesh : list) {
             mesh.draw(gl);
         }
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public ListGroup<M> copy() {
         final CopyOnWriteArrayList<M> meshes = new CopyOnWriteArrayList<M>();
@@ -52,7 +53,7 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
         return new ListGroup<M>(meshes);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public State getState() {
         State state = State.INIT_GL;
@@ -73,7 +74,7 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
     }
 
     @Override
-    public boolean setColor(@Nonnull Color color) {
+    public boolean setColor(@NonNull Color color) {
         boolean changed = false;
         for (M mesh : list) {
             changed |= mesh.setColor(color);
@@ -81,7 +82,7 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
         return changed;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Color getColor() {
         throw new UnsupportedOperationException();
@@ -102,7 +103,7 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
     }
 
     @Override
-    public boolean add(@Nonnull M mesh) {
+    public boolean add(@NonNull M mesh) {
         return list.add(mesh);
     }
 
@@ -121,7 +122,7 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
     }
 
     @Override
-    public boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public boolean initGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         boolean changed = false;
         for (M mesh : list) {
             changed |= mesh.initGl(gl, config);
@@ -130,7 +131,7 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public M get(int location) {
         return list.get(location);
     }
@@ -141,7 +142,7 @@ public final class ListGroup<M extends Mesh> implements Group<M> {
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public M remove(int i) {
         return list.remove(i);
     }

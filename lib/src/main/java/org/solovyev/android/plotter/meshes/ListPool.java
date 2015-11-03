@@ -1,22 +1,22 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 public final class ListPool<M extends Mesh> implements Pool<M> {
 
-    @Nonnull
+    @NonNull
     private final List<M> list = new ArrayList<M>();
-    @Nonnull
+    @NonNull
     private final Callback<M> callback;
 
-    public ListPool(@Nonnull Callback<M> callback) {
+    public ListPool(@NonNull Callback<M> callback) {
         this.callback = callback;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public M obtain() {
         final int poolSize = list.size();
@@ -30,7 +30,7 @@ public final class ListPool<M extends Mesh> implements Pool<M> {
     }
 
     @Override
-    public void release(@Nonnull M mesh) {
+    public void release(@NonNull M mesh) {
         callback.release(mesh);
         list.add(mesh);
     }
@@ -43,9 +43,9 @@ public final class ListPool<M extends Mesh> implements Pool<M> {
     }
 
     public static interface Callback<M extends Mesh> {
-        @Nonnull
+        @NonNull
         M create();
 
-        void release(@Nonnull M mesh);
+        void release(@NonNull M mesh);
     }
 }

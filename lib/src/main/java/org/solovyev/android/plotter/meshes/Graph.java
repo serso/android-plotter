@@ -1,11 +1,10 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.solovyev.android.plotter.Check;
-
-import javax.annotation.Nonnull;
 
 class Graph {
 
@@ -16,11 +15,11 @@ class Graph {
     int start;
     int end;
 
-    @Nonnull
+    @NonNull
     float[] vertices = new float[capacity];
 
     private int indicesCount = capacity / 3;
-    @Nonnull
+    @NonNull
     private short[] indices = new short[indicesCount];
 
     {
@@ -31,7 +30,7 @@ class Graph {
         init();
     }
 
-    @Nonnull
+    @NonNull
     static Graph create() {
         return new Graph();
     }

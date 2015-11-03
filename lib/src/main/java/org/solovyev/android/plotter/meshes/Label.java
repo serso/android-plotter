@@ -1,25 +1,26 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.text.FontAtlas;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class Label extends BaseMesh {
-    @Nonnull
+    @NonNull
     private final FontAtlas fontAtlas;
 
-    @Nonnull
+    @NonNull
     private final String label;
 
-    public Label(@Nonnull FontAtlas fontAtlas, @Nonnull String label) {
+    public Label(@NonNull FontAtlas fontAtlas, @NonNull String label) {
         this.fontAtlas = fontAtlas;
         this.label = label;
     }
 
     @Override
-    protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         final FontAtlas.MeshData meshData;
@@ -29,7 +30,7 @@ public class Label extends BaseMesh {
         setTexture(meshData.textureId, meshData.textureCoordinates);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new Label(fontAtlas, label);

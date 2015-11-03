@@ -10,6 +10,8 @@ import android.graphics.Point;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.opengl.GLUtils;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.meshes.IndicesOrder;
@@ -17,8 +19,6 @@ import org.solovyev.android.plotter.meshes.IndicesOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL10;
 
 public class FontAtlas {
@@ -33,13 +33,13 @@ public class FontAtlas {
     private final static int FONT_SIZE_MAX = 512;
     private final static boolean DEBUG = false;
 
-    @Nonnull
+    @NonNull
     private final AssetManager assets;
 
-    @Nonnull
+    @NonNull
     private final Font font = new Font();
 
-    @Nonnull
+    @NonNull
     private final RectF[] chars = new RectF[CHARS_COUNT];
 
     private int textureId = -1;
@@ -49,7 +49,7 @@ public class FontAtlas {
     private int cols = 0;
     private int textureSize;
 
-    public FontAtlas(@Nonnull Context context) {
+    public FontAtlas(@NonNull Context context) {
         assets = context.getAssets();
     }
 
@@ -70,7 +70,7 @@ public class FontAtlas {
         }
     }
 
-    public boolean init(@Nonnull GL10 gl, @Nonnull String file, int size, int paddingX, int paddingY, int color) {
+    public boolean init(@NonNull GL10 gl, @NonNull String file, int size, int paddingX, int paddingY, int color) {
         Check.isGlThread();
 
         font.padding.x = paddingX;
@@ -131,7 +131,7 @@ public class FontAtlas {
         }
     }
 
-    private void bindTexture(@Nonnull GL10 gl, @Nonnull Bitmap bitmap) {
+    private void bindTexture(@NonNull GL10 gl, @NonNull Bitmap bitmap) {
         final int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);
         textureId = textures[0];
@@ -146,8 +146,8 @@ public class FontAtlas {
         gl.glBindTexture(GL10.GL_TEXTURE_2D, 0);
     }
 
-    @Nonnull
-    private Bitmap drawAtlas(@Nonnull Paint paint) {
+    @NonNull
+    private Bitmap drawAtlas(@NonNull Paint paint) {
         final Bitmap bitmap = Bitmap.createBitmap(textureSize, textureSize, Bitmap.Config.ALPHA_8);
         final Canvas canvas = new Canvas(bitmap);
         bitmap.eraseColor(Color.TRANSPARENT);
@@ -180,18 +180,18 @@ public class FontAtlas {
         return bitmap;
     }
 
-    @Nonnull
+    @NonNull
     public MeshData getMeshData(float x, float y, float z, int size) {
         return MeshData.createForFullAtlas(this, x, y, z, size);
     }
 
-    @Nonnull
-    public MeshData getMeshData(@Nonnull final String s, float x, float y, float z, float scale) {
+    @NonNull
+    public MeshData getMeshData(@NonNull final String s, float x, float y, float z, float scale) {
         return getMeshData(s, x, y, z, scale, false, false);
     }
 
-    @Nonnull
-    public MeshData getMeshData(@Nonnull final String s, float x, float y, float z, float scale, boolean centerX, boolean centerY) {
+    @NonNull
+    public MeshData getMeshData(@NonNull final String s, float x, float y, float z, float scale, boolean centerX, boolean centerY) {
         final List<MeshData> meshDataList = new ArrayList<>(s.length());
 
         for (int i = 0; i < s.length(); i++) {
@@ -202,7 +202,7 @@ public class FontAtlas {
         return new MeshData(meshDataList, centerX, centerY);
     }
 
-    @Nonnull
+    @NonNull
     private float[] getTextureCoordinates(char c) {
         final RectF bounds = chars[charToPosition(c)];
         return new float[]{
@@ -226,7 +226,7 @@ public class FontAtlas {
         float charWidth = 0;
         float charHeight = 0;
 
-        public void reset(@Nonnull Paint paint) {
+        public void reset(@NonNull Paint paint) {
             final Paint.FontMetrics fm = paint.getFontMetrics();
 
             height = (float) Math.ceil(Math.abs(fm.bottom) + Math.abs(fm.top));
@@ -255,19 +255,19 @@ public class FontAtlas {
     }
 
     public static final class MeshData {
-        @Nonnull
+        @NonNull
         public final short[] indices;
-        @Nonnull
+        @NonNull
         public final IndicesOrder indicesOrder;
-        @Nonnull
+        @NonNull
         public final float[] vertices;
         public final int textureId;
-        @Nonnull
+        @NonNull
         public final float[] textureCoordinates;
         @Nullable
         private RectF bounds;
 
-        private MeshData(int textureId, @Nonnull short[] indices, @Nonnull IndicesOrder indicesOrder, @Nonnull float[] vertices, @Nonnull float[] textureCoordinates) {
+        private MeshData(int textureId, @NonNull short[] indices, @NonNull IndicesOrder indicesOrder, @NonNull float[] vertices, @NonNull float[] textureCoordinates) {
             this.textureId = textureId;
             this.indices = indices;
             this.indicesOrder = indicesOrder;
@@ -275,7 +275,7 @@ public class FontAtlas {
             this.textureCoordinates = textureCoordinates;
         }
 
-        public MeshData(@Nonnull List<MeshData> meshDataList, boolean centerX, boolean centerY) {
+        public MeshData(@NonNull List<MeshData> meshDataList, boolean centerX, boolean centerY) {
             indicesOrder = meshDataList.get(0).indicesOrder;
             textureId = meshDataList.get(0).textureId;
 
@@ -324,8 +324,8 @@ public class FontAtlas {
             }
         }
 
-        @Nonnull
-        static MeshData createForFullAtlas(@Nonnull FontAtlas atlas, float x, float y, float z, int size) {
+        @NonNull
+        static MeshData createForFullAtlas(@NonNull FontAtlas atlas, float x, float y, float z, int size) {
             final short[] indices = new short[]{
                     0, 1, 2,
                     1, 3, 2};
@@ -342,8 +342,8 @@ public class FontAtlas {
             return new MeshData(atlas.textureId, indices, IndicesOrder.TRIANGLES, vertices, textureCoordinates);
         }
 
-        @Nonnull
-        static MeshData createForChar(@Nonnull FontAtlas atlas, char c, float x, float y, float z, float width, float height) {
+        @NonNull
+        static MeshData createForChar(@NonNull FontAtlas atlas, char c, float x, float y, float z, float width, float height) {
             final short[] indices = new short[]{
                     0, 1, 2,
                     1, 3, 2};
@@ -355,12 +355,12 @@ public class FontAtlas {
             return new MeshData(atlas.textureId, indices, IndicesOrder.TRIANGLES, vertices, atlas.getTextureCoordinates(c));
         }
 
-        @Nonnull
+        @NonNull
         private static RectF makeEmptyBounds() {
             return new RectF(Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
         }
 
-        @Nonnull
+        @NonNull
         public RectF getBounds() {
             if (bounds == null) {
                 bounds = union(makeEmptyBounds());
@@ -368,8 +368,8 @@ public class FontAtlas {
             return bounds;
         }
 
-        @Nonnull
-        private RectF union(@Nonnull RectF bounds) {
+        @NonNull
+        private RectF union(@NonNull RectF bounds) {
             for (int i = 0; i < vertices.length; i += 3) {
                 final float x = vertices[i];
                 bounds.left = Math.min(bounds.left, x);

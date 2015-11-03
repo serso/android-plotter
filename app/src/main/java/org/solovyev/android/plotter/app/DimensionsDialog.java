@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -19,15 +20,13 @@ import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.Plotter;
 import org.solovyev.android.plotter.RectSizeF;
 
-import javax.annotation.Nonnull;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class DimensionsDialog implements TextView.OnEditorActionListener {
-    @Nonnull
+    @NonNull
     private final Plotter plotter = App.getPlotter();
-    @Nonnull
+    @NonNull
     private final AlertDialog dialog;
     private final boolean d3;
     @Bind(R.id.x_min_edittext)
@@ -41,7 +40,7 @@ public class DimensionsDialog implements TextView.OnEditorActionListener {
     @Bind(R.id.y_bounds)
     View yBounds;
 
-    protected DimensionsDialog(@Nonnull final Context context, @Nonnull RectF graph, final boolean d3) {
+    protected DimensionsDialog(@NonNull final Context context, @NonNull RectF graph, final boolean d3) {
         this.d3 = d3;
         final View view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
         ButterKnife.bind(this, view);
@@ -87,7 +86,7 @@ public class DimensionsDialog implements TextView.OnEditorActionListener {
         }
     }
 
-    private void setDimension(@Nonnull EditText view, float value) {
+    private void setDimension(@NonNull EditText view, float value) {
         view.setOnEditorActionListener(this);
         view.setText(String.format("%.2f", value));
     }
@@ -96,7 +95,7 @@ public class DimensionsDialog implements TextView.OnEditorActionListener {
         dialog.show();
     }
 
-    private float getDimension(@Nonnull EditText view) {
+    private float getDimension(@NonNull EditText view) {
         try {
             return Float.parseFloat(view.getText().toString().replace(",", ".").replace("−", "-"));
         } catch (NumberFormatException e) {
@@ -116,11 +115,11 @@ public class DimensionsDialog implements TextView.OnEditorActionListener {
     }
 
     public static final class ShowEvent {
-        @Nonnull
+        @NonNull
         public final RectF graph;
         public final boolean d3;
 
-        public ShowEvent(@Nonnull RectF graph, boolean d3) {
+        public ShowEvent(@NonNull RectF graph, boolean d3) {
             this.graph = graph;
             this.d3 = d3;
         }

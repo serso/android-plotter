@@ -1,6 +1,7 @@
 package org.solovyev.android.plotter.app;
 
 import android.app.Application;
+import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Function1;
@@ -9,11 +10,9 @@ import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
 import org.solovyev.android.plotter.meshes.MeshSpec;
 
-import javax.annotation.Nonnull;
-
 public class PlotterApplication extends Application {
 
-    @Nonnull
+    @NonNull
     public static final String PARABOLOID = "x * x + y * y";
 
     @Override

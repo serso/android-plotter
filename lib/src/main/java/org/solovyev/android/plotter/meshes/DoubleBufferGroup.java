@@ -1,27 +1,28 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
 import java.util.Iterator;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL11;
 
 public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBufferMesh<M>> {
 
-    @Nonnull
+    @NonNull
     private final ListGroup<DoubleBufferMesh<M>> group = ListGroup.create();
 
     @Nullable
     private final DoubleBufferMesh.Swapper<M> swapper;
 
-    private DoubleBufferGroup(@Nonnull DoubleBufferMesh.Swapper<M> swapper) {
+    private DoubleBufferGroup(@NonNull DoubleBufferMesh.Swapper<M> swapper) {
         this.swapper = swapper;
     }
 
-    @Nonnull
+    @NonNull
     public static <M extends Mesh> DoubleBufferGroup<M> create(@Nullable DoubleBufferMesh.Swapper<M> swapper) {
         return new DoubleBufferGroup<M>(swapper);
     }
@@ -37,37 +38,37 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
     }
 
     @Override
-    public boolean add(@Nonnull DoubleBufferMesh<M> mesh) {
+    public boolean add(@NonNull DoubleBufferMesh<M> mesh) {
         return group.add(mesh);
     }
 
-    public boolean addMesh(@Nonnull M mesh) {
+    public boolean addMesh(@NonNull M mesh) {
         return add(DoubleBufferMesh.wrap(mesh, swapper));
     }
 
     @Override
-    @Nonnull
+    @NonNull
     public DoubleBufferMesh<M> remove(int i) {
         return group.remove(i);
     }
 
-    @Nonnull
+    @NonNull
     public DoubleBufferMesh<M> get(int location) {
         return group.get(location);
     }
 
     @Override
-    public void draw(@Nonnull GL11 gl) {
+    public void draw(@NonNull GL11 gl) {
         group.draw(gl);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public ListGroup<DoubleBufferMesh<M>> copy() {
         return group.copy();
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public State getState() {
         return group.getState();
@@ -79,11 +80,11 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
     }
 
     @Override
-    public boolean setColor(@Nonnull Color color) {
+    public boolean setColor(@NonNull Color color) {
         return group.setColor(color);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Color getColor() {
         return group.getColor();
@@ -105,7 +106,7 @@ public final class DoubleBufferGroup<M extends Mesh> implements Group<DoubleBuff
     }
 
     @Override
-    public boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public boolean initGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         return group.initGl(gl, config);
     }
 

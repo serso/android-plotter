@@ -23,42 +23,41 @@
 package org.solovyev.android.plotter;
 
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 
-import javax.annotation.Nonnull;
-
 final class TouchHandler implements View.OnTouchListener {
 
-    @Nonnull
+    @NonNull
     private final VelocityTracker tracker = VelocityTracker.obtain();
-    @Nonnull
+    @NonNull
     private final Listener listener;
     private boolean afterZoom;
 
-    private TouchHandler(@Nonnull Listener listener) {
+    private TouchHandler(@NonNull Listener listener) {
         this.listener = listener;
     }
 
-    static TouchHandler create(@Nonnull Listener listener) {
+    static TouchHandler create(@NonNull Listener listener) {
         return new TouchHandler(listener);
     }
 
-    private static float getX(@Nonnull MotionEvent event, int pointer) {
+    private static float getX(@NonNull MotionEvent event, int pointer) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getX(pointer) : 0;
     }
 
-    private static float getY(@Nonnull MotionEvent event, int pointer) {
+    private static float getY(@NonNull MotionEvent event, int pointer) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getY(pointer) : 0;
     }
 
-    private static int getPointerCount(@Nonnull MotionEvent event) {
+    private static int getPointerCount(@NonNull MotionEvent event) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR ? event.getPointerCount() : 1;
     }
 
     @Override
-    public boolean onTouch(@Nonnull View v, @Nonnull MotionEvent event) {
+    public boolean onTouch(@NonNull View v, @NonNull MotionEvent event) {
         final float x = event.getX();
         final float y = event.getY();
 

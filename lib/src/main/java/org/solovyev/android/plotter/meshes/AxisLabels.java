@@ -2,6 +2,7 @@ package org.solovyev.android.plotter.meshes;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
@@ -12,26 +13,25 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class AxisLabels extends BaseMesh implements DimensionsAware {
 
-    @Nonnull
+    @NonNull
     private final AxisDirection direction;
 
-    @Nonnull
+    @NonNull
     private final FontAtlas fontAtlas;
 
-    @Nonnull
+    @NonNull
     private final List<FormatInterval> labelFormats = new ArrayList<>();
 
-    @Nonnull
+    @NonNull
     private final PointF camera = new PointF();
-    @Nonnull
+    @NonNull
     private final DecimalFormat defaultFormat = new DecimalFormat("##0.##E0");
     private final boolean d3;
-    @Nonnull
+    @NonNull
     private volatile Dimensions dimensions;
 
     {
@@ -42,29 +42,29 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
         labelFormats.add(new FormatInterval(Math.pow(10, 2), Math.pow(10, 4), new DecimalFormat("##0")));
     }
 
-    private AxisLabels(@Nonnull AxisDirection direction, @Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
+    private AxisLabels(@NonNull AxisDirection direction, @NonNull FontAtlas fontAtlas, @NonNull Dimensions dimensions, boolean d3) {
         this.direction = direction;
         this.fontAtlas = fontAtlas;
         this.dimensions = dimensions;
         this.d3 = d3;
     }
 
-    @Nonnull
-    public static AxisLabels x(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
+    @NonNull
+    public static AxisLabels x(@NonNull FontAtlas fontAtlas, @NonNull Dimensions dimensions, boolean d3) {
         return new AxisLabels(AxisDirection.X, fontAtlas, dimensions, d3);
     }
 
-    @Nonnull
-    public static AxisLabels y(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
+    @NonNull
+    public static AxisLabels y(@NonNull FontAtlas fontAtlas, @NonNull Dimensions dimensions, boolean d3) {
         return new AxisLabels(AxisDirection.Y, fontAtlas, dimensions, d3);
     }
 
-    @Nonnull
-    public static AxisLabels z(@Nonnull FontAtlas fontAtlas, @Nonnull Dimensions dimensions, boolean d3) {
+    @NonNull
+    public static AxisLabels z(@NonNull FontAtlas fontAtlas, @NonNull Dimensions dimensions, boolean d3) {
         return new AxisLabels(AxisDirection.Z, fontAtlas, dimensions, d3);
     }
 
-    @Nonnull
+    @NonNull
     public DoubleBufferMesh<AxisLabels> toDoubleBuffer() {
         return DoubleBufferMesh.wrap(this, MySwapper.INSTANCE);
     }
@@ -79,7 +79,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     }
 
     @Override
-    protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
         final List<FontAtlas.MeshData> meshDataList = new ArrayList<>();
         final Dimensions dimensions = this.dimensions;
@@ -175,16 +175,16 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
         return bounds.height() / 6;
     }
 
-    private float centerY(@Nonnull Dimensions dimensions) {
+    private float centerY(@NonNull Dimensions dimensions) {
         return d3 ? 0 : camera.y - dimensions.scene.center.y;
     }
 
-    private float centerX(@Nonnull Dimensions dimensions) {
+    private float centerX(@NonNull Dimensions dimensions) {
         return d3 ? 0 : camera.x - dimensions.scene.center.x;
     }
 
-    @Nonnull
-    private String getLabel(float x, float y, float z, @Nonnull DecimalFormat format) {
+    @NonNull
+    private String getLabel(float x, float y, float z, @NonNull DecimalFormat format) {
         final float value;
         switch (direction) {
             case X:
@@ -201,7 +201,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
         return format.format(value).replace('−', '-');
     }
 
-    @Nonnull
+    @NonNull
     private DecimalFormat getFormatter(float step) {
         for (AxisLabels.FormatInterval labelFormat : labelFormats) {
             if (labelFormat.l <= step && step < labelFormat.r) {
@@ -211,20 +211,20 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
         return defaultFormat;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new AxisLabels(direction, fontAtlas, dimensions, d3);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Dimensions getDimensions() {
         return this.dimensions;
     }
 
     @Override
-    public void setDimensions(@Nonnull Dimensions dimensions) {
+    public void setDimensions(@NonNull Dimensions dimensions) {
         // todo serso: might be called on GL thread, requires synchronization
         if (!this.dimensions.equals(dimensions)) {
             this.dimensions = dimensions;
@@ -248,10 +248,10 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     private static final class FormatInterval {
         final float l;
         final float r;
-        @Nonnull
+        @NonNull
         final DecimalFormat format;
 
-        private FormatInterval(double l, double r, @Nonnull DecimalFormat format) {
+        private FormatInterval(double l, double r, @NonNull DecimalFormat format) {
             this.l = (float) l;
             this.r = (float) r;
             this.format = format;
@@ -260,14 +260,14 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
 
     public static final class MySwapper implements DoubleBufferMesh.Swapper<AxisLabels> {
 
-        @Nonnull
+        @NonNull
         public static final DoubleBufferMesh.Swapper<AxisLabels> INSTANCE = new MySwapper();
 
         private MySwapper() {
         }
 
         @Override
-        public void swap(@Nonnull AxisLabels current, @Nonnull AxisLabels next) {
+        public void swap(@NonNull AxisLabels current, @NonNull AxisLabels next) {
             next.camera.set(current.camera);
             next.setColor(current.getColor());
             next.setWidth(current.getWidth());

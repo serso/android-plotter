@@ -2,14 +2,13 @@ package org.solovyev.android.plotter;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 final class Angle implements Parcelable {
 
-    @Nonnull
+    @NonNull
     public static final Creator<Angle> CREATOR = new Creator<Angle>() {
-        public Angle createFromParcel(@Nonnull Parcel in) {
+        public Angle createFromParcel(@NonNull Parcel in) {
             return new Angle(in);
         }
 
@@ -18,10 +17,10 @@ final class Angle implements Parcelable {
         }
     };
 
-    @Nonnull
+    @NonNull
     private final float[] rotation = new float[16];
 
-    @Nonnull
+    @NonNull
     private final float[] tmp = new float[16];
 
     public float x;
@@ -32,12 +31,12 @@ final class Angle implements Parcelable {
         this.y = y;
     }
 
-    public Angle(@Nonnull Parcel in) {
+    public Angle(@NonNull Parcel in) {
         this.x = in.readFloat();
         this.y = in.readFloat();
     }
 
-    public void add(@Nonnull Angle angle) {
+    public void add(@NonNull Angle angle) {
         x += angle.x;
         y += angle.y;
 
@@ -60,7 +59,7 @@ final class Angle implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(@Nonnull Parcel out, int flags) {
+    public void writeToParcel(@NonNull Parcel out, int flags) {
         out.writeFloat(x);
         out.writeFloat(y);
     }

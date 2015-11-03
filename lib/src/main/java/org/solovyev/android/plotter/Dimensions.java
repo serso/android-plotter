@@ -24,43 +24,42 @@ package org.solovyev.android.plotter;
 
 import android.graphics.PointF;
 import android.graphics.RectF;
-
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 public final class Dimensions {
-    @Nonnull
+    @NonNull
     private static final Dimensions EMPTY = new Dimensions();
 
-    @Nonnull
+    @NonNull
     public final Graph graph = new Graph();
 
-    @Nonnull
+    @NonNull
     public final Scene scene = new Scene();
 
-    @Nonnull
+    @NonNull
     public static Dimensions empty() {
         EMPTY.scene.setEmpty();
         EMPTY.graph.setEmpty();
         return EMPTY;
     }
 
-    @Nonnull
-    static String toString(@Nonnull PointF point) {
+    @NonNull
+    static String toString(@NonNull PointF point) {
         return "(x=" + point.x + ", y=" + point.y + ")";
     }
 
-    @Nonnull
-    static String toString(@Nonnull RectF rect) {
+    @NonNull
+    static String toString(@NonNull RectF rect) {
         return "[x=" + rect.left + ", y=" + rect.top + ", w=" + rect.width() + ", h=" + rect.height() + "]";
     }
 
-    @Nonnull
+    @NonNull
     public Dimensions copy() {
         return copy(new Dimensions());
     }
 
-    @Nonnull
-    public Dimensions copy(@Nonnull Dimensions that) {
+    @NonNull
+    public Dimensions copy(@NonNull Dimensions that) {
         that.graph.copy(this.graph);
         that.scene.copy(this.scene);
 
@@ -87,8 +86,8 @@ public final class Dimensions {
         return result;
     }
 
-    @Nonnull
-    public Dimensions updateScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+    @NonNull
+    public Dimensions updateScene(@NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter) {
         if (scene.same(viewSize, sceneSize, sceneCenter)) {
             return this;
         }
@@ -97,8 +96,8 @@ public final class Dimensions {
         return copy;
     }
 
-    @Nonnull
-    public Dimensions updateGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+    @NonNull
+    public Dimensions updateGraph(@NonNull RectSizeF graphSize, @NonNull PointF graphCenter) {
         if (graph.same(graphSize, graphCenter)) {
             return this;
         }
@@ -107,11 +106,11 @@ public final class Dimensions {
         return copy;
     }
 
-    private void setGraph(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+    private void setGraph(@NonNull RectSizeF graphSize, @NonNull PointF graphCenter) {
         graph.set(graphSize, graphCenter, scene);
     }
 
-    private void setScene(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+    private void setScene(@NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter) {
         scene.set(viewSize, sceneSize, sceneCenter);
         graph.update(sceneSize, sceneCenter);
     }
@@ -130,11 +129,11 @@ public final class Dimensions {
 
     public static final class Scene {
 
-        @Nonnull
+        @NonNull
         public final PointF center = new PointF();
-        @Nonnull
+        @NonNull
         public final RectSizeF size = new RectSizeF();
-        @Nonnull
+        @NonNull
         public final RectSize view = RectSize.empty();
 
         @Override
@@ -163,7 +162,7 @@ public final class Dimensions {
             return size.isEmpty();
         }
 
-        public boolean set(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+        public boolean set(@NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter) {
             if (same(viewSize, sceneSize, sceneCenter)) {
                 return false;
             }
@@ -174,7 +173,7 @@ public final class Dimensions {
 
         }
 
-        private boolean same(@Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+        private boolean same(@NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter) {
             return view.equals(viewSize) && size.equals(sceneSize) && center.equals(sceneCenter);
         }
 
@@ -217,7 +216,7 @@ public final class Dimensions {
             return -center.y + center.y % step;
         }
 
-        public void copy(@Nonnull Scene that) {
+        public void copy(@NonNull Scene that) {
             center.set(that.center);
             size.set(that.size);
             view.set(that.view);
@@ -232,13 +231,13 @@ public final class Dimensions {
 
     public static final class Graph {
         public static final float SIZE = 10f;
-        @Nonnull
+        @NonNull
         public final RectSizeF size = new RectSizeF();
-        @Nonnull
+        @NonNull
         public final RectSizeF original = new RectSizeF();
-        @Nonnull
+        @NonNull
         public final PointF center = new PointF();
-        @Nonnull
+        @NonNull
         public final PointF scale = new PointF();
 
         public Graph() {
@@ -271,14 +270,14 @@ public final class Dimensions {
             return size.isEmpty();
         }
 
-        public void update(@Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter) {
+        public void update(@NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter) {
             final float zoomLevel = sceneSize.width / Frustum.SCENE_WIDTH;
             size.set(zoomLevel * original.width, zoomLevel * original.height);
             scale.set(size.width / sceneSize.width, size.height / sceneSize.height);
             center.set(toGraphX(sceneCenter.x), toGraphY(sceneCenter.y));
         }
 
-        public void set(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter, @Nonnull Scene scene) {
+        public void set(@NonNull RectSizeF graphSize, @NonNull PointF graphCenter, @NonNull Scene scene) {
             original.set(graphSize);
             scene.size.set(Frustum.SCENE_WIDTH, Frustum.SCENE_WIDTH / scene.size.aspectRatio());
             scene.center.set(0f, 0f);
@@ -336,7 +335,7 @@ public final class Dimensions {
             return size.height;
         }
 
-        @Nonnull
+        @NonNull
         public RectF makeBounds() {
             return new RectF(xMin(), yMin(), xMax(), yMax());
         }
@@ -366,14 +365,14 @@ public final class Dimensions {
             return size.height / 2 + center.y;
         }
 
-        public void copy(@Nonnull Graph that) {
+        public void copy(@NonNull Graph that) {
             size.set(that.size);
             original.set(that.original);
             center.set(that.center);
             scale.set(that.scale);
         }
 
-        public boolean same(@Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter) {
+        public boolean same(@NonNull RectSizeF graphSize, @NonNull PointF graphCenter) {
             return size.equals(graphSize) && center.equals(graphCenter);
         }
 

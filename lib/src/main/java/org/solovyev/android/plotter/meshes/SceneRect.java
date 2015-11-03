@@ -1,22 +1,23 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class SceneRect extends BaseMesh implements DimensionsAware {
-    @Nonnull
+    @NonNull
     private Dimensions dimensions;
 
-    public SceneRect(@Nonnull Dimensions dimensions) {
+    public SceneRect(@NonNull Dimensions dimensions) {
         this.dimensions = dimensions;
 
     }
 
     @Override
-    public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         final float x = dimensions.scene.center.x;
@@ -44,20 +45,20 @@ public class SceneRect extends BaseMesh implements DimensionsAware {
     }
 
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new SceneRect(dimensions);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Dimensions getDimensions() {
         return this.dimensions;
     }
 
     @Override
-    public void setDimensions(@Nonnull Dimensions dimensions) {
+    public void setDimensions(@NonNull Dimensions dimensions) {
         if (!this.dimensions.equals(dimensions)) {
             this.dimensions = dimensions;
             setDirty();

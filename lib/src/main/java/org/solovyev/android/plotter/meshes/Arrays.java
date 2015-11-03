@@ -1,11 +1,11 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Check;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-
-import javax.annotation.Nonnull;
 
 final class Arrays {
 
@@ -68,14 +68,14 @@ final class Arrays {
         indicesBuffer = Meshes.allocateOrPutBuffer(indices, indicesBuffer);
     }
 
-    @Nonnull
+    @NonNull
     public FloatBuffer getVerticesBuffer() {
         Check.isTrue(isCreated(), "Arrays should be initialized");
         Check.isNotNull(verticesBuffer);
         return verticesBuffer;
     }
 
-    @Nonnull
+    @NonNull
     public ShortBuffer getIndicesBuffer() {
         Check.isTrue(isCreated(), "Arrays should be initialized");
         Check.isNotNull(indicesBuffer);

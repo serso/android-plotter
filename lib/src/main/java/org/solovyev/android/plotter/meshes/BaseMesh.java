@@ -2,6 +2,8 @@ package org.solovyev.android.plotter.meshes;
 
 import android.graphics.Bitmap;
 import android.opengl.GLUtils;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.solovyev.android.plotter.Check;
@@ -12,15 +14,13 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
 public abstract class BaseMesh implements Mesh {
 
-    @Nonnull
+    @NonNull
     protected static final String TAG = Meshes.getTag("BaseMesh");
 
     private static final int NULL = 0xDEADC0DE;
@@ -29,7 +29,7 @@ public abstract class BaseMesh implements Mesh {
      * Note that all properties of this class must be accessed from the GL thread if not stated otherwise
      */
     // can be accessed/changed from any thread
-    @Nonnull
+    @NonNull
     private final StateHolder state = new StateHolder();
     /**
      * OpenGL instance associated with this mesh. This must be a instance which is used for drawing.
@@ -44,7 +44,7 @@ public abstract class BaseMesh implements Mesh {
     private int verticesCount = -1;
     private ShortBuffer indices;
     private int indicesCount = -1;
-    @Nonnull
+    @NonNull
     private IndicesOrder indicesOrder = IndicesOrder.TRIANGLES;
     private FloatBuffer colors;
     private int colorsCount = -1;
@@ -55,18 +55,18 @@ public abstract class BaseMesh implements Mesh {
     private int colorsVbo = NULL;
     private int textureCoordinatesVbo = NULL;
     // can be set from any thread
-    @Nonnull
+    @NonNull
     private volatile Color color = MeshSpec.COLOR_NO;
     // can be set from any thread
     private volatile int width = MeshSpec.WIDTH_DEFAULT;
     private volatile float alpha = 1f;
 
-    private static boolean supportsVbo(@Nonnull GL11 gl) {
+    private static boolean supportsVbo(@NonNull GL11 gl) {
         final String extensions = gl.glGetString(GL10.GL_EXTENSIONS);
         return extensions.contains("vertex_buffer_object");
     }
 
-    @Nonnull
+    @NonNull
     public final State getState() {
         return state.get();
     }
@@ -98,7 +98,7 @@ public abstract class BaseMesh implements Mesh {
     }
 
     @Override
-    public final boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public final boolean initGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         Check.isGlThread();
 
         if (this.gl == null || !this.gl.equals(gl)) {
@@ -146,11 +146,11 @@ public abstract class BaseMesh implements Mesh {
      * @param gl     gl instance
      * @param config configuration
      */
-    protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
     }
 
     @Override
-    public final void draw(@Nonnull GL11 gl) {
+    public final void draw(@NonNull GL11 gl) {
         Check.isGlThread();
 
         if (getState() != State.INIT_GL) {
@@ -239,13 +239,13 @@ public abstract class BaseMesh implements Mesh {
         return textureId != -1;
     }
 
-    protected void onPostDraw(@Nonnull GL11 gl) {
+    protected void onPostDraw(@NonNull GL11 gl) {
     }
 
-    protected void onPreDraw(@Nonnull GL11 gl) {
+    protected void onPreDraw(@NonNull GL11 gl) {
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public final BaseMesh copy() {
         final BaseMesh copy = makeCopy();
@@ -253,14 +253,14 @@ public abstract class BaseMesh implements Mesh {
         return copy;
     }
 
-    @Nonnull
+    @NonNull
     protected abstract BaseMesh makeCopy();
 
     protected void setVertices(float[] vertices) {
         setVertices(Meshes.allocateOrPutBuffer(vertices, this.vertices));
     }
 
-    protected final void setVertices(@Nonnull FloatBuffer vertices) {
+    protected final void setVertices(@NonNull FloatBuffer vertices) {
         Check.isGlThread();
         this.vertices = vertices;
         this.verticesCount = vertices.capacity() / 3;
@@ -271,15 +271,15 @@ public abstract class BaseMesh implements Mesh {
         }
     }
 
-    private void bindVboBuffer(@Nonnull FloatBuffer source, int destination, int type) {
+    private void bindVboBuffer(@NonNull FloatBuffer source, int destination, int type) {
         bindVboBuffer(source, source.capacity() * Meshes.BYTES_IN_FLOAT, destination, type);
     }
 
-    private void bindVboBuffer(@Nonnull ShortBuffer source, int destination, int type) {
+    private void bindVboBuffer(@NonNull ShortBuffer source, int destination, int type) {
         bindVboBuffer(source, source.capacity() * Meshes.BYTES_IN_SHORT, destination, type);
     }
 
-    private void bindVboBuffer(@Nonnull Buffer source, int sourceBytes, int destination, int type) {
+    private void bindVboBuffer(@NonNull Buffer source, int sourceBytes, int destination, int type) {
         if (destination != NULL) {
             final int[] buffers = {destination};
             gl.glDeleteBuffers(buffers.length, buffers, 0);
@@ -289,11 +289,11 @@ public abstract class BaseMesh implements Mesh {
         gl.glBindBuffer(type, 0);
     }
 
-    protected final void setIndices(short[] indices, @Nonnull IndicesOrder order) {
+    protected final void setIndices(short[] indices, @NonNull IndicesOrder order) {
         setIndices(Meshes.allocateOrPutBuffer(indices, this.indices), order);
     }
 
-    protected final void setIndices(@Nonnull ShortBuffer indices, @Nonnull IndicesOrder order) {
+    protected final void setIndices(@NonNull ShortBuffer indices, @NonNull IndicesOrder order) {
         Check.isGlThread();
         this.indices = indices;
         this.indicesCount = indices.capacity();
@@ -314,7 +314,7 @@ public abstract class BaseMesh implements Mesh {
         }
     }
 
-    protected final void loadTexture(@Nonnull GL10 gl, @Nonnull Bitmap bitmap) {
+    protected final void loadTexture(@NonNull GL10 gl, @NonNull Bitmap bitmap) {
         final int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);
 
@@ -342,7 +342,7 @@ public abstract class BaseMesh implements Mesh {
         setTextureCoordinates(textureCoordinates);
     }
 
-    @Nonnull
+    @NonNull
     public Color getColor() {
         return color;
     }
@@ -351,7 +351,7 @@ public abstract class BaseMesh implements Mesh {
         return setColor(Color.create(color));
     }
 
-    public final boolean setColor(@Nonnull Color color) {
+    public final boolean setColor(@NonNull Color color) {
         if (!this.color.equals(color)) {
             // todo serso: color and colors are now used independently, think about making them
             // dependent
@@ -383,7 +383,7 @@ public abstract class BaseMesh implements Mesh {
         }
     }
 
-    protected void setColors(@Nonnull float[] colors) {
+    protected void setColors(@NonNull float[] colors) {
         Check.isGlThread();
         if (verticesCount <= 0) {
             throw new IllegalStateException("Vertices must be set before setting the color");
@@ -408,21 +408,21 @@ public abstract class BaseMesh implements Mesh {
 
     private static final class StateHolder {
         @GuardedBy("this")
-        @Nonnull
+        @NonNull
         private State state = State.DIRTY;
 
         @GuardedBy("this")
         @Nullable
         private State delayedState;
 
-        @Nonnull
+        @NonNull
         public State get() {
             synchronized (this) {
                 return delayedState != null ? delayedState : state;
             }
         }
 
-        private boolean setIf(@Nonnull State newState, @Nonnull State oldState) {
+        private boolean setIf(@NonNull State newState, @NonNull State oldState) {
             synchronized (this) {
                 if (state != oldState) {
                     return false;
@@ -463,7 +463,7 @@ public abstract class BaseMesh implements Mesh {
             }
         }
 
-        public boolean set(@Nonnull State newState) {
+        public boolean set(@NonNull State newState) {
             synchronized (this) {
                 if (delayedState != null) {
                     state = delayedState;

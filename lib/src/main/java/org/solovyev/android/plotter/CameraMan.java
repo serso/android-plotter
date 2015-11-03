@@ -1,25 +1,24 @@
 package org.solovyev.android.plotter;
 
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 
-import javax.annotation.Nonnull;
-
 public class CameraMan {
     private final long duration = Zoomer.DURATION;
-    @Nonnull
+    @NonNull
     private final Interpolator interpolator = new DecelerateInterpolator();
 
-    @Nonnull
+    @NonNull
     private final PointF current = new PointF();
-    @Nonnull
+    @NonNull
     private final PointF from = new PointF();
-    @Nonnull
+    @NonNull
     private final PointF to = new PointF();
     private long startTime;
 
-    void move(@Nonnull PointF from, @Nonnull PointF to) {
+    void move(@NonNull PointF from, @NonNull PointF to) {
         startTime = Plot.animationTime();
         this.from.set(from);
         this.to.set(to);
@@ -43,7 +42,7 @@ public class CameraMan {
         return isAnimating();
     }
 
-    @Nonnull
+    @NonNull
     public PointF getPosition() {
         if (isAnimating()) {
             return current;

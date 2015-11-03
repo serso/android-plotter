@@ -4,25 +4,25 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class DrawableTexture extends BaseMesh {
-    @Nonnull
+    @NonNull
     private final Resources resources;
     @DrawableRes
     private final int drawable;
 
-    public DrawableTexture(@Nonnull Resources resources, @DrawableRes int drawable) {
+    public DrawableTexture(@NonNull Resources resources, @DrawableRes int drawable) {
         this.resources = resources;
         this.drawable = drawable;
     }
 
     @Override
-    protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         final short[] indices = new short[]{
@@ -42,7 +42,7 @@ public class DrawableTexture extends BaseMesh {
         bitmap.recycle();
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new DrawableTexture(resources, drawable);

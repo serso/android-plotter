@@ -1,16 +1,15 @@
 package org.solovyev.android.plotter;
 
+import android.support.annotation.NonNull;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-
-import javax.annotation.Nonnull;
 
 public class Fader {
 
     private static final long DURATION = 250;
-    @Nonnull
+    @NonNull
     private final Interpolator interpolator = new DecelerateInterpolator();
-    @Nonnull
+    @NonNull
     private FadingState state = FadingState.NONE;
 
     private float alpha = 1f;

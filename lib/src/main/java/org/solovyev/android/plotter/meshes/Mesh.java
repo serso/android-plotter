@@ -1,30 +1,31 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public interface Mesh {
 
     boolean init();
 
-    boolean initGl(@Nonnull GL11 gl, @Nonnull MeshConfig config);
+    boolean initGl(@NonNull GL11 gl, @NonNull MeshConfig config);
 
-    void draw(@Nonnull GL11 gl);
+    void draw(@NonNull GL11 gl);
 
-    @Nonnull
+    @NonNull
     Mesh copy();
 
-    @Nonnull
+    @NonNull
     State getState();
 
     void setAlpha(float alpha);
 
-    boolean setColor(@Nonnull Color color);
+    boolean setColor(@NonNull Color color);
 
-    @Nonnull
+    @NonNull
     Color getColor();
 
     boolean setWidth(int width);

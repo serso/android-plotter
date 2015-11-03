@@ -23,39 +23,38 @@
 package org.solovyev.android.plotter;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.meshes.MeshSpec;
 
-import javax.annotation.Nonnull;
-
 public final class PlotFunction {
 
-    @Nonnull
+    @NonNull
     public Function function;
 
-    @Nonnull
+    @NonNull
     public MeshSpec meshSpec;
 
     public boolean visible = true;
 
-    private PlotFunction(@Nonnull Function function,
-                         @Nonnull MeshSpec meshSpec) {
+    private PlotFunction(@NonNull Function function,
+                         @NonNull MeshSpec meshSpec) {
         this.function = function;
         this.meshSpec = meshSpec;
     }
 
-    @Nonnull
-    public static PlotFunction create(@Nonnull Function function, @Nonnull Context context) {
+    @NonNull
+    public static PlotFunction create(@NonNull Function function, @NonNull Context context) {
         return new PlotFunction(function, MeshSpec.createDefault(context));
     }
 
-    @Nonnull
-    public static PlotFunction create(@Nonnull Function function,
-                                      @Nonnull MeshSpec meshSpec) {
+    @NonNull
+    public static PlotFunction create(@NonNull Function function,
+                                      @NonNull MeshSpec meshSpec) {
         return new PlotFunction(function, meshSpec);
     }
 
-    @Nonnull
+    @NonNull
     public PlotFunction copy() {
         final PlotFunction copy = create(this.function, this.meshSpec.copy());
 

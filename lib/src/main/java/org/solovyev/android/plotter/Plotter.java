@@ -1,9 +1,9 @@
 package org.solovyev.android.plotter;
 
 import android.graphics.PointF;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.microedition.khronos.opengles.GL11;
 
 /**
@@ -16,38 +16,38 @@ import javax.microedition.khronos.opengles.GL11;
 public interface Plotter {
     boolean D3 = true;
 
-    void add(@Nonnull Function function);
+    void add(@NonNull Function function);
 
-    void add(@Nonnull PlotFunction function);
+    void add(@NonNull PlotFunction function);
 
     void clearFunctions();
 
-    void update(@Nonnull PlotFunction function);
+    void update(@NonNull PlotFunction function);
 
-    void initGl(@Nonnull GL11 gl, boolean firstTime);
+    void initGl(@NonNull GL11 gl, boolean firstTime);
 
-    void draw(@Nonnull GL11 gl, float labelsAlpha);
+    void draw(@NonNull GL11 gl, float labelsAlpha);
 
-    @Nonnull
+    @NonNull
     PlotData getPlotData();
 
-    void attachView(@Nonnull PlottingView view);
+    void attachView(@NonNull PlottingView view);
 
-    void detachView(@Nonnull PlottingView view);
+    void detachView(@NonNull PlottingView view);
 
     /**
      * @return a copy of dimensions
      */
-    @Nonnull
+    @NonNull
     Dimensions getDimensions();
 
     // should not be modified!
-    @Nonnull
+    @NonNull
     Dimensions.Scene getSceneDimensions();
 
-    void updateScene(@Nullable Object source, @Nonnull Zoom zoom, @Nonnull RectSize viewSize, @Nonnull RectSizeF sceneSize, @Nonnull PointF sceneCenter);
+    void updateScene(@Nullable Object source, @NonNull Zoom zoom, @NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter);
 
-    void updateGraph(@Nullable Object source, @Nonnull RectSizeF graphSize, @Nonnull PointF graphCenter);
+    void updateGraph(@Nullable Object source, @NonNull RectSizeF graphSize, @NonNull PointF graphCenter);
 
     boolean is3d();
 

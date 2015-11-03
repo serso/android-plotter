@@ -1,8 +1,8 @@
 package org.solovyev.android.plotter;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL10;
 
 public final class Frustum {
@@ -29,9 +29,9 @@ public final class Frustum {
     private static final float TAN = (float) Math.tan(VIEW_ANGLE / 2f);
 
     // width and height of the "near" clipping plane
-    @Nonnull
+    @NonNull
     private final RectSizeF nearSize = new RectSizeF();
-    @Nonnull
+    @NonNull
     private final RectSizeF sceneSize = new RectSizeF();
 
     private float near;
@@ -39,20 +39,20 @@ public final class Frustum {
 
     private float distance;
 
-    @Nonnull
+    @NonNull
     private Zoom zoom = Zoom.one();
     private float aspectRatio;
 
-    private Frustum(@Nonnull Zoom zoom, float aspectRatio) {
+    private Frustum(@NonNull Zoom zoom, float aspectRatio) {
         update(zoom, aspectRatio);
     }
 
-    @Nonnull
+    @NonNull
     static Frustum empty() {
         return new Frustum(Zoom.one(), 1);
     }
 
-    boolean update(@Nonnull Zoom zoom, float aspectRatio) {
+    boolean update(@NonNull Zoom zoom, float aspectRatio) {
         if (this.aspectRatio == aspectRatio && this.zoom.equals(zoom)) {
             return false;
         }
@@ -95,12 +95,12 @@ public final class Frustum {
         sceneSize.multiplyBy(value);
     }
 
-    @Nonnull
+    @NonNull
     public RectSizeF getSceneSize() {
         return sceneSize;
     }
 
-    public void updateGl(@Nonnull GL10 gl) {
+    public void updateGl(@NonNull GL10 gl) {
         gl.glMatrixMode(GL10.GL_PROJECTION);
         gl.glLoadIdentity();
         final float halfWidth = nearSize.width / 2;

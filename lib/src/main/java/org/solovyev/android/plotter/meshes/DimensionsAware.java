@@ -1,13 +1,13 @@
 package org.solovyev.android.plotter.meshes;
 
-import org.solovyev.android.plotter.Dimensions;
+import android.support.annotation.NonNull;
 
-import javax.annotation.Nonnull;
+import org.solovyev.android.plotter.Dimensions;
 
 public interface DimensionsAware extends Mesh {
 
-    @Nonnull
+    @NonNull
     Dimensions getDimensions();
 
-    void setDimensions(@Nonnull Dimensions dimensions);
+    void setDimensions(@NonNull Dimensions dimensions);
 }

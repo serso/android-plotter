@@ -1,6 +1,6 @@
 package org.solovyev.android.plotter;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 public final class Color {
     public static final Color BLACK = new Color(0xFF000000);
@@ -36,12 +36,12 @@ public final class Color {
         this.alpha = alpha(color);
     }
 
-    @Nonnull
+    @NonNull
     public static Color create(int color) {
         return new Color(color);
     }
 
-    @Nonnull
+    @NonNull
     public static Color create(float red, float green, float blue, float alpha) {
         return new Color(red, green, blue, alpha);
     }
@@ -78,18 +78,18 @@ public final class Color {
         return ((int) (alpha * 255f)) << 24;
     }
 
-    public static void fillVertex(@Nonnull float[] colors, int vertex, @Nonnull Color color) {
+    public static void fillVertex(@NonNull float[] colors, int vertex, @NonNull Color color) {
         fill(colors, COMPONENTS * vertex, color);
     }
 
-    public static void fill(float[] colors, int index, @Nonnull Color color) {
+    public static void fill(float[] colors, int index, @NonNull Color color) {
         colors[index] = color.red;
         colors[index + 1] = color.green;
         colors[index + 2] = color.blue;
         colors[index + 3] = color.alpha;
     }
 
-    public static void fillVertex(@Nonnull float[] colors, int vertex, int color) {
+    public static void fillVertex(@NonNull float[] colors, int vertex, int color) {
         fill(colors, COMPONENTS * vertex, color);
     }
 
@@ -111,7 +111,7 @@ public final class Color {
         colors[index + 3] = alpha;
     }
 
-    @Nonnull
+    @NonNull
     public Color transparentCopy(float alpha) {
         return new Color(red, green, blue, alpha);
     }
@@ -120,12 +120,12 @@ public final class Color {
         return red(red) | green(green) | blue(blue) | alpha(alpha);
     }
 
-    @Nonnull
+    @NonNull
     public Color add(float value) {
         return add(value, value, value);
     }
 
-    @Nonnull
+    @NonNull
     public Color add(float red, float green, float blue) {
         return Color.create(add(this.red, red), add(this.green, green), add(this.blue, blue), alpha);
     }

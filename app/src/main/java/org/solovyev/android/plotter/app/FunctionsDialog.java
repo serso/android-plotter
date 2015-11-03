@@ -3,6 +3,7 @@ package org.solovyev.android.plotter.app;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,17 +18,15 @@ import org.solovyev.android.views.llm.LinearLayoutManager;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class FunctionsDialog {
 
-    @Nonnull
+    @NonNull
     protected final RecyclerView view;
 
-    public FunctionsDialog(@Nonnull Context context, @Nonnull PlotData plotData) {
+    public FunctionsDialog(@NonNull Context context, @NonNull PlotData plotData) {
         view = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.dialog_functions, null);
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         layoutManager.setChildSize(context.getResources().getDimensionPixelSize(R.dimen.list_item_height));
@@ -51,10 +50,10 @@ public class FunctionsDialog {
     }
 
     public static final class ShowEvent {
-        @Nonnull
+        @NonNull
         public final PlotData plotData;
 
-        public ShowEvent(@Nonnull PlotData plotData) {
+        public ShowEvent(@NonNull PlotData plotData) {
             this.plotData = plotData;
         }
     }
@@ -68,18 +67,18 @@ public class FunctionsDialog {
         TextView name;
         private PlotFunction function;
 
-        private ViewHolder(@Nonnull View itemView) {
+        private ViewHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
         }
 
-        @Nonnull
-        public static ViewHolder create(@Nonnull LayoutInflater inflater, @Nonnull ViewGroup parent) {
+        @NonNull
+        public static ViewHolder create(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
             return new ViewHolder(inflater.inflate(R.layout.dialog_function, parent, false));
         }
 
-        void bind(@Nonnull PlotFunction function) {
+        void bind(@NonNull PlotFunction function) {
             this.function = function;
             name.setText(function.function.getName());
             icon.setMeshSpec(function.meshSpec);
@@ -92,10 +91,10 @@ public class FunctionsDialog {
     }
 
     private static class Adapter extends RecyclerView.Adapter {
-        @Nonnull
+        @NonNull
         private final List<PlotFunction> list;
 
-        public Adapter(@Nonnull List<PlotFunction> list) {
+        public Adapter(@NonNull List<PlotFunction> list) {
             this.list = list;
         }
 

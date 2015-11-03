@@ -1,8 +1,9 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class WireFrameCube extends BaseCube {
@@ -12,7 +13,7 @@ public class WireFrameCube extends BaseCube {
     }
 
     @Override
-    public void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    public void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         final short indices[] = {
@@ -35,7 +36,7 @@ public class WireFrameCube extends BaseCube {
         setIndices(indices, IndicesOrder.LINES);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return new WireFrameCube(width, height, depth);

@@ -1,22 +1,22 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
+
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.Function;
 
-import javax.annotation.Nonnull;
-
 public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 
-    @Nonnull
+    @NonNull
     private volatile Function function;
 
-    private FunctionGraph2d(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+    private FunctionGraph2d(@NonNull Dimensions dimensions, @NonNull Function function) {
         super(dimensions);
         this.function = function;
     }
 
-    @Nonnull
-    public static FunctionGraph2d create(@Nonnull Dimensions dimensions, @Nonnull Function function) {
+    @NonNull
+    public static FunctionGraph2d create(@NonNull Dimensions dimensions, @NonNull Function function) {
         return new FunctionGraph2d(dimensions, function);
     }
 
@@ -35,14 +35,14 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
         }
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Function getFunction() {
         return function;
     }
 
     @Override
-    public void setFunction(@Nonnull Function function) {
+    public void setFunction(@NonNull Function function) {
         // todo serso: might be called on GL thread, requires synchronization
         if (!this.function.equals(function)) {
             this.function = function;
@@ -50,7 +50,7 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
         }
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return create(dimensions.get(), function);

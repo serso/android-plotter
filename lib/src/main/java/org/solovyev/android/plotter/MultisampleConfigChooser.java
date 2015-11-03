@@ -1,9 +1,9 @@
 package org.solovyev.android.plotter;
 
 import android.opengl.GLSurfaceView;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLDisplay;
@@ -23,7 +23,7 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
     private static final int ALPHA = 0;
     private static final int DEPTH = 16;
 
-    private static int findConfigAttrib(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig config, int attribute, int defaultValue, int[] tmp) {
+    private static int findConfigAttrib(@NonNull EGL10 gl, @NonNull EGLDisplay display, @NonNull EGLConfig config, int attribute, int defaultValue, int[] tmp) {
         if (gl.eglGetConfigAttrib(display, config, attribute, tmp)) {
             return tmp[0];
         }
@@ -31,7 +31,7 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
     }
 
     @Override
-    public EGLConfig chooseConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display) {
+    public EGLConfig chooseConfig(@NonNull EGL10 gl, @NonNull EGLDisplay display) {
         // try to find a normal multisample configuration first.
         EGLConfig config = ConfigData.create(EGL10.EGL_RED_SIZE, RED,
                 EGL10.EGL_GREEN_SIZE, GREEN,
@@ -84,13 +84,13 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
             this.spec = spec;
         }
 
-        @Nonnull
+        @NonNull
         private static ConfigData create(int... spec) {
             return new ConfigData(spec);
         }
 
         @Nullable
-        private EGLConfig tryConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display) {
+        private EGLConfig tryConfig(@NonNull EGL10 gl, @NonNull EGLDisplay display) {
             final int[] tmp = new int[1];
 
             if (!gl.eglChooseConfig(display, spec, null, 0, tmp)) {
@@ -111,7 +111,7 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
         }
 
         @Nullable
-        private EGLConfig findConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull EGLConfig[] configs, int[] tmp) {
+        private EGLConfig findConfig(@NonNull EGL10 gl, @NonNull EGLDisplay display, @NonNull EGLConfig[] configs, int[] tmp) {
             // sometimes eglChooseConfig returns configurations with not requested
             // options: even though we asked for rgb565 configurations, rgb888
             // configurations are considered to be "better" and returned first.
@@ -126,7 +126,7 @@ public final class MultisampleConfigChooser implements GLSurfaceView.EGLConfigCh
             return null;
         }
 
-        private boolean isDesiredConfig(@Nonnull EGL10 gl, @Nonnull EGLDisplay display, @Nonnull int[] tmp, @Nonnull EGLConfig config) {
+        private boolean isDesiredConfig(@NonNull EGL10 gl, @NonNull EGLDisplay display, @NonNull int[] tmp, @NonNull EGLConfig config) {
             for (int i = 0; i + 1 < spec.length; i += 2) {
                 final int attribute = spec[i];
                 final int desiredValue = spec[i + 1];

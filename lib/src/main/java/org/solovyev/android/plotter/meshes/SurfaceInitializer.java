@@ -1,26 +1,25 @@
 package org.solovyev.android.plotter.meshes;
 
 import android.graphics.RectF;
+import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.Dimensions;
 
-import javax.annotation.Nonnull;
-
 class SurfaceInitializer {
 
-    @Nonnull
+    @NonNull
     private final BaseSurface surface;
 
-    @Nonnull
+    @NonNull
     private final Data data;
 
-    SurfaceInitializer(@Nonnull BaseSurface surface, @Nonnull Data data) {
+    SurfaceInitializer(@NonNull BaseSurface surface, @NonNull Data data) {
         this.data = data;
         this.surface = surface;
     }
 
 
-    public void init(@Nonnull Arrays arrays) {
+    public void init(@NonNull Arrays arrays) {
         arrays.init(3 * data.totalVertices(), data.totalVertices());
 
         final float dx = data.dx();
@@ -82,18 +81,18 @@ class SurfaceInitializer {
 
     final static class Data {
 
-        @Nonnull
+        @NonNull
         final RectF bounds = new RectF();
         int xVertices;
         int yVertices;
 
-        @Nonnull
-        public static Data create(@Nonnull RectF bounds) {
+        @NonNull
+        public static Data create(@NonNull RectF bounds) {
             return create(bounds, 20, 20);
         }
 
-        @Nonnull
-        public static Data create(@Nonnull RectF bounds, int xVertices, int yVertices) {
+        @NonNull
+        public static Data create(@NonNull RectF bounds, int xVertices, int yVertices) {
             final Data data = new Data();
             data.bounds.set(bounds);
             data.xVertices = xVertices;
@@ -116,10 +115,10 @@ class SurfaceInitializer {
 
     public static class GraphSurfaceInitializer extends SurfaceInitializer {
 
-        @Nonnull
+        @NonNull
         private final Dimensions.Graph graph;
 
-        public GraphSurfaceInitializer(@Nonnull BaseSurface surface, @Nonnull Dimensions.Graph graph) {
+        public GraphSurfaceInitializer(@NonNull BaseSurface surface, @NonNull Dimensions.Graph graph) {
             super(surface, Data.create(graph.makeBounds()));
             this.graph = graph;
         }

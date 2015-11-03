@@ -1,12 +1,12 @@
 package org.solovyev.android.plotter.meshes;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.Nonnull;
 import javax.microedition.khronos.opengles.GL11;
 
 public class Coordinates extends BaseMesh implements DimensionsAware {
@@ -21,18 +21,18 @@ public class Coordinates extends BaseMesh implements DimensionsAware {
             x, 0, 0,
             0, y, 0,
             0, y, 0};
-    @Nonnull
+    @NonNull
     private volatile Dimensions dimensions;
     @Nullable
     private volatile Data data;
 
-    public Coordinates(@Nonnull Dimensions dimensions, @Nonnull Color color) {
+    public Coordinates(@NonNull Dimensions dimensions, @NonNull Color color) {
         this.dimensions = dimensions;
         setColor(color);
     }
 
     @Override
-    protected void onInitGl(@Nonnull GL11 gl, @Nonnull MeshConfig config) {
+    protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
         if (isEmpty() || dimensions.isZero()) {
@@ -64,7 +64,7 @@ public class Coordinates extends BaseMesh implements DimensionsAware {
         setVertices(vertices);
     }
 
-    @Nonnull
+    @NonNull
     private Data getData() {
         Data localData = data;
         if (localData == null) {
@@ -90,20 +90,20 @@ public class Coordinates extends BaseMesh implements DimensionsAware {
         set(dimensions.scene.toSceneX(x), dimensions.scene.toSceneY(y));
     }
 
-    @Nonnull
+    @NonNull
     @Override
     protected BaseMesh makeCopy() {
         return this;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Dimensions getDimensions() {
         return this.dimensions;
     }
 
     @Override
-    public void setDimensions(@Nonnull Dimensions dimensions) {
+    public void setDimensions(@NonNull Dimensions dimensions) {
         // todo serso: might be called on GL thread, requires synchronization
         if (!this.dimensions.equals(dimensions)) {
             this.dimensions = dimensions;
@@ -124,16 +124,16 @@ public class Coordinates extends BaseMesh implements DimensionsAware {
     }
 
     private static final class Data {
-        @Nonnull
+        @NonNull
         final Scene.Axis xAxis;
-        @Nonnull
+        @NonNull
         final Scene.Axis yAxis;
-        @Nonnull
+        @NonNull
         final Scene.Ticks xTicks;
-        @Nonnull
+        @NonNull
         final Scene.Ticks yTicks;
 
-        private Data(@Nonnull Dimensions dimensions) {
+        private Data(@NonNull Dimensions dimensions) {
             xAxis = Scene.Axis.create(dimensions.scene, false, false);
             yAxis = Scene.Axis.create(dimensions.scene, true, false);
             xTicks = Scene.Ticks.create(dimensions.graph, xAxis);
