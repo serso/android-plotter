@@ -8,6 +8,7 @@ import org.solovyev.android.plotter.Function1;
 import org.solovyev.android.plotter.Function2;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
+import org.solovyev.android.plotter.math.ExpressionFunction;
 import org.solovyev.android.plotter.meshes.MeshSpec;
 
 public class PlotterApplication extends Application {
@@ -23,12 +24,7 @@ public class PlotterApplication extends Application {
         final Plotter plotter = App.getPlotter();
 
         final int meshWidth = MeshSpec.defaultWidth(this);
-        plotter.add(PlotFunction.create(new Function1("x") {
-            @Override
-            public float evaluate(float x) {
-                return x;
-            }
-        }, MeshSpec.create(Color.BLUE, meshWidth)));
+        plotter.add(PlotFunction.create(ExpressionFunction.create("-x", "x"), MeshSpec.create(Color.BLUE, meshWidth)));
 
         plotter.add(PlotFunction.create(new Function1("tan(x)") {
             @Override
@@ -57,12 +53,7 @@ public class PlotterApplication extends Application {
             }
         }, MeshSpec.create(MeshSpec.LightColors.PINK, meshWidth)));
 
-        plotter.add(PlotFunction.create(new Function2("sin(x) + sin(y)") {
-            @Override
-            public float evaluate(float x, float y) {
-                return (float) (Math.sin(x) + Math.sin(y));
-            }
-        }, MeshSpec.create(MeshSpec.LightColors.GREEN, meshWidth)));
+        plotter.add(PlotFunction.create(ExpressionFunction.create("sin(x) + sin(y)", "x", "y"), MeshSpec.create(MeshSpec.LightColors.GREEN, meshWidth)));
 
         final PlotFunction paraboloid = PlotFunction.create(new Function2(PARABOLOID) {
             @Override

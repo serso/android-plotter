@@ -9,6 +9,7 @@ import org.solovyev.android.plotter.MeshConfig;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.concurrent.TimeUnit;
 
 import javax.microedition.khronos.opengles.GL11;
 
@@ -48,7 +49,11 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
 
         final Dimensions dimensions = this.dimensions.get();
         if (!dimensions.isZero()) {
+            final long start = System.nanoTime();
             fillGraph(graph, dimensions);
+            final long end = System.nanoTime();
+            Log.d(TAG, this + ": calculation time=" + TimeUnit.NANOSECONDS.toMillis(end - start));
+
             verticesBuffer = Meshes.allocateOrPutBuffer(graph.vertices, graph.start, graph.length(), verticesBuffer);
             final short[] indices;
             if (CUTOFF) {
