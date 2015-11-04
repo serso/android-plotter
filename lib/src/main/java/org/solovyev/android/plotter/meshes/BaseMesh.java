@@ -182,6 +182,7 @@ public abstract class BaseMesh implements Mesh {
         }
         if (hasWidth) {
             gl.glLineWidth(width);
+            gl.glPointSize(width);
         }
 
         onPreDraw(gl);
@@ -217,6 +218,7 @@ public abstract class BaseMesh implements Mesh {
 
         if (hasWidth) {
             gl.glLineWidth(1);
+            gl.glPointSize(1);
         }
         if (hasColors) {
             gl.glDisableClientState(GL10.GL_COLOR_ARRAY);

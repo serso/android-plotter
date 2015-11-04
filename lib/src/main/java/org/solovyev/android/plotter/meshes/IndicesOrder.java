@@ -6,7 +6,8 @@ public enum IndicesOrder {
     TRIANGLES(GL10.GL_TRIANGLES),
     TRIANGLE_STRIP(GL10.GL_TRIANGLE_STRIP),
     LINE_STRIP(GL10.GL_LINE_STRIP),
-    LINES(GL10.GL_LINES),;
+    LINES(GL10.GL_LINES),
+    POINTS(GL10.GL_POINTS);
 
     public final int glMode;
 
