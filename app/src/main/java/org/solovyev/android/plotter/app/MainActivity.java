@@ -1,9 +1,9 @@
 package org.solovyev.android.plotter.app;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 
 import com.squareup.otto.Subscribe;
 
@@ -11,13 +11,13 @@ import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
-import org.solovyev.android.plotter.Plotter;
 import org.solovyev.android.plotter.PlotViewFrame;
+import org.solovyev.android.plotter.Plotter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class MainActivity extends Activity implements PlotViewFrame.Listener {
+public class MainActivity extends FragmentActivity implements PlotViewFrame.Listener {
 
     @NonNull
     private final Plotter plotter = App.getPlotter();
@@ -115,8 +115,7 @@ public class MainActivity extends Activity implements PlotViewFrame.Listener {
 
         @Subscribe
         public void onShowDimensionsDialog(@NonNull DimensionsDialog.ShowEvent e) {
-            final DimensionsDialog dialog = new DimensionsDialog(activity, e.graph, e.d3);
-            dialog.show();
+            DimensionsDialog.create(e.bounds, e.d3).show(getSupportFragmentManager(), null);
         }
 
         @Subscribe

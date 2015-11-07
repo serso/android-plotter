@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="dialog_spacing">20dp</dimen>
+    <dimen name="form_input_margin_hor">20dp</dimen>
     <dimen name="font_size">14sp</dimen>
     <dimen name="font_spacing">1sp</dimen>
 </resources>

@@ -10,32 +10,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/x_min_edittext"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:gravity="end|center_vertical"
-            android:imeOptions="actionNext"
-            android:inputType="numberDecimal|numberSigned"
-            android:nextFocusRight="@+id/x_max_edittext"
-            android:selectAllOnFocus="true" />
+        <android.support.design.widget.TextInputLabel
+            android:id="@+id/x_min_textinput"
+            style="@style/DimensionTextInput">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/plot_dimensions_x_label"
-            android:textAppearance="@android:style/TextAppearance.Medium" />
+            <EditText
+                android:id="@+id/x_min_edittext"
+                style="@style/DimensionEditText"
+                android:hint="X min"
+                android:nextFocusRight="@+id/x_max_edittext" />
+        </android.support.design.widget.TextInputLabel>
 
-        <EditText
-            android:id="@+id/x_max_edittext"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:gravity="start|center_vertical"
-            android:imeOptions="actionNext"
-            android:inputType="numberDecimal|numberSigned"
-            android:nextFocusDown="@+id/y_min_edittext"
-            android:nextFocusRight="@+id/y_min_edittext"
-            android:selectAllOnFocus="true" />
+        <android.support.design.widget.TextInputLabel
+            android:id="@+id/x_max_textinput"
+            style="@style/DimensionTextInput"
+            android:layout_marginStart="@dimen/form_input_margin_hor"
+            android:layout_marginLeft="@dimen/form_input_margin_hor">
+
+            <EditText
+                android:id="@+id/x_max_edittext"
+                style="@style/DimensionEditText"
+                android:hint="X max"
+                android:nextFocusDown="@+id/y_min_edittext"
+                android:nextFocusRight="@+id/y_min_edittext" />
+        </android.support.design.widget.TextInputLabel>
     </LinearLayout>
 
     <LinearLayout
@@ -43,30 +41,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/y_min_edittext"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:gravity="end|center_vertical"
-            android:imeOptions="actionNext"
-            android:inputType="numberDecimal|numberSigned"
-            android:nextFocusRight="@+id/y_max_edittext"
-            android:selectAllOnFocus="true" />
+        <android.support.design.widget.TextInputLabel
+            android:id="@+id/y_min_textinput"
+            style="@style/DimensionTextInput">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/plot_dimensions_y_label"
-            android:textAppearance="@android:style/TextAppearance.Medium" />
+            <EditText
+                android:id="@+id/y_min_edittext"
+                style="@style/DimensionEditText"
+                android:hint="Y min"
+                android:nextFocusRight="@+id/y_max_edittext" />
+        </android.support.design.widget.TextInputLabel>
 
-        <EditText
-            android:id="@+id/y_max_edittext"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:gravity="start|center_vertical"
-            android:imeOptions="actionDone"
-            android:inputType="numberDecimal|numberSigned"
-            android:selectAllOnFocus="true" />
+        <android.support.design.widget.TextInputLabel
+            android:id="@+id/y_max_textinput"
+            style="@style/DimensionTextInput"
+            android:layout_marginStart="@dimen/form_input_margin_hor"
+            android:layout_marginLeft="@dimen/form_input_margin_hor">
+
+            <EditText
+                android:id="@+id/y_max_edittext"
+                style="@style/DimensionEditText"
+                android:hint="Y max"
+                android:imeOptions="actionDone" />
+        </android.support.design.widget.TextInputLabel>
     </LinearLayout>
 
 </LinearLayout>
