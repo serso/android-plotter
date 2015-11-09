@@ -98,7 +98,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
         final boolean isX = direction == AxisDirection.X;
         final Scene.Axis axis = Scene.Axis.create(dimensions.scene, isY, d3);
         final Scene.Ticks ticks = Scene.Ticks.create(dimensions.graph, axis);
-        final float fontScale = 3f * ticks.width / fontAtlas.getFontHeight();
+        final float fontScale = 4f * ticks.width / fontAtlas.getFontHeight();
         final int[] dv = direction.vector;
         final int[] da = direction.arrow;
         float x = -dv[0] * (ticks.axisLength / 2 + ticks.step + sceneX - sceneX % ticks.step) + da[0] * ticks.width / 2 + (d3 ? dimensions.scene.center.x : 0);
