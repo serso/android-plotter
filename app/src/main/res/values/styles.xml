@@ -10,10 +10,13 @@
         <item name="android:minHeight">40dp</item>
     </style>
 
+    <style name="DimensionEditText.Last" parent="DimensionEditText">
+        <item name="android:imeOptions">actionDone|flagNoExtractUi</item>
+    </style>
     <style name="DimensionEditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:imeOptions">actionNext</item>
+        <item name="android:imeOptions">actionNext|flagNoExtractUi</item>
         <item name="android:inputType">numberDecimal|numberSigned</item>
         <item name="android:selectAllOnFocus">true</item>
         <item name="android:gravity">start|center_vertical</item>

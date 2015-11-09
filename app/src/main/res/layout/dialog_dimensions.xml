@@ -60,9 +60,8 @@
 
             <EditText
                 android:id="@+id/y_max_edittext"
-                style="@style/DimensionEditText"
-                android:hint="Y max"
-                android:imeOptions="actionDone" />
+                style="@style/DimensionEditText.Last"
+                android:hint="Y max" />
         </android.support.design.widget.TextInputLabel>
     </LinearLayout>
 
