@@ -11,6 +11,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLabel;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -98,6 +101,10 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
         setDimension(xMax, bounds.right);
         setDimension(yMin, bounds.top);
         setDimension(yMax, bounds.bottom);
+        xMin.addTextChangedListener(new MyTextWatcher(xMinTextInput, true));
+        xMax.addTextChangedListener(new MyTextWatcher(xMaxTextInput, true));
+        yMin.addTextChangedListener(new MyTextWatcher(yMinTextInput, false));
+        yMax.addTextChangedListener(new MyTextWatcher(yMaxTextInput, false));
         if (d3) {
             yBounds.setVisibility(View.GONE);
         }
@@ -120,10 +127,7 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
                 ok.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (validate()) {
-                            applyData();
-                            dismiss();
-                        }
+                        tryClose();
                     }
                 });
             }
@@ -131,10 +135,16 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
         return dialog;
     }
 
+    private void tryClose() {
+        if (validate()) {
+            applyData();
+            dismiss();
+        }
+    }
 
     private boolean validate() {
-        final RectF graph = collectData();
-        if (!validXBounds(graph) | !validYBounds(graph)) {
+        final RectF bounds = collectData();
+        if (!validXBounds(bounds) | !validYBounds(bounds)) {
             return false;
         }
         return true;
@@ -145,15 +155,18 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
         textInput.setErrorEnabled(false);
     }
 
-    private void setError(@NonNull TextInputLabel textInput) {
-        textInput.setError("blllsdaf");
+    private void setError(@NonNull TextInputLabel textInput, @NonNull String error) {
+        textInput.setError(error);
         textInput.setErrorEnabled(true);
     }
 
-    private boolean validYBounds(@NonNull RectF graph) {
-        if (graph.top >= graph.bottom) {
-            setError(yMinTextInput);
-            setError(yMaxTextInput);
+    private boolean validYBounds(@NonNull RectF bounds) {
+        if (validNumbers(this.bounds.top, this.bounds.bottom, yMinTextInput, yMaxTextInput)) {
+            return false;
+        }
+        if (bounds.top >= bounds.bottom) {
+            setError(yMinTextInput, " ");
+            setError(yMaxTextInput, "max ≯ min");
             return false;
         }
         clearError(yMinTextInput);
@@ -161,15 +174,37 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
         return true;
     }
 
-    private boolean validXBounds(@NonNull RectF graph) {
-        if (graph.left >= graph.right) {
-            setError(xMinTextInput);
-            setError(xMaxTextInput);
+    private boolean validXBounds(@NonNull RectF bounds) {
+        if (validNumbers(bounds.left, bounds.right, xMinTextInput, xMaxTextInput)) {
+            return false;
+        }
+        if (bounds.left >= bounds.right) {
+            setError(xMinTextInput, " ");
+            setError(xMaxTextInput, "max ≯ min");
             return false;
         }
         clearError(xMinTextInput);
         clearError(xMaxTextInput);
         return true;
+    }
+
+    private boolean validNumbers(float l, float r, @NonNull TextInputLabel lInput, @NonNull TextInputLabel rInput) {
+        final boolean nanLeft = Float.isNaN(l);
+        final boolean nanRight = Float.isNaN(r);
+        if (nanLeft || nanRight) {
+            if (nanLeft) {
+                setError(lInput, " ");
+            } else {
+                clearError(lInput);
+            }
+            if (nanRight) {
+                setError(rInput, " ");
+            } else {
+                clearError(rInput);
+            }
+            return true;
+        }
+        return false;
     }
 
     @NonNull
@@ -178,12 +213,12 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
     }
 
     private void applyData() {
-        final RectF graph = collectData();
+        final RectF bounds = collectData();
         if (!d3) {
-            plotter.updateGraph(null, new RectSizeF(graph.width(), graph.height()), new PointF(graph.centerX(), graph.centerY()));
+            plotter.updateGraph(null, new RectSizeF(bounds.width(), bounds.height()), new PointF(bounds.centerX(), bounds.centerY()));
         } else {
             final Dimensions dimensions = plotter.getDimensions();
-            plotter.updateGraph(null, new RectSizeF(graph.width(), dimensions.graph.height()), new PointF(graph.centerX(), dimensions.graph.center.y));
+            plotter.updateGraph(null, new RectSizeF(bounds.width(), dimensions.graph.height()), new PointF(bounds.centerX(), dimensions.graph.center.y));
         }
     }
 
@@ -196,16 +231,15 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
         try {
             return Float.parseFloat(view.getText().toString().replace(",", ".").replace("−", "-"));
         } catch (NumberFormatException e) {
-            Log.e(Plot.getTag("MainActivity"), e.getMessage(), e);
-            return 0f;
+            Log.w(Plot.getTag("MainActivity"), e.getMessage(), e);
+            return Float.NaN;
         }
     }
 
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE) {
-            dismiss();
-            validate();
+            tryClose();
             return true;
         }
         return false;
@@ -219,6 +253,39 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
         public ShowEvent(@NonNull RectF bounds, boolean d3) {
             this.bounds = bounds;
             this.d3 = d3;
+        }
+    }
+
+    private class MyTextWatcher implements TextWatcher {
+        @NonNull
+        private final TextInputLabel input;
+        private final boolean x;
+
+        private MyTextWatcher(@NonNull TextInputLabel input, boolean x) {
+            this.input = input;
+            this.x = x;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            if (TextUtils.isEmpty(input.getError())) {
+                return;
+            }
+
+            final RectF bounds = collectData();
+            if (x) {
+                validXBounds(bounds);
+            } else {
+                validYBounds(bounds);
+            }
         }
     }
 }
