@@ -100,6 +100,9 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+        synchronized (lock) {
+            glInitialized = false;
+        }
         gl.glDisable(GL10.GL_DITHER);
         gl.glDisable(GL10.GL_LIGHTING);
 
@@ -189,13 +192,17 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
     }
 
     private void initFrustum(@NonNull GL10 gl, @NonNull Zoom zoom) {
+        initFrustum(gl, zoom, false);
+    }
+
+    private void initFrustum(@NonNull GL10 gl, @NonNull Zoom zoom, boolean firstTime) {
         Check.isGlThread();
 
         if (viewSize.isEmpty()) {
             return;
         }
 
-        if (frustum.update(zoom, viewSize.aspectRatio())) {
+        if (frustum.update(zoom, viewSize.aspectRatio()) || firstTime) {
             frustum.updateGl(gl);
         }
     }
@@ -574,7 +581,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
         void onSurfaceChanged(GL10 gl) {
             synchronized (this) {
-                initFrustum(gl, zoomer.current());
+                initFrustum(gl, zoomer.current(), true);
             }
         }
 
