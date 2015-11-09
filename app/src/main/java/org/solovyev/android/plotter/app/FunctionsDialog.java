@@ -1,18 +1,22 @@
 package org.solovyev.android.plotter.app;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.PlotIconView;
+import org.solovyev.android.plotter.Plotter;
 import org.solovyev.android.views.llm.DividerItemDecoration;
 import org.solovyev.android.views.llm.LinearLayoutManager;
 
@@ -21,21 +25,36 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class FunctionsDialog {
+import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+
+public class FunctionsDialog extends DialogFragment {
 
     @NonNull
-    protected final RecyclerView view;
+    private final Plotter plotter = App.getPlotter();
 
-    public FunctionsDialog(@NonNull Context context, @NonNull PlotData plotData) {
-        view = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.dialog_functions, null);
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
-        layoutManager.setChildSize(context.getResources().getDimensionPixelSize(R.dimen.list_item_height));
-        view.setLayoutManager(layoutManager);
-        view.addItemDecoration(new DividerItemDecoration(context, null));
-        view.setAdapter(new Adapter(plotData.functions));
+    public FunctionsDialog() {
     }
 
-    public void show() {
+    @NonNull
+    public static FunctionsDialog create() {
+        return new FunctionsDialog();
+    }
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        final Context context = getActivity();
+
+        @SuppressLint("InflateParams") final RecyclerView view = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.dialog_functions, null);
+
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(context, VERTICAL, false);
+        final int itemHeight = context.getResources().getDimensionPixelSize(R.dimen.list_item_height);
+        layoutManager.setChildSize(itemHeight);
+        view.setLayoutManager(layoutManager);
+
+        view.addItemDecoration(new DividerItemDecoration(context, null));
+        view.setAdapter(new Adapter(plotter.getPlotData().functions));
+
         final AlertDialog.Builder b = new AlertDialog.Builder(view.getContext());
         b.setView(view);
         b.setCancelable(true);
@@ -46,15 +65,11 @@ public class FunctionsDialog {
                 App.getBus().post(new ShowAddFunctionEvent());
             }
         });
-        b.show();
+        return b.create();
     }
 
     public static final class ShowEvent {
-        @NonNull
-        public final PlotData plotData;
-
-        public ShowEvent(@NonNull PlotData plotData) {
-            this.plotData = plotData;
+        public ShowEvent() {
         }
     }
 

@@ -98,7 +98,7 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
             App.getBus().post(new DimensionsDialog.ShowEvent(dimensions.graph.makeBounds(), plotter.is3d()));
             return true;
         } else if (id == R.id.plot_functions) {
-            App.getBus().post(new FunctionsDialog.ShowEvent(plotter.getPlotData()));
+            App.getBus().post(new FunctionsDialog.ShowEvent());
             return true;
         }
         return false;
@@ -120,8 +120,7 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
 
         @Subscribe
         public void onShowFunctionsDialog(@NonNull FunctionsDialog.ShowEvent e) {
-            final FunctionsDialog dialog = new FunctionsDialog(activity, e.plotData);
-            dialog.show();
+            FunctionsDialog.create().show(getSupportFragmentManager(), null);
         }
     }
 }
