@@ -111,6 +111,7 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
 
         @Subscribe
         public void onShowAddFunction(@NonNull ShowAddFunctionEvent e) {
+            NewFunctionDialog.create().show(getSupportFragmentManager(), null);
         }
 
         @Subscribe

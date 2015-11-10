@@ -1,13 +1,10 @@
 package org.solovyev.android.plotter.app;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,7 +24,7 @@ import butterknife.ButterKnife;
 
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
 
-public class FunctionsDialog extends DialogFragment {
+public class FunctionsDialog extends BaseDialogFragment {
 
     @NonNull
     private final Plotter plotter = App.getPlotter();
@@ -41,11 +38,8 @@ public class FunctionsDialog extends DialogFragment {
     }
 
     @NonNull
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Context context = getActivity();
-
-        @SuppressLint("InflateParams") final RecyclerView view = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.dialog_functions, null);
+    protected RecyclerView onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater) {
+        @SuppressLint("InflateParams") final RecyclerView view = (RecyclerView) inflater.inflate(R.layout.dialog_functions, null);
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context, VERTICAL, false);
         final int itemHeight = context.getResources().getDimensionPixelSize(R.dimen.list_item_height);
@@ -54,18 +48,17 @@ public class FunctionsDialog extends DialogFragment {
 
         view.addItemDecoration(new DividerItemDecoration(context, null));
         view.setAdapter(new Adapter(plotter.getPlotData().functions));
+        return view;
+    }
 
-        final AlertDialog.Builder b = new AlertDialog.Builder(view.getContext());
-        b.setView(view);
-        b.setCancelable(true);
-        b.setPositiveButton(android.R.string.ok, null);
-        b.setNeutralButton("Add", new DialogInterface.OnClickListener() {
+    protected void onPrepareDialog(@NonNull AlertDialog.Builder builder) {
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.setNeutralButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 App.getBus().post(new ShowAddFunctionEvent());
             }
         });
-        return b.create();
     }
 
     public static final class ShowEvent {
@@ -90,7 +83,7 @@ public class FunctionsDialog extends DialogFragment {
 
         @NonNull
         public static ViewHolder create(@NonNull LayoutInflater inflater, @NonNull ViewGroup parent) {
-            return new ViewHolder(inflater.inflate(R.layout.dialog_function, parent, false));
+            return new ViewHolder(inflater.inflate(R.layout.dialog_functions_function, parent, false));
         }
 
         void bind(@NonNull PlotFunction function) {

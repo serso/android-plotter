@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<item name="button_backspace" type="id"/>
+	<item name="button_keyboard" type="id"/>
+	<item name="button_functions" type="id"/>
+	<item name="button_clear" type="id"/>
+	<item name="button_brackets" type="id"/>
+	<item name="button_multiply" type="id"/>
+	<item name="button_divide" type="id"/>
+	<item name="button_minus" type="id"/>
+	<item name="button_plus" type="id"/>
+	<item name="button_space" type="id"/>
+</resources>

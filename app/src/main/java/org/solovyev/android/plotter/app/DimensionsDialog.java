@@ -1,7 +1,6 @@
 package org.solovyev.android.plotter.app;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.PointF;
@@ -9,7 +8,6 @@ import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLabel;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -34,7 +32,7 @@ import org.solovyev.android.plotter.utils.Fragments;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class DimensionsDialog extends DialogFragment implements TextView.OnEditorActionListener {
+public class DimensionsDialog extends BaseDialogFragment implements TextView.OnEditorActionListener {
     private static final String ARG_BOUNDS = "arg-bounds";
     private static final String ARG_3D = "arg-3d";
     @NonNull
@@ -92,8 +90,36 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
 
     @NonNull
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        final Context context = getActivity();
+    public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+        final AlertDialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface d) {
+                final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(xMin, InputMethodManager.SHOW_IMPLICIT);
+
+                final Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        tryClose();
+                    }
+                });
+            }
+        });
+        return dialog;
+    }
+
+    @Override
+    protected void onPrepareDialog(@NonNull AlertDialog.Builder builder) {
+        builder.setTitle("Dimensions");
+        builder.setPositiveButton(android.R.string.ok, null);
+    }
+
+    @NonNull
+    @Override
+    protected View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater) {
         @SuppressLint("InflateParams") final View view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
         ButterKnife.bind(this, view);
 
@@ -108,31 +134,7 @@ public class DimensionsDialog extends DialogFragment implements TextView.OnEdito
         if (d3) {
             yBounds.setVisibility(View.GONE);
         }
-
-        final int spacing = context.getResources().getDimensionPixelSize(R.dimen.dialog_spacing);
-
-        final AlertDialog.Builder b = new AlertDialog.Builder(context);
-        b.setCancelable(true);
-        b.setTitle("Dimensions");
-        b.setView(view, spacing, spacing, spacing, spacing);
-        b.setPositiveButton(android.R.string.ok, null);
-        final AlertDialog dialog = b.create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface d) {
-                final InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(xMin, InputMethodManager.SHOW_IMPLICIT);
-
-                final Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                ok.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        tryClose();
-                    }
-                });
-            }
-        });
-        return dialog;
+        return view;
     }
 
     private void tryClose() {

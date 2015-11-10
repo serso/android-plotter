@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#ff000000</color>
+    <color name="button_text">#d4d4d4</color>
+    <color name="button_text_secondary">#93999c</color>
+    <color name="button_bg">#263238</color>
+    <color name="button_bg_pressed">#3b464c</color>
+    <color name="button_operation_bg">#80cbc4</color>
+    <color name="button_operation_bg_pressed">#69a6a0</color>
 </resources>
