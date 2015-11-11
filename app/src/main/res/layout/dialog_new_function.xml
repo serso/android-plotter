@@ -5,17 +5,35 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/editor"
+    <android.support.design.widget.TextInputLabel
+        android:id="@+id/fn_name_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textMultiLine|textNoSuggestions"
-        android:typeface="monospace" />
+        android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:id="@+id/keyboard"
+        <EditText
+            android:id="@+id/fn_name_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name"
+            android:inputType="text"
+            android:lines="1"
+            android:minLines="1"
+            android:nextFocusDown="@+id/fn_body_edittext"
+            android:nextFocusRight="@+id/fn_body_edittext"
+            android:singleLine="true" />
+    </android.support.design.widget.TextInputLabel>
+
+    <android.support.design.widget.TextInputLabel
+        android:id="@+id/fn_body_input"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        android:layout_height="wrap_content">
 
+        <org.solovyev.android.views.EditTextNoKeyboard
+            android:id="@+id/fn_body_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Body"
+            android:inputType="textMultiLine|textNoSuggestions"
+            android:typeface="monospace" />
+    </android.support.design.widget.TextInputLabel>
 </LinearLayout>

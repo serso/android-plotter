@@ -56,7 +56,7 @@ public class FunctionsDialog extends BaseDialogFragment {
         builder.setNeutralButton("Add", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                App.getBus().post(new ShowAddFunctionEvent());
+                App.getBus().post(new NewFunctionDialog.ShowEvent());
             }
         });
     }
@@ -71,7 +71,7 @@ public class FunctionsDialog extends BaseDialogFragment {
         @Bind(R.id.function_icon)
         PlotIconView icon;
 
-        @Bind(R.id.function_name)
+        @Bind(R.id.fn_name_edittext)
         TextView name;
         private PlotFunction function;
 

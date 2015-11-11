@@ -54,6 +54,9 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
         ButterKnife.bind(this);
         App.getBus().register(eventHandler);
 
+        plotView.addControlView(R.id.plot_add_function);
+        plotView.addControlView(R.id.plot_functions);
+        plotView.addControlView(R.id.plot_dimensions);
         plotView.setPlotter(plotter);
         plotView.setListener(this);
     }
@@ -100,6 +103,9 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
         } else if (id == R.id.plot_functions) {
             App.getBus().post(new FunctionsDialog.ShowEvent());
             return true;
+        } else if (id == R.id.plot_add_function) {
+            App.getBus().post(new NewFunctionDialog.ShowEvent());
+            return true;
         }
         return false;
     }
@@ -110,7 +116,7 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
         private final MainActivity activity = MainActivity.this;
 
         @Subscribe
-        public void onShowAddFunction(@NonNull ShowAddFunctionEvent e) {
+        public void onShowAddFunction(@NonNull NewFunctionDialog.ShowEvent e) {
             NewFunctionDialog.create().show(getSupportFragmentManager(), null);
         }
 

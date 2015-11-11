@@ -67,8 +67,6 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
         addControlView(R.id.plot_zoom_out_button);
         addControlView(R.id.plot_zoom_reset_button);
         addControlView(R.id.plot_3d_button);
-        addControlView(R.id.plot_dimensions);
-        addControlView(R.id.plot_functions);
 
         plotView.addListener(this);
     }
@@ -79,7 +77,7 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
     }
 
     @Nullable
-    protected View addControlView(@IdRes int viewId) {
+    public View addControlView(@IdRes int viewId) {
         final View view = findViewById(viewId);
         if (view == null) {
             return null;

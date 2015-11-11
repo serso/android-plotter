@@ -4,6 +4,7 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 
 import com.squareup.otto.Bus;
 
@@ -55,6 +56,16 @@ public final class App {
 
     private static boolean isMainThread() {
         return Looper.getMainLooper() == Looper.myLooper();
+    }
+
+    static void setError(@NonNull TextInputLayout textInput, @NonNull String error) {
+        textInput.setError(error);
+        textInput.setErrorEnabled(true);
+    }
+
+    static void clearError(@NonNull TextInputLayout textInput) {
+        textInput.setError(null);
+        textInput.setErrorEnabled(false);
     }
 
     private static class MainThreadBus extends Bus {

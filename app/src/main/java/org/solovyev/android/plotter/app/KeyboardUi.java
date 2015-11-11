@@ -14,7 +14,6 @@ import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -52,15 +51,15 @@ public class KeyboardUi {
 
     public void makeView() {
         LinearLayout row = makeRow();
-        addButton(row, 0, "7").setText(">", up).setText("<", down);
-        addButton(row, 0, "8").setText(">=", up).setText("<=", down);
+        addButton(row, 0, "7");
+        addButton(row, 0, "8");
         addButton(row, 0, "9").setText("pi", up).setText("e", down);
         addOperationButton(row, R.id.button_multiply, "×").setText("^n", up).setText("^2", down);
-        addButton(row, R.id.button_functions, "f(x)");
+        addButton(row, R.id.button_clear, "C");
 
         row = makeRow();
-        addButton(row, 0, "4").setText("x", up);
-        addButton(row, 0, "5").setText("t", up);
+        addButton(row, 0, "4");
+        addButton(row, 0, "5");
         addButton(row, 0, "6");
         addOperationButton(row, R.id.button_divide, "/").setText("%", up).setText("sqrt", down);
         final View backspace = addImageButton(row, R.id.button_backspace, R.drawable.ic_backspace_white_24dp);
@@ -79,6 +78,13 @@ public class KeyboardUi {
         addButton(row, 0, ".").setText(",", up);
         addOperationButton(row, R.id.button_minus, "−");
         addImageButton(row, R.id.button_keyboard, R.drawable.ic_keyboard_white_24dp);
+
+        row = makeRow();
+        addButton(row, 0, "x");
+        addButton(row, 0, "y");
+        addButton(row, R.id.button_functions, "f(x)");
+        addButton(row, 0, "");
+        addImageButton(row, R.id.button_close, R.drawable.ic_done_white_24dp);
     }
 
     @NonNull
@@ -149,12 +155,6 @@ public class KeyboardUi {
         return button;
     }
 
-    private void showIme() {
-        final InputMethodManager keyboard = (InputMethodManager)
-                user.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        keyboard.showSoftInput(user.getEditor(), InputMethodManager.SHOW_FORCED);
-    }
-
     interface User {
         @NonNull
         Context getContext();
@@ -177,6 +177,10 @@ public class KeyboardUi {
         void openContextMenu(@NonNull View view);
 
         void insertText(@NonNull CharSequence text, int offset);
+
+        void done();
+
+        void showIme();
     }
 
     private class ButtonHandler implements View.OnClickListener, SimpleDragListener.DragProcessor {
@@ -203,7 +207,7 @@ public class KeyboardUi {
                     user.insertText(" ", 0);
                     break;
                 case R.id.button_keyboard:
-                    showIme();
+                    user.showIme();
                     break;
                 case R.id.button_clear:
                     user.getEditor().setText("");
@@ -211,6 +215,9 @@ public class KeyboardUi {
                     break;
                 case R.id.button_brackets:
                     user.insertText("()", -1);
+                    break;
+                case R.id.button_close:
+                    user.done();
                     break;
                 default:
                     onDefaultClick(v);
@@ -240,14 +247,6 @@ public class KeyboardUi {
             switch (text) {
                 case "sqrt":
                     user.insertText("sqrt()", -1);
-                    break;
-                case "//":
-                    user.insertText("// ", 0);
-                    showIme();
-                    break;
-                case "##":
-                    user.insertText("## ", 0);
-                    showIme();
                     break;
                 case ",":
                     user.insertText(", ", 0);

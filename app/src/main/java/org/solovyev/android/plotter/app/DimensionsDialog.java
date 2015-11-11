@@ -152,27 +152,17 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
         return true;
     }
 
-    private void clearError(@NonNull TextInputLabel textInput) {
-        textInput.setError(null);
-        textInput.setErrorEnabled(false);
-    }
-
-    private void setError(@NonNull TextInputLabel textInput, @NonNull String error) {
-        textInput.setError(error);
-        textInput.setErrorEnabled(true);
-    }
-
     private boolean validYBounds(@NonNull RectF bounds) {
         if (validNumbers(this.bounds.top, this.bounds.bottom, yMinTextInput, yMaxTextInput)) {
             return false;
         }
         if (bounds.top >= bounds.bottom) {
-            setError(yMinTextInput, " ");
-            setError(yMaxTextInput, "max ≯ min");
+            App.setError(yMinTextInput, " ");
+            App.setError(yMaxTextInput, "max ≯ min");
             return false;
         }
-        clearError(yMinTextInput);
-        clearError(yMaxTextInput);
+        App.clearError(yMinTextInput);
+        App.clearError(yMaxTextInput);
         return true;
     }
 
@@ -181,12 +171,12 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
             return false;
         }
         if (bounds.left >= bounds.right) {
-            setError(xMinTextInput, " ");
-            setError(xMaxTextInput, "max ≯ min");
+            App.setError(xMinTextInput, " ");
+            App.setError(xMaxTextInput, "max ≯ min");
             return false;
         }
-        clearError(xMinTextInput);
-        clearError(xMaxTextInput);
+        App.clearError(xMinTextInput);
+        App.clearError(xMaxTextInput);
         return true;
     }
 
@@ -195,14 +185,14 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
         final boolean nanRight = Float.isNaN(r);
         if (nanLeft || nanRight) {
             if (nanLeft) {
-                setError(lInput, " ");
+                App.setError(lInput, " ");
             } else {
-                clearError(lInput);
+                App.clearError(lInput);
             }
             if (nanRight) {
-                setError(rInput, " ");
+                App.setError(rInput, " ");
             } else {
-                clearError(rInput);
+                App.clearError(rInput);
             }
             return true;
         }

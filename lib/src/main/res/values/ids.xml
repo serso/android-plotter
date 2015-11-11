@@ -4,8 +4,6 @@
     <item name="plot_zoom_out_button" type="id" />
     <item name="plot_zoom_reset_button" type="id" />
     <item name="plot_3d_button" type="id" />
-    <item name="plot_dimensions" type="id" />
-    <item name="plot_functions" type="id" />
     <item name="plot_view" type="id" />
     <item name="plot_view_frame" type="id" />
 </resources>

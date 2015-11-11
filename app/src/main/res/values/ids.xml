@@ -10,4 +10,5 @@
 	<item name="button_minus" type="id"/>
 	<item name="button_plus" type="id"/>
 	<item name="button_space" type="id"/>
+	<item name="button_close" type="id"/>
 </resources>
