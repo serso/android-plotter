@@ -167,6 +167,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         final int buttonSize = getResources().getDimensionPixelSize(R.dimen.button_size);
         final int keyboardSize = 5 * buttonSize;
         keyboardWindow = new PopupWindow(view, keyboardSize, keyboardSize);
+        keyboardWindow.setClippingEnabled(false);
         keyboardWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
