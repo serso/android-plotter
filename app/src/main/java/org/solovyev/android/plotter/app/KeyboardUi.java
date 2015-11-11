@@ -131,7 +131,7 @@ public class KeyboardUi {
         button.setText(text);
         button.setTextColor(textColor);
         button.setDirectionTextColor(textColorSecondary);
-        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 30);
+        button.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24);
         button.setOnDragListener(dragListener);
         return button;
     }
