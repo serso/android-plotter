@@ -15,6 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Name"
+            android:imeOptions="flagNoExtractUi"
             android:inputType="text"
             android:lines="1"
             android:minLines="1"
@@ -33,6 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Body"
+            android:imeOptions="flagNoExtractUi"
             android:inputType="textMultiLine|textNoSuggestions"
             android:typeface="monospace" />
     </android.support.design.widget.TextInputLabel>

@@ -13,11 +13,14 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.ContextMenu;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -183,11 +186,18 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
             showKeyboard();
         }
     }
+    public void moveDialog(int gravity) {
+        final Window window = getDialog().getWindow();
+        final WindowManager.LayoutParams lp = window.getAttributes();
+        lp.gravity = gravity;
+        window.setAttributes(lp);
+    }
 
     private void hideKeyboard() {
         if (keyboardWindow == null) {
             return;
         }
+        moveDialog(Gravity.CENTER);
         keyboardWindow.dismiss();
         keyboardWindow = null;
     }
@@ -196,6 +206,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         if (keyboardWindow != null) {
             return;
         }
+        moveDialog(Gravity.TOP);
         hideIme(body);
         final LinearLayout view = new LinearLayout(getActivity());
         view.setOrientation(LinearLayout.VERTICAL);
@@ -217,6 +228,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
                     return;
                 }
                 if (body.getWindowToken() != null) {
+                    hideIme(body);
                     final int inputWidth = body.getWidth();
                     final int xOff = (inputWidth - keyboardSize) / 2;
                     keyboardWindow.setWidth(keyboardSize);
@@ -332,6 +344,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
             final int id = v.getId();
             if (id == R.id.fn_body_edittext) {
+                menu.clear();
                 for (int i = 0; i < functions.size(); i++) {
                     menu.add(MENU_FUNCTION, Menu.NONE, Menu.NONE, functions.get(i)).setOnMenuItemClickListener(this);
                 }
