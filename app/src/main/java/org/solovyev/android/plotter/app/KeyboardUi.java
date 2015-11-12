@@ -172,9 +172,7 @@ public class KeyboardUi {
 
         void insertOperator(@NonNull String operator);
 
-        void registerForContextMenu(@NonNull View view);
-
-        void openContextMenu(@NonNull View view);
+        void showFunctions(@NonNull View v);
 
         void insertText(@NonNull CharSequence text, int offset);
 
@@ -200,8 +198,7 @@ public class KeyboardUi {
                     user.insertOperator('*');
                     break;
                 case R.id.button_functions:
-                    user.registerForContextMenu(v);
-                    user.openContextMenu(v);
+                    user.showFunctions(v);
                     break;
                 case R.id.button_space:
                     user.insertText(" ", 0);

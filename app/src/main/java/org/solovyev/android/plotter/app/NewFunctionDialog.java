@@ -12,7 +12,10 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -25,6 +28,7 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import net.objecthunter.exp4j.ValidationResult;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -32,6 +36,37 @@ import butterknife.ButterKnife;
 
 public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocusChangeListener, View.OnClickListener {
 
+    private static final int MENU_FUNCTION = Menu.FIRST;
+    private static final int MENU_CONSTANT = Menu.FIRST + 1;
+
+    private static final List<String> functions = new ArrayList<>();
+    private static final List<String> constants = new ArrayList<>();
+
+    static {
+        functions.add("sin");
+        functions.add("cos");
+        functions.add("tan");
+        functions.add("asin");
+        functions.add("acos");
+        functions.add("atan");
+        functions.add("sinh");
+        functions.add("tanh");
+        functions.add("abs");
+        functions.add("log");
+        functions.add("log10");
+        functions.add("log2");
+        functions.add("log1p");
+        functions.add("ceil");
+        functions.add("floor");
+        functions.add("sqrt");
+        functions.add("cbrt");
+        functions.add("pow");
+        functions.add("exp");
+        functions.add("expm1");
+    }
+
+    @NonNull
+    private final KeyboardUser keyboardUser = new KeyboardUser();
     @Bind(R.id.fn_name_input)
     TextInputLayout nameInput;
     @Bind(R.id.fn_name_edittext)
@@ -122,7 +157,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         }
         final Expression expression = new ExpressionBuilder(body).variables("x", "y").build();
         final ValidationResult validateResult = expression.validate(false);
-        if(!validateResult.isValid()) {
+        if (!validateResult.isValid()) {
             final List<String> errors = validateResult.getErrors();
             App.setError(bodyInput, errors.isEmpty() ? " " : errors.get(0));
             return false;
@@ -191,13 +226,13 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
                 }
             }
         });
-        new KeyboardUi(new KeyboardUser()).makeView();
+        new KeyboardUi(keyboardUser).makeView();
     }
 
     public static class ShowEvent {
     }
 
-    private class KeyboardUser implements KeyboardUi.User {
+    private class KeyboardUser implements KeyboardUi.User, View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
         @NonNull
         @Override
         public Context getContext() {
@@ -235,11 +270,6 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
             e.replace(start, end, getOperator(start, end, e, operator));
         }
 
-        @Override
-        public void registerForContextMenu(@NonNull View view) {
-
-        }
-
         @NonNull
         private String getOperator(int start, int end, @NonNull Editable e, @NonNull CharSequence operator) {
             boolean spaceBefore = true;
@@ -264,8 +294,9 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         }
 
         @Override
-        public void openContextMenu(@NonNull View view) {
-            view.showContextMenu();
+        public void showFunctions(@NonNull View v) {
+            body.setOnCreateContextMenuListener(this);
+            body.showContextMenu();
         }
 
         @Override
@@ -295,6 +326,34 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
                     getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
             keyboard.showSoftInput(getEditor(), InputMethodManager.SHOW_FORCED);
             hideKeyboard();
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            final int id = v.getId();
+            if (id == R.id.fn_body_edittext) {
+                for (int i = 0; i < functions.size(); i++) {
+                    menu.add(MENU_FUNCTION, Menu.NONE, Menu.NONE, functions.get(i)).setOnMenuItemClickListener(this);
+                }
+                unregisterForContextMenu(body);
+            }
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            final int groupId = item.getGroupId();
+            final CharSequence title = item.getTitle();
+            if (groupId == MENU_FUNCTION) {
+                final int argsListIndex = title.toString().indexOf("(");
+                if (argsListIndex < 0) {
+                    keyboardUser.insertText(title + "()", -1);
+                } else {
+                    keyboardUser.insertText(title.subSequence(0, argsListIndex) + "()", -1);
+                }
+            } else {
+                return false;
+            }
+            return true;
         }
     }
 }
