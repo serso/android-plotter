@@ -10,23 +10,11 @@
         a:layout_width="match_parent"
         a:layout_height="match_parent" />
 
-    <LinearLayout
-        a:layout_width="wrap_content"
-        a:layout_height="wrap_content"
+    <ImageButton
+        a:id="@+id/plot_dimensions"
+        style="@style/ZoomControlButton"
         a:layout_gravity="top|start"
-        a:orientation="vertical">
-
-        <ImageButton
-            a:id="@+id/plot_functions"
-            style="@style/ZoomControlButton"
-            a:src="@drawable/ic_list_white_24dp" />
-
-        <Button
-            a:id="@+id/plot_add_function"
-            style="@style/ZoomControlButton"
-            a:text="+" />
-
-    </LinearLayout>
+        a:src="@drawable/ic_straighten_white_24dp" />
 
     <Button
         a:id="@id/plot_3d_button"
@@ -34,11 +22,22 @@
         a:layout_gravity="top|end"
         a:text="3D" />
 
-    <ImageButton
-        a:id="@+id/plot_dimensions"
-        style="@style/ZoomControlButton"
+    <LinearLayout
+        a:layout_width="wrap_content"
+        a:layout_height="wrap_content"
         a:layout_gravity="bottom|start"
-        a:src="@drawable/ic_straighten_white_24dp" />
+        a:orientation="vertical">
+
+        <Button
+            a:id="@+id/plot_add_function"
+            style="@style/ZoomControlButton"
+            a:text="+" />
+
+        <ImageButton
+            a:id="@+id/plot_functions"
+            style="@style/ZoomControlButton"
+            a:src="@drawable/ic_list_white_24dp" />
+    </LinearLayout>
 
     <LinearLayout
         a:layout_width="wrap_content"
