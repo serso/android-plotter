@@ -17,8 +17,10 @@ public interface Plotter {
     boolean D3 = true;
 
     void add(@NonNull Function function);
+    void remove(@NonNull Function function);
 
     void add(@NonNull PlotFunction function);
+    void remove(@NonNull PlotFunction function);
 
     void clearFunctions();
 

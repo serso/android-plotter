@@ -3,13 +3,19 @@ package org.solovyev.android.plotter.app;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.squareup.otto.Subscribe;
 
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.PlotIconView;
@@ -23,11 +29,13 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 
 import static android.support.v7.widget.LinearLayoutManager.VERTICAL;
+import static android.view.Menu.NONE;
 
 public class FunctionsDialog extends BaseDialogFragment {
 
     @NonNull
     private final Plotter plotter = App.getPlotter();
+    private Adapter adapter;
 
     public FunctionsDialog() {
     }
@@ -35,6 +43,20 @@ public class FunctionsDialog extends BaseDialogFragment {
     @NonNull
     public static FunctionsDialog create() {
         return new FunctionsDialog();
+    }
+
+    @Subscribe
+    public void onDeleteFunction(@NonNull DeleteFunctionEvent e) {
+        plotter.remove(e.function);
+        adapter.remove(e.function);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
+        App.getBus().register(this);
+        return view;
     }
 
     @NonNull
@@ -47,8 +69,15 @@ public class FunctionsDialog extends BaseDialogFragment {
         view.setLayoutManager(layoutManager);
 
         view.addItemDecoration(new DividerItemDecoration(context, null));
-        view.setAdapter(new Adapter(plotter.getPlotData().functions));
+        adapter = new Adapter(plotter.getPlotData().functions);
+        view.setAdapter(adapter);
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        App.getBus().unregister(this);
+        super.onDestroyView();
     }
 
     protected void onPrepareDialog(@NonNull AlertDialog.Builder builder) {
@@ -66,7 +95,16 @@ public class FunctionsDialog extends BaseDialogFragment {
         }
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static final class DeleteFunctionEvent {
+        @NonNull
+        public final PlotFunction function;
+
+        public DeleteFunctionEvent(@NonNull PlotFunction function) {
+            this.function = function;
+        }
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
 
         @Bind(R.id.function_icon)
         PlotIconView icon;
@@ -79,6 +117,7 @@ public class FunctionsDialog extends BaseDialogFragment {
             super(itemView);
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
+            itemView.setOnCreateContextMenuListener(this);
         }
 
         @NonNull
@@ -95,6 +134,20 @@ public class FunctionsDialog extends BaseDialogFragment {
         @Override
         public void onClick(View v) {
 
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.add(NONE, R.string.fn_delete, NONE, R.string.fn_delete).setOnMenuItemClickListener(this);
+        }
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            if (function != null && item.getItemId() == R.string.fn_delete) {
+                App.getBus().post(new DeleteFunctionEvent(function));
+                return true;
+            }
+            return false;
         }
     }
 
@@ -119,6 +172,14 @@ public class FunctionsDialog extends BaseDialogFragment {
         @Override
         public int getItemCount() {
             return list.size();
+        }
+
+        public void remove(@NonNull PlotFunction function) {
+            final int i = list.indexOf(function);
+            if (i >= 0) {
+                list.remove(i);
+                notifyItemRemoved(i);
+            }
         }
     }
 }

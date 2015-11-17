@@ -27,6 +27,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public final class PlotData {
@@ -65,11 +66,28 @@ public final class PlotData {
         }
     }
 
+    public boolean remove(@NonNull PlotFunction function) {
+        return remove(function.function);
+    }
+
+    public boolean remove(@NonNull Function function) {
+        Check.isMainThread();
+        final Iterator<PlotFunction> it = functions.iterator();
+        while (it.hasNext()) {
+            final PlotFunction oldFunction = it.next();
+            if (oldFunction.function.equals(function)) {
+                it.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
     boolean update(@NonNull PlotFunction function) {
         Check.isMainThread();
         for (int i = 0; i < functions.size(); i++) {
             final PlotFunction oldFunction = functions.get(i);
-            if (oldFunction.function == function.function) {
+            if (oldFunction.function.equals(function.function)) {
                 functions.set(i, function);
                 return true;
             }

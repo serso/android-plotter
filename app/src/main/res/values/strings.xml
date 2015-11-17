@@ -3,4 +3,5 @@
     <string name="app_name">Plotter Lib</string>
     <string name="plot_dimensions_x_label" translable="false">" ≤  x  ≤ "</string>
     <string name="plot_dimensions_y_label" translable="false">" ≤  y  ≤ "</string>
+    <string name="fn_delete">Delete</string>
 </resources>

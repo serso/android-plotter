@@ -62,4 +62,21 @@ public final class PlotFunction {
 
         return copy;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        final PlotFunction that = (PlotFunction) o;
+
+        if (!function.equals(that.function)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return function.hashCode();
+    }
 }

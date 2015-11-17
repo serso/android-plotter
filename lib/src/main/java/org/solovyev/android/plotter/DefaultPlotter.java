@@ -212,6 +212,13 @@ final class DefaultPlotter implements Plotter {
         onFunctionsChanged();
     }
 
+    @Override
+    public void remove(@NonNull Function function) {
+        if (plotData.remove(function)) {
+            onFunctionsChanged();
+        }
+    }
+
     private void onDimensionsChanged() {
         Check.isMainThread();
 
@@ -235,6 +242,13 @@ final class DefaultPlotter implements Plotter {
     public void add(@NonNull PlotFunction function) {
         plotData.add(function.copy());
         onFunctionsChanged();
+    }
+
+    @Override
+    public void remove(@NonNull PlotFunction function) {
+        if (plotData.remove(function)) {
+            onFunctionsChanged();
+        }
     }
 
     @Override
