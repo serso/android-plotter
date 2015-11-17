@@ -31,6 +31,8 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import net.objecthunter.exp4j.ValidationResult;
 
+import org.solovyev.android.plotter.math.ExpressionFunction;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,11 +75,11 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
     @Bind(R.id.fn_name_input)
     TextInputLayout nameInput;
     @Bind(R.id.fn_name_edittext)
-    EditText name;
+    EditText nameEditText;
     @Bind(R.id.fn_body_input)
     TextInputLayout bodyInput;
     @Bind(R.id.fn_body_edittext)
-    EditText body;
+    EditText bodyEditText;
     @Nullable
     PopupWindow keyboardWindow;
 
@@ -114,8 +116,8 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
     protected View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater) {
         final View view = inflater.inflate(R.layout.dialog_new_function, null);
         ButterKnife.bind(this, view);
-        body.setOnFocusChangeListener(this);
-        body.setOnClickListener(this);
+        bodyEditText.setOnFocusChangeListener(this);
+        bodyEditText.setOnClickListener(this);
         return view;
     }
 
@@ -128,7 +130,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
             @Override
             public void onShow(DialogInterface d) {
                 final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(name, InputMethodManager.SHOW_IMPLICIT);
+                imm.showSoftInput(nameEditText, InputMethodManager.SHOW_IMPLICIT);
 
                 final Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 ok.setOnClickListener(new View.OnClickListener() {
@@ -150,10 +152,25 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
     }
 
     private void applyData() {
+        App.getPlotter().add(ExpressionFunction.createNamed(getName(), getBody(), new String[]{"x", "y"}));
+    }
+
+    @NonNull
+    private String getName() {
+        final String name = nameEditText.getText().toString().trim();
+        if (!TextUtils.isEmpty(name)) {
+            return name;
+        }
+        return getBody();
+    }
+
+    @NonNull
+    private String getBody() {
+        return bodyEditText.getText().toString();
     }
 
     private boolean validate() {
-        final String body = this.body.getText().toString();
+        final String body = getBody();
         if (TextUtils.isEmpty(body)) {
             App.setError(bodyInput, "Empty");
             return false;
@@ -207,7 +224,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
             return;
         }
         moveDialog(Gravity.TOP);
-        hideIme(body);
+        hideIme(bodyEditText);
         final LinearLayout view = new LinearLayout(getActivity());
         view.setOrientation(LinearLayout.VERTICAL);
         final int buttonSize = getResources().getDimensionPixelSize(R.dimen.button_size);
@@ -221,20 +238,20 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
             }
         });
         // see http://stackoverflow.com/a/4713487/720489
-        body.post(new Runnable() {
+        bodyEditText.post(new Runnable() {
             @Override
             public void run() {
                 if (keyboardWindow == null) {
                     return;
                 }
-                if (body.getWindowToken() != null) {
-                    hideIme(body);
-                    final int inputWidth = body.getWidth();
+                if (bodyEditText.getWindowToken() != null) {
+                    hideIme(bodyEditText);
+                    final int inputWidth = bodyEditText.getWidth();
                     final int xOff = (inputWidth - keyboardSize) / 2;
                     keyboardWindow.setWidth(keyboardSize);
-                    keyboardWindow.showAsDropDown(body, xOff, 0);
+                    keyboardWindow.showAsDropDown(bodyEditText, xOff, 0);
                 } else {
-                    body.postDelayed(this, 50);
+                    bodyEditText.postDelayed(this, 50);
                 }
             }
         });
@@ -260,7 +277,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         @NonNull
         @Override
         public EditText getEditor() {
-            return body;
+            return bodyEditText;
         }
 
         @NonNull
@@ -276,9 +293,9 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
 
         @Override
         public void insertOperator(@NonNull String operator) {
-            final int start = clampSelection(body.getSelectionStart());
-            final int end = clampSelection(body.getSelectionEnd());
-            final Editable e = body.getText();
+            final int start = clampSelection(bodyEditText.getSelectionStart());
+            final int end = clampSelection(bodyEditText.getSelectionEnd());
+            final Editable e = bodyEditText.getText();
             e.replace(start, end, getOperator(start, end, e, operator));
         }
 
@@ -307,21 +324,21 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
 
         @Override
         public void showFunctions(@NonNull View v) {
-            body.setOnCreateContextMenuListener(this);
-            body.showContextMenu();
+            bodyEditText.setOnCreateContextMenuListener(this);
+            bodyEditText.showContextMenu();
         }
 
         @Override
         public void insertText(@NonNull CharSequence text, int selectionOffset) {
-            final int start = clampSelection(body.getSelectionStart());
-            final int end = clampSelection(body.getSelectionEnd());
-            final Editable e = body.getText();
+            final int start = clampSelection(bodyEditText.getSelectionStart());
+            final int end = clampSelection(bodyEditText.getSelectionEnd());
+            final Editable e = bodyEditText.getText();
             e.replace(start, end, text);
             if (selectionOffset != 0) {
-                final int selection = clampSelection(body.getSelectionEnd());
+                final int selection = clampSelection(bodyEditText.getSelectionEnd());
                 final int newSelection = selection + selectionOffset;
                 if (newSelection >= 0 && newSelection < e.length()) {
-                    body.setSelection(newSelection);
+                    bodyEditText.setSelection(newSelection);
                 }
             }
         }
@@ -348,7 +365,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
                 for (int i = 0; i < functions.size(); i++) {
                     menu.add(MENU_FUNCTION, Menu.NONE, Menu.NONE, functions.get(i)).setOnMenuItemClickListener(this);
                 }
-                unregisterForContextMenu(body);
+                unregisterForContextMenu(bodyEditText);
             }
         }
 

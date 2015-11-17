@@ -29,7 +29,7 @@ public class MeshSpec {
 
     @NonNull
     public static MeshSpec createDefault(@NonNull Context context) {
-        return new MeshSpec(COLOR_NO, defaultWidth(context));
+        return new MeshSpec(COLOR_DEFAULT, defaultWidth(context));
     }
 
     public static int defaultWidth(@NonNull Context context) {
