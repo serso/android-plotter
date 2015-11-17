@@ -3,6 +3,8 @@ package org.solovyev.android.plotter.app;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -65,13 +67,21 @@ public class FunctionsDialog extends BaseDialogFragment {
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context, VERTICAL, false);
         final int itemHeight = context.getResources().getDimensionPixelSize(R.dimen.list_item_height);
-        layoutManager.setChildSize(itemHeight);
+        layoutManager.setChildSize(itemHeight + getDividerHeight(context));
         view.setLayoutManager(layoutManager);
 
         view.addItemDecoration(new DividerItemDecoration(context, null));
         adapter = new Adapter(plotter.getPlotData().functions);
         view.setAdapter(adapter);
         return view;
+    }
+
+    private int getDividerHeight(@NonNull Context context) {
+        final TypedArray a = context.obtainStyledAttributes(null, new int[]{android.R.attr.listDivider});
+        final Drawable divider = a.getDrawable(0);
+        final int dividerHeight = divider == null ? 0 : divider.getIntrinsicHeight();
+        a.recycle();
+        return dividerHeight;
     }
 
     @Override
