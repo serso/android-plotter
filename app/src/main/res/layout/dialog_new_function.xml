@@ -5,7 +5,7 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <android.support.design.widget.TextInputLabel
+    <android.support.design.widget.TextInputLayout
         android:id="@+id/fn_name_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -22,9 +22,9 @@
             android:nextFocusDown="@+id/fn_body_edittext"
             android:nextFocusRight="@+id/fn_body_edittext"
             android:singleLine="true" />
-    </android.support.design.widget.TextInputLabel>
+    </android.support.design.widget.TextInputLayout>
 
-    <android.support.design.widget.TextInputLabel
+    <android.support.design.widget.TextInputLayout
         android:id="@+id/fn_body_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -37,5 +37,5 @@
             android:imeOptions="flagNoExtractUi"
             android:inputType="textMultiLine|textNoSuggestions"
             android:typeface="monospace" />
-    </android.support.design.widget.TextInputLabel>
+    </android.support.design.widget.TextInputLayout>
 </LinearLayout>

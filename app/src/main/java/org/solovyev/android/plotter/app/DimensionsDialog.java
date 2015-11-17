@@ -7,7 +7,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputLabel;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -41,22 +41,22 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
     @Bind(R.id.x_min_edittext)
     EditText xMin;
     @Bind(R.id.x_min_textinput)
-    TextInputLabel xMinTextInput;
+    TextInputLayout xMinTextInput;
 
     @Bind(R.id.x_max_edittext)
     EditText xMax;
     @Bind(R.id.x_max_textinput)
-    TextInputLabel xMaxTextInput;
+    TextInputLayout xMaxTextInput;
 
     @Bind(R.id.y_min_edittext)
     EditText yMin;
     @Bind(R.id.y_min_textinput)
-    TextInputLabel yMinTextInput;
+    TextInputLayout yMinTextInput;
 
     @Bind(R.id.y_max_edittext)
     EditText yMax;
     @Bind(R.id.y_max_textinput)
-    TextInputLabel yMaxTextInput;
+    TextInputLayout yMaxTextInput;
 
     @Bind(R.id.y_bounds)
     View yBounds;
@@ -180,7 +180,7 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
         return true;
     }
 
-    private boolean validNumbers(float l, float r, @NonNull TextInputLabel lInput, @NonNull TextInputLabel rInput) {
+    private boolean validNumbers(float l, float r, @NonNull TextInputLayout lInput, @NonNull TextInputLayout rInput) {
         final boolean nanLeft = Float.isNaN(l);
         final boolean nanRight = Float.isNaN(r);
         if (nanLeft || nanRight) {
@@ -250,10 +250,10 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
 
     private class MyTextWatcher implements TextWatcher {
         @NonNull
-        private final TextInputLabel input;
+        private final TextInputLayout input;
         private final boolean x;
 
-        private MyTextWatcher(@NonNull TextInputLabel input, boolean x) {
+        private MyTextWatcher(@NonNull TextInputLayout input, boolean x) {
             this.input = input;
             this.x = x;
         }
