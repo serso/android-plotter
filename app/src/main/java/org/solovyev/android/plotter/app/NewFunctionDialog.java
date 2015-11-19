@@ -30,11 +30,15 @@ import android.widget.PopupWindow;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import net.objecthunter.exp4j.ValidationResult;
+import net.objecthunter.exp4j.constant.Constants;
+import net.objecthunter.exp4j.function.Function;
+import net.objecthunter.exp4j.function.Functions;
 
 import org.solovyev.android.plotter.math.ExpressionFunction;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -48,26 +52,12 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
     private static final List<String> constants = new ArrayList<>();
 
     static {
-        functions.add("sin");
-        functions.add("cos");
-        functions.add("tan");
-        functions.add("asin");
-        functions.add("acos");
-        functions.add("atan");
-        functions.add("sinh");
-        functions.add("tanh");
-        functions.add("abs");
-        functions.add("log");
-        functions.add("log10");
-        functions.add("log2");
-        functions.add("log1p");
-        functions.add("ceil");
-        functions.add("floor");
-        functions.add("sqrt");
-        functions.add("cbrt");
-        functions.add("pow");
-        functions.add("exp");
-        functions.add("expm1");
+        for (Function function : Functions.getBuiltinFunctions()) {
+            functions.add(function.getName());
+        }
+        for (Map.Entry<String, Double> entry : Constants.getBuiltinConstants().entrySet()) {
+            constants.add(entry.getKey());
+        }
     }
 
     @NonNull
@@ -261,7 +251,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
     public static class ShowEvent {
     }
 
-    private class KeyboardUser implements KeyboardUi.User, View.OnCreateContextMenuListener, MenuItem.OnMenuItemClickListener {
+    private class KeyboardUser implements KeyboardUi.User, MenuItem.OnMenuItemClickListener {
         @NonNull
         @Override
         public Context getContext() {
@@ -323,8 +313,38 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         }
 
         @Override
+        public void showConstants(@NonNull View v) {
+            bodyEditText.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                @Override
+                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                    final int id = v.getId();
+                    if (id == R.id.fn_body_edittext) {
+                        menu.clear();
+                        for (int i = 0; i < constants.size(); i++) {
+                            menu.add(MENU_CONSTANT, Menu.NONE, Menu.NONE, constants.get(i)).setOnMenuItemClickListener(KeyboardUser.this);
+                        }
+                        unregisterForContextMenu(bodyEditText);
+                    }
+                }
+            });
+            bodyEditText.showContextMenu();
+        }
+
+        @Override
         public void showFunctions(@NonNull View v) {
-            bodyEditText.setOnCreateContextMenuListener(this);
+            bodyEditText.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+                @Override
+                public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+                    final int id = v.getId();
+                    if (id == R.id.fn_body_edittext) {
+                        menu.clear();
+                        for (int i = 0; i < functions.size(); i++) {
+                            menu.add(MENU_FUNCTION, Menu.NONE, Menu.NONE, functions.get(i)).setOnMenuItemClickListener(KeyboardUser.this);
+                        }
+                        unregisterForContextMenu(bodyEditText);
+                    }
+                }
+            });
             bodyEditText.showContextMenu();
         }
 
@@ -358,18 +378,6 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         }
 
         @Override
-        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-            final int id = v.getId();
-            if (id == R.id.fn_body_edittext) {
-                menu.clear();
-                for (int i = 0; i < functions.size(); i++) {
-                    menu.add(MENU_FUNCTION, Menu.NONE, Menu.NONE, functions.get(i)).setOnMenuItemClickListener(this);
-                }
-                unregisterForContextMenu(bodyEditText);
-            }
-        }
-
-        @Override
         public boolean onMenuItemClick(MenuItem item) {
             final int groupId = item.getGroupId();
             final CharSequence title = item.getTitle();
@@ -380,6 +388,8 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
                 } else {
                     keyboardUser.insertText(title.subSequence(0, argsListIndex) + "()", -1);
                 }
+            } else if (groupId == MENU_CONSTANT) {
+                keyboardUser.insertText(title.toString(), 0);
             } else {
                 return false;
             }

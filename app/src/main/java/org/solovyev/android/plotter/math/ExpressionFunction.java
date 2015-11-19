@@ -51,14 +51,14 @@ public final class ExpressionFunction extends Function {
 
     @Override
     public float evaluate(float x) {
-        expression.setVariable(variables[0], x);
+        expression.setVariable(variables[0], (double) x);
         return (float) expression.evaluate();
     }
 
     @Override
     public float evaluate(float x, float y) {
-        expression.setVariable(variables[0], x);
-        expression.setVariable(variables[1], y);
+        expression.setVariable(variables[0], (double) x);
+        expression.setVariable(variables[1], (double) y);
         return (float) expression.evaluate();
     }
 

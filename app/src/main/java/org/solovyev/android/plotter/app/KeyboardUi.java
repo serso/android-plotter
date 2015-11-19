@@ -83,7 +83,7 @@ public class KeyboardUi {
         addButton(row, 0, "x");
         addButton(row, 0, "y");
         addButton(row, R.id.button_functions, "f(x)");
-        addButton(row, 0, "");
+        addButton(row, R.id.button_constants, "π");
         addImageButton(row, R.id.button_close, R.drawable.ic_done_white_24dp);
     }
 
@@ -173,6 +173,7 @@ public class KeyboardUi {
         void insertOperator(@NonNull String operator);
 
         void showFunctions(@NonNull View v);
+        void showConstants(@NonNull View v);
 
         void insertText(@NonNull CharSequence text, int offset);
 
@@ -199,6 +200,9 @@ public class KeyboardUi {
                     break;
                 case R.id.button_functions:
                     user.showFunctions(v);
+                    break;
+                case R.id.button_constants:
+                    user.showConstants(v);
                     break;
                 case R.id.button_space:
                     user.insertText(" ", 0);
