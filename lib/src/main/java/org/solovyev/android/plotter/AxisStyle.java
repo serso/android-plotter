@@ -26,10 +26,10 @@ import android.support.annotation.NonNull;
 
 public final class AxisStyle {
 
-    public int axisColor = 0xFFF5F5F5;
-    public int axisLabelsColor = 0xFFF5F5F5;
+    public int axisColor = 0xFFEEEEEE;
+    public int axisLabelsColor = 0xFFEEEEEE;
     public int gridColor = 0x99424242;
-    public int backgroundColor = 0xFF101010;
+    public int backgroundColor = 0xFF212121;
 
     private AxisStyle() {
     }

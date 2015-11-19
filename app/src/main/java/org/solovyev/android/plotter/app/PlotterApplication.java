@@ -3,7 +3,6 @@ package org.solovyev.android.plotter.app;
 import android.app.Application;
 import android.support.annotation.NonNull;
 
-import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Function1;
 import org.solovyev.android.plotter.Function2;
 import org.solovyev.android.plotter.PlotFunction;
@@ -24,7 +23,7 @@ public class PlotterApplication extends Application {
         final Plotter plotter = App.getPlotter();
 
         final int meshWidth = MeshSpec.defaultWidth(this);
-        plotter.add(PlotFunction.create(ExpressionFunction.create("-x", "x"), MeshSpec.create(Color.BLUE, meshWidth)));
+        plotter.add(PlotFunction.create(ExpressionFunction.create("-x", "x"), MeshSpec.create(MeshSpec.LightColors.INDIGO, meshWidth)));
 
         plotter.add(PlotFunction.create(new Function1("tan(x)") {
             @Override

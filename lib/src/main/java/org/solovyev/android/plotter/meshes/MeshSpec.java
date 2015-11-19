@@ -8,8 +8,6 @@ import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Plot;
 
 public class MeshSpec {
-    public static final int COLOR_MAP = 0;
-    public static final int WIDTH_DEFAULT = 1;
     @NonNull
     public static final Color COLOR_NO = Color.TRANSPARENT;
     @NonNull

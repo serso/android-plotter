@@ -58,7 +58,7 @@ public abstract class BaseMesh implements Mesh {
     @NonNull
     private volatile Color color = MeshSpec.COLOR_NO;
     // can be set from any thread
-    private volatile int width = MeshSpec.WIDTH_DEFAULT;
+    private volatile int width = 1;
     private volatile float alpha = 1f;
 
     private static boolean supportsVbo(@NonNull GL11 gl) {
