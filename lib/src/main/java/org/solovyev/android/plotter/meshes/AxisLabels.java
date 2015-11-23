@@ -33,6 +33,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     private final boolean d3;
     @NonNull
     private volatile Dimensions dimensions;
+    private FontAtlas.Mesh meshes;
 
     {
         labelFormats.add(new FormatInterval(Math.pow(10, -5), Math.pow(10, -4), new DecimalFormat("##0.####")));
@@ -86,7 +87,6 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             return;
         }
 
-        final List<FontAtlas.Mesh> meshes = new ArrayList<>();
         final Dimensions dimensions = this.dimensions;
 
         final float halfSceneWidth = dimensions.scene.size.width / 2;
@@ -133,26 +133,24 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
                 topEdge = true;
             }
         }
+        if (meshes == null) {
+            meshes = new FontAtlas.Mesh(6 * ticks.count);
+        }
+        meshes.reset();
         float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
         final DecimalFormat format = getFormatter(ticks.step);
+        FontAtlas.Mesh previous = null;
         for (int tick = 0; tick < ticks.count; tick++) {
             x += dv[0] * ticks.step;
             y += dv[1] * ticks.step;
             z += dv[2] * ticks.step;
 
-            final boolean middle = false;//tick == ticks.count / 2;
-            if (middle && direction != AxisDirection.X) {
-                // center is reserved for X coordinate
-                continue;
-            }
-
             final String label = getLabel(x, y, z, format);
             final FontAtlas.Mesh mesh = fontAtlas.getMesh(label, x, y, z, fontScale, !isY, isY);
             final RectF bounds = mesh.getBounds();
             mesh.translate(0, getVerticalFontOffset(bounds));
-            if (!middle && direction != AxisDirection.Z && !meshes.isEmpty()) {
-                final FontAtlas.Mesh lastMesh = meshes.get(meshes.size() - 1);
-                if (lastMesh.getBounds().intersect(bounds)) {
+            if (direction != AxisDirection.Z && previous != null) {
+                if (previous.getBounds().intersect(bounds)) {
                     if (isX) {
                         mesh.translate(0, -ticks.width + bounds.height());
                     } else {
@@ -166,16 +164,19 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
                 final float dy = topEdge ? -bounds.height() : 0;
                 mesh.translate(dx, dy);
             }
-            meshes.add(mesh);
+            if (previous != null) {
+                fontAtlas.releaseMesh(previous);
+            }
+            previous = mesh;
+            meshes.merge(mesh);
+        }
+        if (previous != null) {
+            fontAtlas.releaseMesh(previous);
         }
 
-        final FontAtlas.Mesh mesh = fontAtlas.mergeMeshes(meshes, false, false);
-        fontAtlas.releaseMeshes(meshes);
-
-        setIndices(mesh.indices, mesh.indicesOrder);
-        setVertices(mesh.vertices);
-        setTexture(textureId, mesh.textureCoordinates);
-        fontAtlas.releaseMesh(mesh);
+        setIndices(meshes.indices, 0, meshes.indicesCount, meshes.indicesOrder);
+        setVertices(meshes.vertices, 0, meshes.verticesCount);
+        setTexture(textureId, meshes.textureCoordinates, 0, meshes.textureCoordinatesCount);
     }
 
     private float getVerticalFontOffset(RectF bounds) {

@@ -262,6 +262,10 @@ public abstract class BaseMesh implements Mesh {
         setVertices(Meshes.allocateOrPutBuffer(vertices, this.vertices));
     }
 
+    protected void setVertices(float[] vertices, int start, int length) {
+        setVertices(Meshes.allocateOrPutBuffer(vertices, start, length, this.vertices));
+    }
+
     protected final void setVertices(@NonNull FloatBuffer vertices) {
         Check.isGlThread();
         this.vertices = vertices;
@@ -295,6 +299,10 @@ public abstract class BaseMesh implements Mesh {
         setIndices(Meshes.allocateOrPutBuffer(indices, this.indices), order);
     }
 
+    protected final void setIndices(short[] indices, int start, int length,@NonNull IndicesOrder order) {
+        setIndices(Meshes.allocateOrPutBuffer(indices, start, length, this.indices), order);
+    }
+
     protected final void setIndices(@NonNull ShortBuffer indices, @NonNull IndicesOrder order) {
         Check.isGlThread();
         this.indices = indices;
@@ -307,9 +315,9 @@ public abstract class BaseMesh implements Mesh {
         }
     }
 
-    private void setTextureCoordinates(float[] textureCoordinates) {
+    private void setTextureCoordinates(float[] textureCoordinates, int start, int length) {
         Check.isGlThread();
-        this.textureCoordinates = Meshes.allocateOrPutBuffer(textureCoordinates, this.textureCoordinates);
+        this.textureCoordinates = Meshes.allocateOrPutBuffer(textureCoordinates, start, length, this.textureCoordinates);
         if (useVbo) {
             bindVboBuffer(this.textureCoordinates, textureCoordinatesVbo, GL11.GL_ARRAY_BUFFER);
             this.textureCoordinates = null;
@@ -339,9 +347,13 @@ public abstract class BaseMesh implements Mesh {
     }
 
     protected final void setTexture(int textureId, float[] textureCoordinates) {
+        setTexture(textureId, textureCoordinates, 0, textureCoordinates.length);
+    }
+
+    protected final void setTexture(int textureId, float[] textureCoordinates, int start, int length) {
         Check.isGlThread();
         this.textureId = textureId;
-        setTextureCoordinates(textureCoordinates);
+        setTextureCoordinates(textureCoordinates, start, length);
     }
 
     @NonNull

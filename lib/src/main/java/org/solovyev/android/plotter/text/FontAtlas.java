@@ -73,21 +73,13 @@ public class FontAtlas {
         }
     }
 
-    private static int countMeshSize(@NonNull List<Mesh> list) {
-        int result = 0;
-        for (Mesh mesh : list) {
-            result += mesh.size;
-        }
-        return result;
-    }
-
     public int getTextureId() {
         return textureId;
     }
 
     @NonNull
-    public Mesh mergeMeshes(@NonNull List<Mesh> meshes, boolean centerX, boolean centerY) {
-        final Mesh result = pool.obtain(countMeshSize(meshes));
+    public Mesh mergeMeshes(@NonNull List<Mesh> meshes, int meshSize, boolean centerX, boolean centerY) {
+        final Mesh result = pool.obtain(meshSize);
         result.merge(meshes, centerX, centerY);
         return result;
     }
@@ -214,15 +206,18 @@ public class FontAtlas {
 
     @NonNull
     public Mesh getMesh(@NonNull final String s, float x, float y, float z, float scale, boolean centerX, boolean centerY) {
-        final List<Mesh> meshList = new ArrayList<>(s.length());
+        final List<Mesh> meshes = new ArrayList<>(s.length());
 
+        int meshSize = 0;
         for (int i = 0; i < s.length(); i++) {
             final char c = s.charAt(i);
-            meshList.add(Mesh.createForChar(this, c, x, y, z, cellWidth * scale, cellHeight * scale));
+            final Mesh mesh = Mesh.createForChar(this, c, x, y, z, cellWidth * scale, cellHeight * scale);
+            meshSize += mesh.size;
+            meshes.add(mesh);
             x += font.charWidths[charToPosition(c)] * scale;
         }
-        final Mesh result = mergeMeshes(meshList, centerX, centerY);
-        releaseMeshes(meshList);
+        final Mesh result = mergeMeshes(meshes, meshSize, centerX, centerY);
+        releaseMeshes(meshes);
         return result;
     }
 
@@ -243,8 +238,8 @@ public class FontAtlas {
     }
 
     public void releaseMeshes(@NonNull List<Mesh> meshList) {
-        for (Mesh mesh : meshList) {
-            releaseMesh(mesh);
+        for (int i = 0; i < meshList.size(); i++) {
+            releaseMesh(meshList.get(i));
         }
     }
 
@@ -290,37 +285,46 @@ public class FontAtlas {
     }
 
     public static final class Mesh {
-        public final int size;
-        @NonNull
-        public final short[] indices;
-        @NonNull
+        public int size;
+        public short[] indices;
+        public int indicesCount;
         public final IndicesOrder indicesOrder;
-        @NonNull
-        public final float[] vertices;
-        @NonNull
-        public final float[] textureCoordinates;
+        public float[] vertices;
+        public int verticesCount;
+        public float[] textureCoordinates;
+        public int textureCoordinatesCount;
         @Nullable
         private RectF bounds;
 
-        private Mesh(int size) {
+        public Mesh(int size) {
             Check.isTrue(size > 0);
-            this.size = size;
-            this.indices = new short[size * 6];
-            this.indices[0] = 0;
-            this.indices[1] = 1;
-            this.indices[2] = 2;
-            this.indices[3] = 1;
-            this.indices[4] = 3;
-            this.indices[5] = 2;
             this.indicesOrder = IndicesOrder.TRIANGLES;
-            this.vertices = new float[size * 4 * 3];
-            this.textureCoordinates = new float[size * 4 * 2];
+            setSize(size);
+        }
+
+        private void setSize(int size) {
+            this.size = size;
+            final short[] newIndices = new short[size * 6];
+            if (indices != null) {
+                System.arraycopy(indices, 0, newIndices, 0, indices.length);
+            }
+            indices = newIndices;
+            final float[] newVertices = new float[size * 4 * 3];
+            if (vertices != null) {
+                System.arraycopy(vertices, 0, newVertices, 0, vertices.length);
+            }
+            vertices = newVertices;
+            final float[] newTextureCoordinates = new float[size * 4 * 2];
+            if (textureCoordinates != null) {
+                System.arraycopy(textureCoordinates, 0, newTextureCoordinates, 0, textureCoordinates.length);
+            }
+            textureCoordinates = newTextureCoordinates;
         }
 
         @NonNull
         static Mesh createForFullAtlas(@NonNull FontAtlas atlas, float x, float y, float z, int size) {
             final Mesh mesh = atlas.pool.obtain(1);
-            mesh.setVertices(x, y, z, size, size);
+            mesh.fill(x, y, z, size, size);
             mesh.textureCoordinates[0] = 0;
             mesh.textureCoordinates[1] = 1;
             mesh.textureCoordinates[2] = 1;
@@ -335,18 +339,19 @@ public class FontAtlas {
         @NonNull
         static Mesh createForChar(@NonNull FontAtlas atlas, char c, float x, float y, float z, float width, float height) {
             final Mesh mesh = atlas.pool.obtain(1);
-            mesh.setVertices(x, y, z, width, height);
+            mesh.fill(x, y, z, width, height);
             atlas.setTextureCoordinates(c, mesh.textureCoordinates);
             return mesh;
         }
 
-        @NonNull
-        private static RectF makeEmptyBounds() {
-            return new RectF(Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
-        }
-
-        private void setVertices(float x, float y, float z, float width, float height) {
+        private void fill(float x, float y, float z, float width, float height) {
             Check.isTrue(size == 1);
+            indices[0] = 0;
+            indices[1] = 1;
+            indices[2] = 2;
+            indices[3] = 1;
+            indices[4] = 3;
+            indices[5] = 2;
             vertices[0] = x;
             vertices[1] = y;
             vertices[2] = z;
@@ -359,15 +364,22 @@ public class FontAtlas {
             vertices[9] = x + width;
             vertices[10] = y + height;
             vertices[11] = z;
+            indicesCount = indices.length;
+            verticesCount = vertices.length;
+            textureCoordinatesCount = textureCoordinates.length;
         }
 
         @NonNull
         public RectF getBounds() {
+            initBounds();
+            return union(bounds);
+        }
+
+        private void initBounds() {
             if (bounds == null) {
                 bounds = new RectF();
             }
             bounds.set(Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE, -Float.MAX_VALUE);
-            return union(bounds);
         }
 
         @NonNull
@@ -395,37 +407,53 @@ public class FontAtlas {
         }
 
         public void merge(@NonNull List<Mesh> meshes, boolean centerX, boolean centerY) {
-            bounds = Mesh.makeEmptyBounds();
-            for (Mesh meshData : meshes) {
+            initBounds();
+            for (int i = 0; i < meshes.size(); i++) {
+                final Mesh mesh = meshes.get(i);
                 if (centerX || centerY) {
-                    meshData.union(bounds);
+                    mesh.union(bounds);
                 }
             }
-            int indicesCount = 0;
-            int verticesCount = 0;
-            int textureCoordinatesCount = 0;
-            for (Mesh mesh : meshes) {
-                for (int i = 0; i < mesh.indices.length; i++) {
-                    indices[indicesCount + i] = (short) (mesh.indices[i] + verticesCount / 3);
-                }
-                indicesCount += mesh.indices.length;
-
-                if (centerX || centerY) {
-                    final float dx = centerX ? Math.abs(bounds.right - bounds.left) / 2 : 0f;
-                    final float dy = centerY ? Math.abs(bounds.top - bounds.bottom) / 2 : 0f;
-                    for (int i = 0; i < mesh.vertices.length; i += 3) {
-                        vertices[verticesCount + i] = mesh.vertices[i] - dx;
-                        vertices[verticesCount + i + 1] = mesh.vertices[i + 1] - dy;
-                        vertices[verticesCount + i + 2] = mesh.vertices[i + 2];
-                    }
-                } else {
-                    System.arraycopy(mesh.vertices, 0, vertices, verticesCount, mesh.vertices.length);
-                }
-                verticesCount += mesh.vertices.length;
-
-                System.arraycopy(mesh.textureCoordinates, 0, textureCoordinates, textureCoordinatesCount, mesh.textureCoordinates.length);
-                textureCoordinatesCount += mesh.textureCoordinates.length;
+            for (int i = 0; i < meshes.size(); i++) {
+                merge(meshes.get(i), centerX, centerY);
             }
+        }
+
+        public void merge(@NonNull Mesh mesh) {
+            merge(mesh, false, false);
+        }
+
+        private void merge(@NonNull Mesh mesh, boolean centerX, boolean centerY) {
+            if (indices.length < indicesCount + mesh.indicesCount) {
+                final int missing = (indicesCount + mesh.indicesCount - indices.length) / 6 + 1;
+                setSize((int) Math.max(1.5 * size, size + missing));
+            }
+            for (int i = 0; i < mesh.indicesCount; i++) {
+                indices[indicesCount + i] = (short) (mesh.indices[i] + verticesCount / 3);
+            }
+            indicesCount += mesh.indicesCount;
+
+            if (centerX || centerY) {
+                final float dx = centerX ? Math.abs(bounds.right - bounds.left) / 2 : 0f;
+                final float dy = centerY ? Math.abs(bounds.top - bounds.bottom) / 2 : 0f;
+                for (int i = 0; i < mesh.verticesCount; i += 3) {
+                    vertices[verticesCount + i] = mesh.vertices[i] - dx;
+                    vertices[verticesCount + i + 1] = mesh.vertices[i + 1] - dy;
+                    vertices[verticesCount + i + 2] = mesh.vertices[i + 2];
+                }
+            } else {
+                System.arraycopy(mesh.vertices, 0, vertices, verticesCount, mesh.verticesCount);
+            }
+            verticesCount += mesh.verticesCount;
+
+            System.arraycopy(mesh.textureCoordinates, 0, textureCoordinates, textureCoordinatesCount, mesh.textureCoordinatesCount);
+            textureCoordinatesCount += mesh.textureCoordinatesCount;
+        }
+
+        public void reset() {
+            verticesCount = 0;
+            indicesCount = 0;
+            textureCoordinatesCount = 0;
         }
     }
 
@@ -463,6 +491,7 @@ public class FontAtlas {
             }
             final List<Mesh> list = pool.get(mesh.size);
             list.add(mesh);
+            mesh.reset();
         }
     }
 }
