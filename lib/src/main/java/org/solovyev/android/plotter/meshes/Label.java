@@ -23,11 +23,11 @@ public class Label extends BaseMesh {
     protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
-        final FontAtlas.MeshData meshData;
-        meshData = fontAtlas.getMeshData(label, -0.5f, 0.0f, 0f, 0.003f);
-        setIndices(meshData.indices, meshData.indicesOrder);
-        setVertices(meshData.vertices);
-        setTexture(meshData.textureId, meshData.textureCoordinates);
+        final FontAtlas.Mesh mesh = fontAtlas.getMesh(label, -0.5f, 0.0f, 0f, 0.003f);
+        setIndices(mesh.indices, mesh.indicesOrder);
+        setVertices(mesh.vertices);
+        setTexture(fontAtlas.getTextureId(), mesh.textureCoordinates);
+        fontAtlas.releaseMesh(mesh);
     }
 
     @NonNull

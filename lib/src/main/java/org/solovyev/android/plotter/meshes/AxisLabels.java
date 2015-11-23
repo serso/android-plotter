@@ -81,7 +81,12 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     @Override
     protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
-        final List<FontAtlas.MeshData> meshDataList = new ArrayList<>();
+        final int textureId = fontAtlas.getTextureId();
+        if (textureId == -1) {
+            return;
+        }
+
+        final List<FontAtlas.Mesh> meshes = new ArrayList<>();
         final Dimensions dimensions = this.dimensions;
 
         final float halfSceneWidth = dimensions.scene.size.width / 2;
@@ -142,14 +147,14 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             }
 
             final String label = getLabel(x, y, z, format);
-            FontAtlas.MeshData meshData = fontAtlas.getMeshData(label, x, y, z, fontScale, !isY, isY);
-            final RectF bounds = meshData.getBounds();
-            meshData.translate(0, getVerticalFontOffset(bounds));
-            if (!middle && direction != AxisDirection.Z && !meshDataList.isEmpty()) {
-                final FontAtlas.MeshData lastMeshData = meshDataList.get(meshDataList.size() - 1);
-                if (lastMeshData.getBounds().intersect(bounds)) {
+            final FontAtlas.Mesh mesh = fontAtlas.getMesh(label, x, y, z, fontScale, !isY, isY);
+            final RectF bounds = mesh.getBounds();
+            mesh.translate(0, getVerticalFontOffset(bounds));
+            if (!middle && direction != AxisDirection.Z && !meshes.isEmpty()) {
+                final FontAtlas.Mesh lastMesh = meshes.get(meshes.size() - 1);
+                if (lastMesh.getBounds().intersect(bounds)) {
                     if (isX) {
-                        meshData.translate(0, -ticks.width + bounds.height());
+                        mesh.translate(0, -ticks.width + bounds.height());
                     } else {
                         // new label intersects old, let's skip it
                         continue;
@@ -159,16 +164,18 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             if (rightEdge || topEdge) {
                 final float dx = rightEdge ? -bounds.width() : 0;
                 final float dy = topEdge ? -bounds.height() : 0;
-                meshData.translate(dx, dy);
+                mesh.translate(dx, dy);
             }
-            meshDataList.add(meshData);
+            meshes.add(mesh);
         }
 
-        final FontAtlas.MeshData meshData = new FontAtlas.MeshData(meshDataList, false, false);
+        final FontAtlas.Mesh mesh = fontAtlas.mergeMeshes(meshes, false, false);
+        fontAtlas.releaseMeshes(meshes);
 
-        setIndices(meshData.indices, meshData.indicesOrder);
-        setVertices(meshData.vertices);
-        setTexture(meshData.textureId, meshData.textureCoordinates);
+        setIndices(mesh.indices, mesh.indicesOrder);
+        setVertices(mesh.vertices);
+        setTexture(textureId, mesh.textureCoordinates);
+        fontAtlas.releaseMesh(mesh);
     }
 
     private float getVerticalFontOffset(RectF bounds) {
