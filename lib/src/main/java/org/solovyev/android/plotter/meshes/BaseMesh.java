@@ -9,6 +9,8 @@ import android.util.Log;
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
+import org.solovyev.android.plotter.arrays.FloatArray;
+import org.solovyev.android.plotter.arrays.ShortArray;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
@@ -262,8 +264,8 @@ public abstract class BaseMesh implements Mesh {
         setVertices(Meshes.allocateOrPutBuffer(vertices, this.vertices));
     }
 
-    protected void setVertices(float[] vertices, int start, int length) {
-        setVertices(Meshes.allocateOrPutBuffer(vertices, start, length, this.vertices));
+    protected void setVertices(@NonNull FloatArray vertices) {
+        setVertices(Meshes.allocateOrPutBuffer(vertices.array, 0, vertices.size, this.vertices));
     }
 
     protected final void setVertices(@NonNull FloatBuffer vertices) {
@@ -299,8 +301,8 @@ public abstract class BaseMesh implements Mesh {
         setIndices(Meshes.allocateOrPutBuffer(indices, this.indices), order);
     }
 
-    protected final void setIndices(short[] indices, int start, int length,@NonNull IndicesOrder order) {
-        setIndices(Meshes.allocateOrPutBuffer(indices, start, length, this.indices), order);
+    protected final void setIndices(@NonNull ShortArray indices, @NonNull IndicesOrder order) {
+        setIndices(Meshes.allocateOrPutBuffer(indices.array, 0, indices.size, this.indices), order);
     }
 
     protected final void setIndices(@NonNull ShortBuffer indices, @NonNull IndicesOrder order) {
@@ -348,6 +350,10 @@ public abstract class BaseMesh implements Mesh {
 
     protected final void setTexture(int textureId, float[] textureCoordinates) {
         setTexture(textureId, textureCoordinates, 0, textureCoordinates.length);
+    }
+
+    protected final void setTexture(int textureId, @NonNull FloatArray textureCoordinates) {
+        setTexture(textureId, textureCoordinates.array, 0, textureCoordinates.size);
     }
 
     protected final void setTexture(int textureId, float[] textureCoordinates, int start, int length) {

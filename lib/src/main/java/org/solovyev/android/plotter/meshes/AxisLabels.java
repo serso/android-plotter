@@ -8,6 +8,7 @@ import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.text.FontAtlas;
+import org.solovyev.android.plotter.text.TextMesh;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     private final boolean d3;
     @NonNull
     private volatile Dimensions dimensions;
-    private FontAtlas.Mesh meshes;
+    private TextMesh meshes;
 
     {
         labelFormats.add(new FormatInterval(Math.pow(10, -5), Math.pow(10, -4), new DecimalFormat("##0.####")));
@@ -134,19 +135,19 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             }
         }
         if (meshes == null) {
-            meshes = new FontAtlas.Mesh(6 * ticks.count);
+            meshes = new TextMesh(6 * ticks.count);
         }
         meshes.reset();
         float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
         final DecimalFormat format = getFormatter(ticks.step);
-        FontAtlas.Mesh previous = null;
+        TextMesh previous = null;
         for (int tick = 0; tick < ticks.count; tick++) {
             x += dv[0] * ticks.step;
             y += dv[1] * ticks.step;
             z += dv[2] * ticks.step;
 
             final String label = getLabel(x, y, z, format);
-            final FontAtlas.Mesh mesh = fontAtlas.getMesh(label, x, y, z, fontScale, !isY, isY);
+            final TextMesh mesh = fontAtlas.getMesh(label, x, y, z, fontScale, !isY, isY);
             final RectF bounds = mesh.getBounds();
             mesh.translate(0, getVerticalFontOffset(bounds));
             if (direction != AxisDirection.Z && previous != null) {
@@ -174,9 +175,9 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             fontAtlas.releaseMesh(previous);
         }
 
-        setIndices(meshes.indices, 0, meshes.indicesCount, meshes.indicesOrder);
-        setVertices(meshes.vertices, 0, meshes.verticesCount);
-        setTexture(textureId, meshes.textureCoordinates, 0, meshes.textureCoordinatesCount);
+        setIndices(meshes.indices, meshes.indicesOrder);
+        setVertices(meshes.vertices);
+        setTexture(textureId, meshes.textureCoordinates);
     }
 
     private float getVerticalFontOffset(RectF bounds) {

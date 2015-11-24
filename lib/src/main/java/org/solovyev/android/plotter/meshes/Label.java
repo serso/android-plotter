@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import org.solovyev.android.plotter.MeshConfig;
 import org.solovyev.android.plotter.text.FontAtlas;
+import org.solovyev.android.plotter.text.TextMesh;
 
 import javax.microedition.khronos.opengles.GL11;
 
@@ -23,7 +24,7 @@ public class Label extends BaseMesh {
     protected void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
 
-        final FontAtlas.Mesh mesh = fontAtlas.getMesh(label, -0.5f, 0.0f, 0f, 0.003f);
+        final TextMesh mesh = fontAtlas.getMesh(label, -0.5f, 0.0f, 0f, 0.003f);
         setIndices(mesh.indices, mesh.indicesOrder);
         setVertices(mesh.vertices);
         setTexture(fontAtlas.getTextureId(), mesh.textureCoordinates);
