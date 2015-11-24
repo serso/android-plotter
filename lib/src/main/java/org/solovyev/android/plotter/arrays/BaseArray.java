@@ -2,6 +2,9 @@ package org.solovyev.android.plotter.arrays;
 
 import org.solovyev.android.plotter.Check;
 
+/**
+ * Array wrapper with allocate/truncate methods
+ */
 abstract class BaseArray {
     public int size;
 
