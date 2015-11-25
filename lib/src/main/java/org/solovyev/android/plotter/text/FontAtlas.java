@@ -15,7 +15,6 @@ import android.support.annotation.NonNull;
 import org.solovyev.android.plotter.Check;
 import org.solovyev.android.plotter.arrays.FloatArray;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.microedition.khronos.opengles.GL10;
@@ -39,7 +38,10 @@ public class FontAtlas {
     private final Font font = new Font();
 
     @NonNull
-    private final Pool pool = new Pool();
+    private final TextMeshesPool meshesPool = new TextMeshesPool();
+
+    @NonNull
+    private final ListsPool listsPool = new ListsPool();
 
     @NonNull
     private final RectF[] chars = new RectF[CHARS_COUNT];
@@ -78,7 +80,7 @@ public class FontAtlas {
 
     @NonNull
     public TextMesh mergeMeshes(@NonNull List<TextMesh> meshes, int meshSize, boolean centerX, boolean centerY) {
-        final TextMesh result = pool.obtain(meshSize);
+        final TextMesh result = meshesPool.obtain(meshSize);
         result.merge(meshes, centerX, centerY);
         return result;
     }
@@ -205,7 +207,7 @@ public class FontAtlas {
 
     @NonNull
     public TextMesh getMesh(@NonNull final String s, float x, float y, float z, float scale, boolean centerX, boolean centerY) {
-        final List<TextMesh> meshes = new ArrayList<>(s.length());
+        final List<TextMesh> meshes = listsPool.obtain();
 
         int meshSize = 0;
         for (int i = 0; i < s.length(); i++) {
@@ -249,19 +251,20 @@ public class FontAtlas {
         return font.height;
     }
 
-    public void releaseMeshes(@NonNull List<TextMesh> meshList) {
-        for (int i = 0; i < meshList.size(); i++) {
-            releaseMesh(meshList.get(i));
+    private void releaseMeshes(@NonNull List<TextMesh> meshes) {
+        for (int i = meshes.size() - 1; i >= 0; i--) {
+            releaseMesh(meshes.remove(i));
         }
+        listsPool.release(meshes);
     }
 
     public void releaseMesh(@NonNull TextMesh mesh) {
-        pool.release(mesh);
+        meshesPool.release(mesh);
     }
 
     @NonNull
     TextMesh obtainMesh(int meshSize) {
-        return pool.obtain(meshSize);
+        return meshesPool.obtain(meshSize);
     }
 
     private final static class Font {
@@ -298,44 +301,6 @@ public class FontAtlas {
         public float getRatio(char c) {
             final int position = charToPosition(c);
             return charWidths[position] / charHeight;
-        }
-    }
-
-    private final class Pool {
-
-        private static final int MAX_MESH_SIZE = 10;
-        @NonNull
-        private List<List<TextMesh>> pool = new ArrayList<>();
-
-        {
-            for (int i = 0; i < MAX_MESH_SIZE; i++) {
-                pool.add(new ArrayList<TextMesh>());
-            }
-        }
-
-        @NonNull
-        public TextMesh obtain(int meshSize) {
-            final TextMesh mesh;
-            if (meshSize >= MAX_MESH_SIZE) {
-                return new TextMesh(meshSize);
-            }
-            final List<TextMesh> list = pool.get(meshSize);
-            final int size = list.size();
-            if (size == 0) {
-                mesh = new TextMesh(meshSize);
-            } else {
-                mesh = list.remove(size - 1);
-            }
-            return mesh;
-        }
-
-        public void release(@NonNull TextMesh mesh) {
-            if (mesh.size >= MAX_MESH_SIZE) {
-                return;
-            }
-            final List<TextMesh> list = pool.get(mesh.size);
-            list.add(mesh);
-            mesh.reset();
         }
     }
 }
