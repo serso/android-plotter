@@ -119,7 +119,7 @@ public final class TextMesh {
             vertices.array[i] += dx;
             vertices.array[i + 1] += dy;
         }
-        getBounds().offset(dx, dy);
+        bounds.offset(dx, dy);
     }
 
     public void merge(@NonNull List<TextMesh> meshes, boolean centerX, boolean centerY) {

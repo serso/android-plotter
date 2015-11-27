@@ -141,6 +141,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
         float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
         final DecimalFormat format = getFormatter(ticks.step);
         TextMesh previous = null;
+        boolean previousShifted = false;
         for (int tick = 0; tick < ticks.count; tick++) {
             x += dv[0] * ticks.step;
             y += dv[1] * ticks.step;
@@ -150,15 +151,21 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             final TextMesh mesh = fontAtlas.getMesh(label, x, y, z, fontScale, !isY, isY);
             final RectF bounds = mesh.getBounds();
             mesh.translate(0, getVerticalFontOffset(bounds));
-            if (direction != AxisDirection.Z && previous != null) {
-                if (previous.getBounds().intersect(bounds)) {
+            if (direction != AxisDirection.Z && previous != null && !previousShifted) {
+                if (RectF.intersects(previous.getBounds(), bounds)) {
                     if (isX) {
                         mesh.translate(0, -ticks.width + bounds.height());
+                        previousShifted = true;
                     } else {
+                        previousShifted = false;
                         // new label intersects old, let's skip it
                         continue;
                     }
+                } else {
+                    previousShifted = false;
                 }
+            } else {
+                previousShifted = false;
             }
             if (rightEdge || topEdge) {
                 final float dx = rightEdge ? -bounds.width() : 0;
