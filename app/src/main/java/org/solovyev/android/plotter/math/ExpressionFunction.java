@@ -52,14 +52,22 @@ public final class ExpressionFunction extends Function {
     @Override
     public float evaluate(float x) {
         expression.setVariable(variables[0], x);
-        return (float) expression.evaluate();
+        try {
+            return (float) expression.evaluate();
+        } catch (ArithmeticException e) {
+            return Float.NaN;
+        }
     }
 
     @Override
     public float evaluate(float x, float y) {
         expression.setVariable(variables[0], x);
         expression.setVariable(variables[1], y);
-        return (float) expression.evaluate();
+        try {
+            return (float) expression.evaluate();
+        } catch (ArithmeticException e) {
+            return Float.NaN;
+        }
     }
 
     @Override
