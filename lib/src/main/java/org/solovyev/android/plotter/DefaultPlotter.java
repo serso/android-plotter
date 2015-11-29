@@ -26,6 +26,7 @@ import org.solovyev.android.plotter.meshes.MeshSpec;
 import org.solovyev.android.plotter.meshes.Pool;
 import org.solovyev.android.plotter.text.FontAtlas;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -104,6 +105,9 @@ final class DefaultPlotter implements Plotter {
             mesh.setFunction(Function0.ZERO);
         }
     });
+    // main thread only
+    @NonNull
+    private final List<Listener> listeners = new ArrayList<>();
 
     DefaultPlotter(@NonNull Context context) {
         this.context = context;
@@ -168,7 +172,7 @@ final class DefaultPlotter implements Plotter {
         allMeshes.draw(gl);
     }
 
-    private void ensureFunctionsSize() {
+    private void updateFunctions() {
         Check.isMainThread();
 
         final Dimensions dimensions = getDimensions();
@@ -178,6 +182,9 @@ final class DefaultPlotter implements Plotter {
         // if there are too many meshes => release them
         int i = 0;
         for (PlotFunction function : plotData.functions) {
+            if (!function.visible) {
+                continue;
+            }
             if (i < functionMeshes.size()) {
                 final DoubleBufferMesh<FunctionGraph> dbm = functionMeshes.get(i);
                 final FunctionGraph next = dbm.getNext();
@@ -230,17 +237,29 @@ final class DefaultPlotter implements Plotter {
                 ((DimensionsAware) mesh).setDimensions(dimensions);
             }
         }
-        onFunctionsChanged();
+        updateFunctions();
+        setDirty();
     }
 
     private void onFunctionsChanged() {
-        ensureFunctionsSize();
+        updateFunctions();
         setDirty();
+        for (Listener listener : listeners) {
+            listener.onFunctionsChanged();
+        }
     }
 
     @Override
     public void add(@NonNull PlotFunction function) {
         plotData.add(function.copy());
+        onFunctionsChanged();
+    }
+
+    @Override
+    public void addAll(@NonNull List<PlotFunction> functions) {
+        for (PlotFunction function : functions) {
+            plotData.add(function.copy());
+        }
         onFunctionsChanged();
     }
 
@@ -376,11 +395,26 @@ final class DefaultPlotter implements Plotter {
                 }
             }
             makeSetting(d3);
-            onFunctionsChanged();
+            updateFunctions();
+            setDirty();
             synchronized (lock) {
                 view.set3d(d3);
             }
         }
+    }
+
+    @Override
+    public void addListener(@NonNull Listener listener) {
+        Check.isMainThread();
+        Check.isTrue(!listeners.contains(listener));
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(@NonNull Listener listener) {
+        Check.isMainThread();
+        Check.isTrue(listeners.contains(listener));
+        listeners.remove(listener);
     }
 
     public boolean is2d() {

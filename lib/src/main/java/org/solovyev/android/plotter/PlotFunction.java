@@ -56,7 +56,7 @@ public final class PlotFunction {
 
     @NonNull
     public PlotFunction copy() {
-        final PlotFunction copy = create(this.function, this.meshSpec.copy());
+        final PlotFunction copy = create(this.function.copy(), this.meshSpec.copy());
 
         copy.visible = this.visible;
 

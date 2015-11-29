@@ -1,5 +1,7 @@
 package org.solovyev.android.plotter;
 
+import android.support.annotation.NonNull;
+
 interface SuperFunction {
 
     int getArity();
@@ -9,4 +11,7 @@ interface SuperFunction {
     float evaluate(float x);
 
     float evaluate(float x, float y);
+
+    @NonNull
+    SuperFunction copy();
 }

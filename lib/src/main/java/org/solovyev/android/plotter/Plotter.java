@@ -4,6 +4,8 @@ import android.graphics.PointF;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.List;
+
 import javax.microedition.khronos.opengles.GL11;
 
 /**
@@ -14,12 +16,16 @@ import javax.microedition.khronos.opengles.GL11;
  * all meshes (including functions' graphs) are initialized prior to draw.
  */
 public interface Plotter {
+
     boolean D3 = true;
 
     void add(@NonNull Function function);
+
     void remove(@NonNull Function function);
 
     void add(@NonNull PlotFunction function);
+    void addAll(@NonNull List<PlotFunction> functions);
+
     void remove(@NonNull PlotFunction function);
 
     void clearFunctions();
@@ -60,4 +66,12 @@ public interface Plotter {
     void hideCoordinates();
 
     void onCameraMoved(float dx, float dy);
+
+    void addListener(@NonNull Listener listener);
+
+    void removeListener(@NonNull Listener listener);
+
+    interface Listener {
+        void onFunctionsChanged();
+    }
 }

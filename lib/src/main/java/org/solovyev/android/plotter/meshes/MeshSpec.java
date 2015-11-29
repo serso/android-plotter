@@ -4,6 +4,8 @@ package org.solovyev.android.plotter.meshes;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Plot;
 
@@ -12,9 +14,17 @@ public class MeshSpec {
     public static final Color COLOR_NO = Color.TRANSPARENT;
     @NonNull
     public static final Color COLOR_DEFAULT = Color.WHITE;
+    private static final String JSON_COLOR = "c";
+    private static final String JSON_WIDTH = "w";
     @NonNull
     public Color color;
     public int width;
+
+    private MeshSpec(@NonNull JSONObject json) {
+        this.color = Color.create(json.optInt(JSON_COLOR, Color.WHITE.toInt()));
+        this.width = json.optInt(JSON_WIDTH, 1);
+    }
+
     private MeshSpec(@NonNull Color color, int width) {
         this.color = color;
         this.width = width;
@@ -35,8 +45,13 @@ public class MeshSpec {
     }
 
     @NonNull
+    public static MeshSpec create(@NonNull JSONObject json) {
+        return new MeshSpec(json);
+    }
+
+    @NonNull
     public MeshSpec copy() {
-        return this;
+        return new MeshSpec(color, width);
     }
 
     public void applyTo(@NonNull DimensionsAware mesh) {
@@ -61,6 +76,14 @@ public class MeshSpec {
         int result = color.hashCode();
         result = 31 * result + width;
         return result;
+    }
+
+    @NonNull
+    public JSONObject toJson() throws JSONException {
+        final JSONObject json = new JSONObject();
+        json.put(JSON_COLOR, color.toInt());
+        json.put(JSON_WIDTH, width);
+        return json;
     }
 
     public static final class LightColors {

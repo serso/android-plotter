@@ -7,10 +7,7 @@ import android.support.v4.app.FragmentActivity;
 
 import com.squareup.otto.Subscribe;
 
-import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Dimensions;
-import org.solovyev.android.plotter.PlotData;
-import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.PlotViewFrame;
 import org.solovyev.android.plotter.Plotter;
 
@@ -25,26 +22,6 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
     private final EventHandler eventHandler = new EventHandler();
     @Bind(R.id.plot_view_frame)
     PlotViewFrame plotView;
-    @NonNull
-    private final Runnable colorUpdater = new Runnable() {
-        private int direction = -1;
-
-        @Override
-        public void run() {
-            final PlotData plotData = plotter.getPlotData();
-            final PlotFunction function = plotData.get(PlotterApplication.PARABOLOID);
-            if (function == null) {
-                return;
-            }
-            final Color color = function.meshSpec.color;
-            if (color.equals(Color.BLACK) || color.equals(Color.RED)) {
-                direction = -direction;
-            }
-            function.meshSpec.color = color.add(direction * 0.01f, 0, 0);
-            plotter.update(function);
-            plotView.postDelayed(this, 10L);
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

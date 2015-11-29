@@ -33,7 +33,7 @@ import java.util.List;
 public final class PlotData {
 
     @NonNull
-    public final List<PlotFunction> functions = new ArrayList<PlotFunction>();
+    public final List<PlotFunction> functions = new ArrayList<>();
     @NonNull
     public AxisStyle axisStyle = AxisStyle.create();
 
