@@ -1,5 +1,6 @@
 package org.solovyev.android.plotter;
 
+import android.graphics.RectF;
 import android.support.annotation.NonNull;
 
 public final class RectSizeF {
@@ -12,6 +13,11 @@ public final class RectSizeF {
     public RectSizeF(float width, float height) {
         this.width = width;
         this.height = height;
+    }
+
+    public RectSizeF(@NonNull RectF rect) {
+        this.width = rect.width();
+        this.height = rect.height();
     }
 
     public void setEmpty() {
@@ -63,7 +69,7 @@ public final class RectSizeF {
 
     public float aspectRatio() {
         if (isEmpty()) {
-            return 0;
+            return 1;
         }
         return width / height;
     }

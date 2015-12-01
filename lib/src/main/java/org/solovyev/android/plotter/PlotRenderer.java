@@ -221,6 +221,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
                 if (plotter != null) {
                     plotter.updateScene(SOURCE, zoom, viewSize, getSceneSize(), getSceneCenter());
                 }
+                view.onSizeChanged(viewSize);
             }
         });
     }

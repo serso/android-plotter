@@ -3,7 +3,6 @@ package org.solovyev.android.plotter.app;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.PointF;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,10 +22,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.solovyev.android.plotter.Check;
-import org.solovyev.android.plotter.Dimensions;
 import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.Plotter;
-import org.solovyev.android.plotter.RectSizeF;
 import org.solovyev.android.plotter.utils.Fragments;
 
 import butterknife.Bind;
@@ -206,12 +203,7 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
 
     private void applyData() {
         final RectF bounds = collectData();
-        if (!d3) {
-            plotter.updateGraph(null, new RectSizeF(bounds.width(), bounds.height()), new PointF(bounds.centerX(), bounds.centerY()));
-        } else {
-            final Dimensions dimensions = plotter.getDimensions();
-            plotter.updateGraph(null, new RectSizeF(bounds.width(), dimensions.graph.height()), new PointF(bounds.centerX(), dimensions.graph.center.y));
-        }
+        Plot.setGraphBounds(null, plotter, bounds, d3);
     }
 
     private void setDimension(@NonNull EditText view, float value) {

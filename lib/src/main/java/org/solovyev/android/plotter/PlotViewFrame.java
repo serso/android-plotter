@@ -116,6 +116,10 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
         showControlViews();
     }
 
+    @Override
+    public void onSizeChanged(@NonNull RectSize viewSize) {
+    }
+
     private void prolongControlsViewShow() {
         handler.removeCallbacks(controlsShowTimeout);
         handler.postDelayed(controlsShowTimeout, 5000L);

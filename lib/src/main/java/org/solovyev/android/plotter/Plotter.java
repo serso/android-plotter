@@ -73,5 +73,9 @@ public interface Plotter {
 
     interface Listener {
         void onFunctionsChanged();
+        void on3dChanged(boolean d3);
+        void onDimensionsChanged(@Nullable Object source);
+        void onViewAttached(@NonNull PlottingView view);
+        void onViewDetached(@NonNull PlottingView view);
     }
 }

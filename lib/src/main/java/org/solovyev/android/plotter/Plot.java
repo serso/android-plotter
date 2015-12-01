@@ -2,8 +2,10 @@ package org.solovyev.android.plotter;
 
 import android.content.Context;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
@@ -46,5 +48,14 @@ public final class Plot {
 
     static int getAvailableProcessors() {
         return Math.max(1, Runtime.getRuntime().availableProcessors());
+    }
+
+    public static void setGraphBounds(@Nullable Object source, @NonNull Plotter plotter, @NonNull RectF bounds, boolean d3) {
+        if (!d3) {
+            plotter.updateGraph(source, new RectSizeF(bounds), new PointF(bounds.centerX(), bounds.centerY()));
+        } else {
+            final Dimensions dimensions = plotter.getDimensions();
+            plotter.updateGraph(source, new RectSizeF(bounds.width(), dimensions.graph.height()), new PointF(bounds.centerX(), dimensions.graph.center.y));
+        }
     }
 }

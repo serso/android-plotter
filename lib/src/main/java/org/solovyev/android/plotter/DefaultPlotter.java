@@ -302,9 +302,12 @@ final class DefaultPlotter implements Plotter {
 
             if (emptyView.shouldUpdateFunctions) {
                 emptyView.shouldUpdateFunctions = false;
-                dimensionsChangedRunnable.run(emptyView, this);
+                dimensionsChangedRunnable.run(view, this);
             }
             view.set3d(d3);
+            for (Listener listener : listeners) {
+                listener.onViewAttached(view);
+            }
         }
     }
 
@@ -316,6 +319,9 @@ final class DefaultPlotter implements Plotter {
             emptyView.shouldRender = false;
             emptyView.shouldUpdateFunctions = false;
             view = emptyView;
+            for (Listener listener : listeners) {
+                listener.onViewDetached(oldView);
+            }
         }
     }
 
@@ -399,6 +405,9 @@ final class DefaultPlotter implements Plotter {
             setDirty();
             synchronized (lock) {
                 view.set3d(d3);
+            }
+            for (Listener listener : listeners) {
+                listener.on3dChanged(d3);
             }
         }
     }
@@ -559,6 +568,21 @@ final class DefaultPlotter implements Plotter {
         @Override
         public void onDimensionChanged(@NonNull Dimensions dimensions, @Nullable Object source) {
         }
+
+        @Override
+        public void onSizeChanged(@NonNull RectSize viewSize) {
+            Check.isTrue(false);
+        }
+
+        @Override
+        public void addListener(@NonNull Listener listener) {
+            Check.isTrue(false);
+        }
+
+        @Override
+        public void removeListener(@NonNull Listener listener) {
+            Check.isTrue(false);
+        }
     }
 
     private class DimensionsChangeNotifier implements Runnable {
@@ -588,6 +612,9 @@ final class DefaultPlotter implements Plotter {
                 view.onDimensionChanged(getDimensions(), source);
             }
             onDimensionsChanged();
+            for (Listener listener : listeners) {
+                listener.onDimensionsChanged(source);
+            }
         }
 
         public void post(@NonNull PlottingView view, @Nullable Object source) {

@@ -20,4 +20,16 @@ public interface PlottingView {
     void set3d(boolean d3);
 
     void onDimensionChanged(@NonNull Dimensions dimensions, @Nullable Object source);
+
+    void onSizeChanged(@NonNull RectSize viewSize);
+
+    void addListener(@NonNull Listener listener);
+
+    void removeListener(@NonNull Listener listener);
+
+    interface Listener {
+        void onTouchStarted();
+
+        void onSizeChanged(@NonNull RectSize viewSize);
+    }
 }

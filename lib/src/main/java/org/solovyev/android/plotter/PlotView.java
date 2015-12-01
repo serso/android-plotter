@@ -28,6 +28,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
     private Plotter plotter;
     private boolean attached;
     private boolean d3 = Plotter.D3;
+    private boolean d3Initialized;
     public PlotView(Context context) {
         super(context);
         init();
@@ -79,6 +80,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
         if (plotter != null) {
             plotter.detachView(this);
         }
+        d3Initialized = false;
         super.onDetachedFromWindow();
     }
 
@@ -132,7 +134,8 @@ public class PlotView extends GLSurfaceView implements PlottingView {
     @Override
     public void set3d(boolean d3) {
         Check.isMainThread();
-        if (this.d3 != d3) {
+        if (this.d3 != d3 || !d3Initialized) {
+            this.d3Initialized = true;
             this.d3 = d3;
             if (!d3) {
                 renderer.stopRotating();
@@ -151,17 +154,28 @@ public class PlotView extends GLSurfaceView implements PlottingView {
         renderer.onDimensionsChanged(dimensions, source);
     }
 
+    @Override
+    public void onSizeChanged(@NonNull RectSize viewSize) {
+        for (Listener listener : listeners) {
+            listener.onSizeChanged(viewSize);
+        }
+    }
+
+    @Override
     public void addListener(@NonNull Listener listener) {
+        Check.isTrue(!listeners.contains(listener));
         listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(@NonNull Listener listener) {
+        Check.isTrue(listeners.contains(listener));
+        listeners.remove(listener);
     }
 
     private enum TouchMode {
         PAN,
         ROTATE
-    }
-
-    public interface Listener {
-        void onTouchStarted();
     }
 
     private class TouchListener implements TouchHandler.Listener {

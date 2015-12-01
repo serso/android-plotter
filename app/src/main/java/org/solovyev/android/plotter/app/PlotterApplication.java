@@ -3,33 +3,48 @@ package org.solovyev.android.plotter.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.RectF;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.solovyev.android.io.FileLoader;
 import org.solovyev.android.io.FileSaver;
+import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.Plotter;
+import org.solovyev.android.plotter.PlottingView;
+import org.solovyev.android.plotter.RectSize;
 import org.solovyev.android.plotter.math.ExpressionFunction;
 import org.solovyev.android.plotter.meshes.MeshSpec;
 
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class PlotterApplication extends Application {
 
     public static final String PREFS_VERSION_CODE = "version.code";
     public static final String PREFS_VERSION_NAME = "version.name";
+    @NonNull
+    private static final Object SOURCE = new Object();
 
     @NonNull
     private static File getFunctionsFile(@NonNull Context context) {
         return new File(context.getFilesDir(), "functions");
+    }
+
+    @NonNull
+    private static File getPlotterFile(@NonNull Context context) {
+        return new File(context.getFilesDir(), "plotter");
     }
 
     @Override
@@ -52,6 +67,7 @@ public class PlotterApplication extends Application {
             plotter.add(PlotFunction.create(ExpressionFunction.create("x * x + y * y", "x", "y"), MeshSpec.create(MeshSpec.LightColors.RED, meshWidth)));
         }
 
+        App.getBackground().execute(new PlotterStateLoader(plotter));
         App.getBackground().execute(new FunctionsLoader(plotter));
     }
 
@@ -76,9 +92,46 @@ public class PlotterApplication extends Application {
         return newInstall;
     }
 
-    private static class PlotterListener implements Plotter.Listener, Runnable {
+    private static class PlotterListener implements Plotter.Listener {
         @NonNull
         private final Plotter plotter;
+        @NonNull
+        private final Runnable functionsChangedRunnable = new Runnable() {
+            @Override
+            public void run() {
+                final PlotData plotData = plotter.getPlotData();
+                App.getBackground().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        final PlotFunctions plotFunctions = new PlotFunctions(plotData.functions);
+                        try {
+                            final JSONArray jsonArray = plotFunctions.toJson();
+                            FileSaver.save(getFunctionsFile(App.getApplication()), jsonArray.toString());
+                        } catch (JSONException e) {
+                            Log.e("PlotterApplication", e.getMessage(), e);
+                        }
+                    }
+                });
+            }
+        };
+        @NonNull
+        private final Runnable plotterChangedRunnable = new Runnable() {
+            @Override
+            public void run() {
+                final PlotterState plotterState = new PlotterState(plotter.is3d(), plotter.getDimensions().graph.makeBounds());
+                App.getBackground().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            final JSONObject json = plotterState.toJson();
+                            FileSaver.save(getPlotterFile(App.getApplication()), json.toString());
+                        } catch (JSONException e) {
+                            Log.e("PlotterApplication", e.getMessage(), e);
+                        }
+                    }
+                });
+            }
+        };
 
         public PlotterListener(@NonNull Plotter plotter) {
             this.plotter = plotter;
@@ -86,26 +139,114 @@ public class PlotterApplication extends Application {
 
         @Override
         public void onFunctionsChanged() {
+            scheduleWrite(functionsChangedRunnable);
+        }
+
+        @Override
+        public void onDimensionsChanged(@Nullable Object source) {
+            if (source == SOURCE) {
+                return;
+            }
+            scheduleWrite(plotterChangedRunnable);
+        }
+
+        @Override
+        public void onViewAttached(@NonNull PlottingView view) {
+        }
+
+        @Override
+        public void onViewDetached(@NonNull PlottingView view) {
+        }
+
+        @Override
+        public void on3dChanged(boolean d3) {
+            scheduleWrite(plotterChangedRunnable);
+        }
+
+        private void scheduleWrite(@NonNull Runnable runnable) {
             final Handler handler = App.getHandler();
-            handler.removeCallbacks(this);
-            handler.postDelayed(this, 500L);
+            handler.removeCallbacks(runnable);
+            handler.postDelayed(runnable, 500L);
+        }
+    }
+
+    private static class PlotterStateLoader implements Runnable, Plotter.Listener, PlottingView.Listener {
+        @NonNull
+        private final Plotter plotter;
+        @NonNull
+        private final CountDownLatch latch = new CountDownLatch(1);
+
+        public PlotterStateLoader(@NonNull Plotter plotter) {
+            this.plotter = plotter;
+            this.plotter.addListener(this);
         }
 
         @Override
         public void run() {
-            final PlotData plotData = plotter.getPlotData();
-            App.getBackground().execute(new Runnable() {
-                @Override
-                public void run() {
-                    final PlotFunctions plotFunctions = new PlotFunctions(plotData.functions);
-                    try {
-                        final JSONArray jsonArray = plotFunctions.toJson();
-                        FileSaver.save(getFunctionsFile(App.getApplication()), jsonArray.toString());
-                    } catch (JSONException e) {
-                        Log.e("PlotterApplication", e.getMessage(), e);
+            final Context context = App.getApplication();
+            final FileLoader fileLoader = FileLoader.create(context, getPlotterFile(context));
+            final CharSequence jsonString = fileLoader.load();
+            if (TextUtils.isEmpty(jsonString)) {
+                return;
+            }
+            try {
+                final PlotterState plotterState = new PlotterState(new JSONObject(jsonString.toString()));
+                App.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        plotter.set3d(plotterState.is3d());
                     }
+                });
+                try {
+                    // we must wait while PlotView is initialized as we don't know yet screen
+                    // dimensions and applying graph bounds now will cause wonrg position of the
+                    // camera (as scene width/height will be changed)
+                    latch.await(2000L, TimeUnit.MILLISECONDS);
+                } catch (InterruptedException e) {
+                    Log.w("PlotterApplication", e.getMessage(), e);
                 }
-            });
+                App.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        plotter.removeListener(PlotterStateLoader.this);
+                        final RectF bounds = plotterState.getBounds();
+                        Plot.setGraphBounds(SOURCE, plotter, bounds, plotterState.is3d());
+                    }
+                });
+            } catch (JSONException e) {
+                Log.e("PlotterApplication", e.getMessage(), e);
+            }
+        }
+
+        @Override
+        public void onFunctionsChanged() {
+        }
+
+        @Override
+        public void on3dChanged(boolean d3) {
+        }
+
+        @Override
+        public void onDimensionsChanged(@Nullable Object source) {
+        }
+
+        @Override
+        public void onViewAttached(@NonNull PlottingView view) {
+            view.addListener(this);
+        }
+
+        @Override
+        public void onViewDetached(@NonNull PlottingView view) {
+            view.removeListener(this);
+        }
+
+        @Override
+        public void onTouchStarted() {
+        }
+
+        @Override
+        public void onSizeChanged(@NonNull RectSize viewSize) {
+            latch.countDown();
         }
     }
 
