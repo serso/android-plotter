@@ -60,8 +60,8 @@ public class PlotIconView extends View {
         if (this.meshSpec == null) {
             return;
         }
-        final int height = canvas.getHeight();
-        final int width = canvas.getWidth();
+        final int height = getHeight();
+        final int width = getWidth();
         final float y = height / 2 - paint.getStrokeWidth() / 2;
         canvas.drawLine(0, y, width, y, paint);
     }
