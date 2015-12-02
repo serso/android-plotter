@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ZoomControlButton">
+    <style name="PlotButton" parent="MaterialButton">
+        <item name="materialColor">@color/plot_button_selector</item>
+        <item name="android:textColor">@color/plot_button_text</item>
         <item name="android:layout_margin">0dp</item>
         <item name="android:padding">0dp</item>
         <item name="android:layout_width">wrap_content</item>

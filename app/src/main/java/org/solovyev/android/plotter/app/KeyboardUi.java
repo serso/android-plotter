@@ -44,8 +44,8 @@ public class KeyboardUi {
         this.user = user;
         this.dragListener = new SimpleDragListener(buttonHandler, user.getContext());
         final Resources resources = user.getResources();
-        textColor = resources.getColor(R.color.button_text);
-        textColorSecondary = resources.getColor(R.color.button_text_secondary);
+        textColor = resources.getColor(R.color.kb_button_text);
+        textColorSecondary = resources.getColor(R.color.kb_button_text_secondary);
         sidePadding = resources.getDimensionPixelSize(R.dimen.button_side_padding);
     }
 
@@ -99,7 +99,7 @@ public class KeyboardUi {
     @NonNull
     private DirectionDragButton addOperationButton(@NonNull LinearLayout row, @IdRes int id, @NonNull String text) {
         final DirectionDragButton button = addButton(row, id, text);
-        button.setBackgroundResource(R.drawable.material_button_primary);
+        button.setBackgroundResource(R.drawable.kb_material_button_primary);
         button.setTextColor(Color.WHITE);
         button.setDirectionTextColor(Color.WHITE);
         return button;
@@ -139,7 +139,7 @@ public class KeyboardUi {
     private void fillButton(@NonNull View button, @IdRes int id) {
         button.setOnClickListener(buttonHandler);
         button.setId(id);
-        button.setBackgroundResource(R.drawable.material_button);
+        button.setBackgroundResource(R.drawable.kb_material_button);
         button.setPadding(sidePadding, 1, sidePadding, 1);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             button.setStateListAnimator(null);

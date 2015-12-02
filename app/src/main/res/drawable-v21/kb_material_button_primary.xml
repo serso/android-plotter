@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
   ~ Copyright 2013 serso aka se.solovyev
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +22,11 @@
   ~ Site:  http://se.solovyev.org
   -->
 
-<shape xmlns:a="http://schemas.android.com/apk/res/android">
-	<solid a:color="@color/button_bg_pressed" />
-</shape>
+<ripple xmlns:a="http://schemas.android.com/apk/res/android"
+	a:color="@color/ripple_material_dark">
+	<item>
+		<shape>
+			<solid a:color="@color/kb_button_operation_bg" />
+		</shape>
+	</item>
+</ripple>

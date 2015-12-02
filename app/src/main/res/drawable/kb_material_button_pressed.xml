@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright 2013 serso aka se.solovyev
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,14 +19,7 @@
   ~ Email: se.solovyev@gmail.com
   ~ Site:  http://se.solovyev.org
   -->
-<selector xmlns:a="http://schemas.android.com/apk/res/android">
 
-	<item a:state_pressed="true" a:drawable="@drawable/material_button_pressed" />
-
-	<item>
-		<shape>
-			<solid a:color="@color/button_bg" />
-		</shape>
-	</item>
-
-</selector>
+<shape xmlns:a="http://schemas.android.com/apk/res/android">
+	<solid a:color="@color/kb_button_bg_pressed" />
+</shape>

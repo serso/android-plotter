@@ -10,15 +10,15 @@
         a:layout_width="match_parent"
         a:layout_height="match_parent" />
 
-    <ImageButton
+    <org.solovyev.android.material.MaterialImageButton
         a:id="@+id/plot_dimensions"
-        style="@style/ZoomControlButton"
+        style="@style/PlotButton"
         a:layout_gravity="top|start"
         a:src="@drawable/ic_straighten_white_24dp" />
 
-    <Button
+    <org.solovyev.android.material.MaterialButton
         a:id="@id/plot_3d_button"
-        style="@style/ZoomControlButton"
+        style="@style/PlotButton"
         a:layout_gravity="top|end"
         a:text="3D" />
 
@@ -28,14 +28,14 @@
         a:layout_gravity="bottom|start"
         a:orientation="vertical">
 
-        <Button
+        <org.solovyev.android.material.MaterialButton
             a:id="@+id/plot_add_function"
-            style="@style/ZoomControlButton"
+            style="@style/PlotButton"
             a:text="+" />
 
-        <ImageButton
+        <org.solovyev.android.material.MaterialImageButton
             a:id="@+id/plot_functions"
-            style="@style/ZoomControlButton"
+            style="@style/PlotButton"
             a:src="@drawable/ic_list_white_24dp" />
     </LinearLayout>
 
@@ -45,19 +45,19 @@
         a:layout_gravity="bottom|end"
         a:orientation="vertical">
 
-        <Button
+        <org.solovyev.android.material.MaterialButton
             a:id="@id/plot_zoom_in_button"
-            style="@style/ZoomControlButton"
+            style="@style/PlotButton"
             a:text="+" />
 
-        <Button
+        <org.solovyev.android.material.MaterialButton
             a:id="@id/plot_zoom_reset_button"
-            style="@style/ZoomControlButton"
+            style="@style/PlotButton"
             a:text="0" />
 
-        <Button
+        <org.solovyev.android.material.MaterialButton
             a:id="@id/plot_zoom_out_button"
-            style="@style/ZoomControlButton"
+            style="@style/PlotButton"
             a:text="−" />
     </LinearLayout>
 
