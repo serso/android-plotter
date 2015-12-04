@@ -15,10 +15,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import org.solovyev.android.plotter.BasePlotterListener;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.PlotIconView;
 import org.solovyev.android.plotter.Plotter;
@@ -38,6 +40,8 @@ public class FunctionsDialog extends BaseDialogFragment {
     @NonNull
     private final Plotter plotter = App.getPlotter();
     private Adapter adapter;
+    @NonNull
+    private final PlotterListener plotterListener = new PlotterListener();
 
     public FunctionsDialog() {
     }
@@ -50,7 +54,6 @@ public class FunctionsDialog extends BaseDialogFragment {
     @Subscribe
     public void onDeleteFunction(@NonNull DeleteFunctionEvent e) {
         plotter.remove(e.function);
-        adapter.remove(e.function);
     }
 
     @Nullable
@@ -58,11 +61,31 @@ public class FunctionsDialog extends BaseDialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = super.onCreateView(inflater, container, savedInstanceState);
         App.getBus().register(this);
+        plotter.addListener(plotterListener);
         return view;
     }
 
     @NonNull
-    protected RecyclerView onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater) {
+    @Override
+    public AlertDialog onCreateDialog(Bundle savedInstanceState) {
+        final AlertDialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface d) {
+                final Button neutral = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+                neutral.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        App.getBus().post(new AddFunctionDialog.ShowEvent());
+                    }
+                });
+            }
+        });
+        return dialog;
+    }
+
+    @NonNull
+    protected RecyclerView onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater, Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final RecyclerView view = (RecyclerView) inflater.inflate(R.layout.dialog_functions, null);
 
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context, VERTICAL, false);
@@ -86,18 +109,14 @@ public class FunctionsDialog extends BaseDialogFragment {
 
     @Override
     public void onDestroyView() {
+        plotter.removeListener(plotterListener);
         App.getBus().unregister(this);
         super.onDestroyView();
     }
 
     protected void onPrepareDialog(@NonNull AlertDialog.Builder builder) {
         builder.setPositiveButton(android.R.string.ok, null);
-        builder.setNeutralButton("Add", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                App.getBus().post(new NewFunctionDialog.ShowEvent());
-            }
-        });
+        builder.setNeutralButton("Add", null);
     }
 
     public static final class ShowEvent {
@@ -143,7 +162,14 @@ public class FunctionsDialog extends BaseDialogFragment {
 
         @Override
         public void onClick(View v) {
-
+            if (function == null) {
+                return;
+            }
+            final EditFunctionDialog.ShowEvent event = EditFunctionDialog.ShowEvent.tryCreate(function);
+            if (event == null) {
+                return;
+            }
+            App.getBus().post(event);
         }
 
         @Override
@@ -158,6 +184,23 @@ public class FunctionsDialog extends BaseDialogFragment {
                 return true;
             }
             return false;
+        }
+    }
+
+    private class PlotterListener extends BasePlotterListener {
+        @Override
+        public void onFunctionAdded(@NonNull PlotFunction function) {
+            adapter.add(function);
+        }
+
+        @Override
+        public void onFunctionUpdated(int id, @NonNull PlotFunction function) {
+            adapter.update(id, function);
+        }
+
+        @Override
+        public void onFunctionRemoved(@NonNull PlotFunction function) {
+            adapter.remove(function);
         }
     }
 
@@ -190,6 +233,29 @@ public class FunctionsDialog extends BaseDialogFragment {
                 list.remove(i);
                 notifyItemRemoved(i);
             }
+        }
+
+        public void update(int id, @NonNull PlotFunction function) {
+            final int i = find(id);
+            if (i >= 0) {
+                list.set(i, function);
+                notifyItemChanged(i);
+            }
+        }
+
+        private int find(int id) {
+            for (int i = 0; i < list.size(); i++) {
+                final PlotFunction function = list.get(i);
+                if (function.function.getId() == id) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        public void add(@NonNull PlotFunction function) {
+            list.add(function);
+            notifyItemInserted(list.size() - 1);
         }
     }
 }

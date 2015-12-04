@@ -24,7 +24,6 @@ package org.solovyev.android.plotter;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -61,33 +60,32 @@ public final class PlotData {
 
     public void add(@NonNull PlotFunction function) {
         Check.isMainThread();
-        if (!update(function)) {
-            functions.add(function);
-        }
+        functions.add(function);
     }
 
     public boolean remove(@NonNull PlotFunction function) {
-        return remove(function.function);
+        return remove(function.function) != null;
     }
 
-    public boolean remove(@NonNull Function function) {
+    @Nullable
+    public PlotFunction remove(@NonNull Function function) {
         Check.isMainThread();
         final Iterator<PlotFunction> it = functions.iterator();
         while (it.hasNext()) {
             final PlotFunction oldFunction = it.next();
             if (oldFunction.function.equals(function)) {
                 it.remove();
-                return true;
+                return oldFunction;
             }
         }
-        return false;
+        return null;
     }
 
-    boolean update(@NonNull PlotFunction function) {
+    boolean update(int id, @NonNull PlotFunction function) {
         Check.isMainThread();
         for (int i = 0; i < functions.size(); i++) {
             final PlotFunction oldFunction = functions.get(i);
-            if (oldFunction.function.equals(function.function)) {
+            if (oldFunction.function.getId() == id) {
                 functions.set(i, function);
                 return true;
             }
@@ -96,9 +94,9 @@ public final class PlotData {
     }
 
     @Nullable
-    public PlotFunction get(@NonNull String name) {
+    public PlotFunction get(int id) {
         for (PlotFunction function : functions) {
-            if (TextUtils.equals(function.function.getName(), name)) {
+            if (function.function.getId() == id) {
                 return function;
             }
         }

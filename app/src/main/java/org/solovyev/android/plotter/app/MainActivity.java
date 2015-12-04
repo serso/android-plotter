@@ -81,7 +81,7 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
             App.getBus().post(new FunctionsDialog.ShowEvent());
             return true;
         } else if (id == R.id.plot_add_function) {
-            App.getBus().post(new NewFunctionDialog.ShowEvent());
+            App.getBus().post(new AddFunctionDialog.ShowEvent());
             return true;
         }
         return false;
@@ -93,8 +93,13 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
         private final MainActivity activity = MainActivity.this;
 
         @Subscribe
-        public void onShowAddFunction(@NonNull NewFunctionDialog.ShowEvent e) {
-            NewFunctionDialog.create().show(getSupportFragmentManager(), null);
+        public void onShowAddFunction(@NonNull AddFunctionDialog.ShowEvent e) {
+            AddFunctionDialog.create().show(getSupportFragmentManager(), null);
+        }
+
+        @Subscribe
+        public void onShowEditFunction(@NonNull EditFunctionDialog.ShowEvent e) {
+            EditFunctionDialog.create(e.function).show(getSupportFragmentManager(), null);
         }
 
         @Subscribe

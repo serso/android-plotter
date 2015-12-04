@@ -14,4 +14,6 @@ interface SuperFunction {
 
     @NonNull
     SuperFunction copy();
+
+    int getId();
 }

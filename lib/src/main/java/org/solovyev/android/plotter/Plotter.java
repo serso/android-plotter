@@ -20,17 +20,13 @@ public interface Plotter {
     boolean D3 = true;
 
     void add(@NonNull Function function);
-
     void remove(@NonNull Function function);
 
     void add(@NonNull PlotFunction function);
     void addAll(@NonNull List<PlotFunction> functions);
-
     void remove(@NonNull PlotFunction function);
 
-    void clearFunctions();
-
-    void update(@NonNull PlotFunction function);
+    void update(int id, @NonNull PlotFunction function);
 
     void initGl(@NonNull GL11 gl, boolean firstTime);
 
@@ -73,6 +69,9 @@ public interface Plotter {
 
     interface Listener {
         void onFunctionsChanged();
+        void onFunctionAdded(@NonNull PlotFunction function);
+        void onFunctionUpdated(int id, @NonNull PlotFunction function);
+        void onFunctionRemoved(@NonNull PlotFunction function);
         void on3dChanged(boolean d3);
         void onDimensionsChanged(@Nullable Object source);
         void onViewAttached(@NonNull PlottingView view);

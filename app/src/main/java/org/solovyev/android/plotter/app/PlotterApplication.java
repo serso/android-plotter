@@ -16,6 +16,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.solovyev.android.io.FileLoader;
 import org.solovyev.android.io.FileSaver;
+import org.solovyev.android.plotter.BasePlotterListener;
 import org.solovyev.android.plotter.Plot;
 import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
@@ -92,7 +93,7 @@ public class PlotterApplication extends Application {
         return newInstall;
     }
 
-    private static class PlotterListener implements Plotter.Listener {
+    private static class PlotterListener extends BasePlotterListener {
         @NonNull
         private final Plotter plotter;
         @NonNull
@@ -151,14 +152,6 @@ public class PlotterApplication extends Application {
         }
 
         @Override
-        public void onViewAttached(@NonNull PlottingView view) {
-        }
-
-        @Override
-        public void onViewDetached(@NonNull PlottingView view) {
-        }
-
-        @Override
         public void on3dChanged(boolean d3) {
             scheduleWrite(plotterChangedRunnable);
         }
@@ -170,7 +163,7 @@ public class PlotterApplication extends Application {
         }
     }
 
-    private static class PlotterStateLoader implements Runnable, Plotter.Listener, PlottingView.Listener {
+    private static class PlotterStateLoader extends BasePlotterListener implements Runnable, PlottingView.Listener {
         @NonNull
         private final Plotter plotter;
         @NonNull
@@ -219,18 +212,6 @@ public class PlotterApplication extends Application {
         }
 
         @Override
-        public void onFunctionsChanged() {
-        }
-
-        @Override
-        public void on3dChanged(boolean d3) {
-        }
-
-        @Override
-        public void onDimensionsChanged(@Nullable Object source) {
-        }
-
-        @Override
         public void onViewAttached(@NonNull PlottingView view) {
             view.addListener(this);
         }
@@ -240,7 +221,6 @@ public class PlotterApplication extends Application {
             view.removeListener(this);
         }
 
-        @Override
         public void onTouchStarted() {
         }
 

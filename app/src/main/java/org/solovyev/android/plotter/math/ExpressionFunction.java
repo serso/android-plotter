@@ -27,7 +27,7 @@ public final class ExpressionFunction extends Function {
     private final String expressionString;
 
     private ExpressionFunction(@Nullable String name, @NonNull String expression, @NonNull String... arguments) {
-        super(name);
+        super(TextUtils.isEmpty(name) ? null : name);
         final ExpressionBuilder builder = new ExpressionBuilder(expression);
         for (String variable : arguments) {
             Check.isTrue(!TextUtils.isEmpty(variable));
@@ -41,7 +41,7 @@ public final class ExpressionFunction extends Function {
 
     @NonNull
     public static ExpressionFunction create(@NonNull String expression, @NonNull String... arguments) {
-        return new ExpressionFunction(expression, expression, arguments);
+        return new ExpressionFunction(null, expression, arguments);
     }
 
     @NonNull
@@ -63,6 +63,12 @@ public final class ExpressionFunction extends Function {
         } else {
             return createNamed(name, expression, arguments);
         }
+    }
+
+    @Nullable
+    @Override
+    public String getName() {
+        return hasName() ? super.getName() : expressionString;
     }
 
     @Override
@@ -115,5 +121,10 @@ public final class ExpressionFunction extends Function {
         }
         json.put(JSON_ARGUMENTS, jsonArguments);
         return json;
+    }
+
+    @NonNull
+    public String getExpressionString() {
+        return expressionString;
     }
 }

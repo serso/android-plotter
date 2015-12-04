@@ -116,7 +116,7 @@ public class DimensionsDialog extends BaseDialogFragment implements TextView.OnE
 
     @NonNull
     @Override
-    protected View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater) {
+    protected View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater, Bundle savedInstanceState) {
         @SuppressLint("InflateParams") final View view = LayoutInflater.from(context).inflate(R.layout.dialog_dimensions, null);
         ButterKnife.bind(this, view);
 

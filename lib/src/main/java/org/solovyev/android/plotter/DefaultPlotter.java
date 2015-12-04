@@ -215,13 +215,16 @@ final class DefaultPlotter implements Plotter {
 
     @Override
     public void add(@NonNull Function function) {
-        plotData.add(PlotFunction.create(function, context));
-        onFunctionsChanged();
+        add(PlotFunction.create(function, context));
     }
 
     @Override
     public void remove(@NonNull Function function) {
-        if (plotData.remove(function)) {
+        final PlotFunction removedFunction = plotData.remove(function);
+        if (removedFunction != null) {
+            for (Listener listener : listeners) {
+                listener.onFunctionRemoved(removedFunction);
+            }
             onFunctionsChanged();
         }
     }
@@ -252,6 +255,9 @@ final class DefaultPlotter implements Plotter {
     @Override
     public void add(@NonNull PlotFunction function) {
         plotData.add(function.copy());
+        for (Listener listener : listeners) {
+            listener.onFunctionAdded(function);
+        }
         onFunctionsChanged();
     }
 
@@ -259,6 +265,9 @@ final class DefaultPlotter implements Plotter {
     public void addAll(@NonNull List<PlotFunction> functions) {
         for (PlotFunction function : functions) {
             plotData.add(function.copy());
+            for (Listener listener : listeners) {
+                listener.onFunctionAdded(function);
+            }
         }
         onFunctionsChanged();
     }
@@ -266,20 +275,21 @@ final class DefaultPlotter implements Plotter {
     @Override
     public void remove(@NonNull PlotFunction function) {
         if (plotData.remove(function)) {
+            for (Listener listener : listeners) {
+                listener.onFunctionRemoved(function);
+            }
             onFunctionsChanged();
         }
     }
 
     @Override
-    public void update(@NonNull PlotFunction function) {
-        plotData.update(function.copy());
-        onFunctionsChanged();
-    }
-
-    @Override
-    public void clearFunctions() {
-        plotData.functions.clear();
-        onFunctionsChanged();
+    public void update(int id, @NonNull PlotFunction function) {
+        if (plotData.update(id, function.copy())) {
+            for (Listener listener : listeners) {
+                listener.onFunctionUpdated(id, function);
+            }
+            onFunctionsChanged();
+        }
     }
 
     @Override

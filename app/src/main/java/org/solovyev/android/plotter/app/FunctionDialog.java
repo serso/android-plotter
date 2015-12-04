@@ -34,8 +34,6 @@ import net.objecthunter.exp4j.constant.Constants;
 import net.objecthunter.exp4j.function.Function;
 import net.objecthunter.exp4j.function.Functions;
 
-import org.solovyev.android.plotter.math.ExpressionFunction;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +41,7 @@ import java.util.Map;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocusChangeListener, View.OnClickListener {
+public abstract class FunctionDialog extends BaseDialogFragment implements View.OnFocusChangeListener, View.OnClickListener {
 
     private static final int MENU_FUNCTION = Menu.FIRST;
     private static final int MENU_CONSTANT = Menu.FIRST + 1;
@@ -73,12 +71,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
     @Nullable
     PopupWindow keyboardWindow;
 
-    public NewFunctionDialog() {
-    }
-
-    @NonNull
-    public static NewFunctionDialog create() {
-        return new NewFunctionDialog();
+    public FunctionDialog() {
     }
 
     public static int clampSelection(int selection) {
@@ -103,7 +96,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
     @SuppressLint("InflateParams")
     @NonNull
     @Override
-    protected View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater) {
+    protected View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.dialog_new_function, null);
         ButterKnife.bind(this, view);
         bodyEditText.setOnFocusChangeListener(this);
@@ -141,25 +134,19 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         }
     }
 
-    private void applyData() {
-        App.getPlotter().add(ExpressionFunction.createNamed(getName(), getBody(), new String[]{"x", "y"}));
+    protected abstract void applyData();
+
+    @NonNull
+    protected String getName() {
+        return nameEditText.getText().toString().trim();
     }
 
     @NonNull
-    private String getName() {
-        final String name = nameEditText.getText().toString().trim();
-        if (!TextUtils.isEmpty(name)) {
-            return name;
-        }
-        return getBody();
-    }
-
-    @NonNull
-    private String getBody() {
+    protected String getBody() {
         return bodyEditText.getText().toString();
     }
 
-    private boolean validate() {
+    protected boolean validate() {
         final String body = getBody();
         if (TextUtils.isEmpty(body)) {
             App.setError(bodyInput, "Empty");
@@ -248,9 +235,6 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         new KeyboardUi(keyboardUser).makeView();
     }
 
-    public static class ShowEvent {
-    }
-
     private class KeyboardUser implements KeyboardUi.User, MenuItem.OnMenuItemClickListener {
         @NonNull
         @Override
@@ -261,7 +245,7 @@ public class NewFunctionDialog extends BaseDialogFragment implements View.OnFocu
         @NonNull
         @Override
         public Resources getResources() {
-            return NewFunctionDialog.this.getResources();
+            return FunctionDialog.this.getResources();
         }
 
         @NonNull

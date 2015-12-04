@@ -29,7 +29,6 @@ public interface PlottingView {
 
     interface Listener {
         void onTouchStarted();
-
         void onSizeChanged(@NonNull RectSize viewSize);
     }
 }
