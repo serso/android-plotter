@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -28,7 +27,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
@@ -75,10 +73,6 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     TextInputLayout bodyInput;
     @Bind(R.id.fn_body_edittext)
     EditText bodyEditText;
-    @Bind(R.id.fn_advanced_views)
-    ViewGroup advancedViews;
-    @Bind(R.id.fn_advanced_textview)
-    TextView advancedTextView;
     @Bind(R.id.fn_color_picker)
     LineColorPicker colorPicker;
     @Nullable
@@ -115,12 +109,18 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
         bodyEditText.setOnFocusChangeListener(this);
         bodyEditText.setOnClickListener(this);
         bodyEditText.setOnKeyListener(this);
-        advancedTextView.setPaintFlags(advancedTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        advancedViews.setPadding(nameEditText.getCompoundPaddingLeft(), nameEditText.getCompoundPaddingTop(), nameEditText.getCompoundPaddingRight(), nameEditText.getCompoundPaddingBottom());
+        setMargins(colorPicker);
 
         final int[] colors = MeshSpec.LightColors.asIntArray();
         colorPicker.setColors(colors);
         return view;
+    }
+
+    private void setMargins(@NonNull View view) {
+        final ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+        lp.leftMargin = nameEditText.getCompoundPaddingLeft();
+        lp.rightMargin = nameEditText.getCompoundPaddingRight();
+        view.setLayoutParams(lp);
     }
 
     @NonNull

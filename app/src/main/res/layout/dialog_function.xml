@@ -39,23 +39,9 @@
             android:typeface="monospace"/>
     </android.support.design.widget.TextInputLayout>
 
-    <LinearLayout
-        android:id="@+id/fn_advanced_views"
+    <uz.shift.colorpicker.LineColorPicker
+        android:id="@+id/fn_color_picker"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/fn_advanced_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/fn_advanced"
-            android:textAppearance="@style/TextAppearance.Design.Hint"/>
-
-        <uz.shift.colorpicker.LineColorPicker
-            android:id="@+id/fn_color_picker"
-            android:layout_width="match_parent"
-            android:layout_height="60dp"
-            app:orientation="horizontal"/>
-    </LinearLayout>
+        android:layout_height="60dp"
+        app:orientation="horizontal"/>
 </LinearLayout>
