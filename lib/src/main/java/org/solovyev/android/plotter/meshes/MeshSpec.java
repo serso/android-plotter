@@ -106,5 +106,27 @@ public class MeshSpec {
         public static final Color BROWN = Color.create(0xFFA1887F);
         public static final Color GREY = Color.create(0xFFE0E0E0);
         public static final Color BLUE_GREY = Color.create(0xFF90A4AE);
+        public static final Color WHITE = Color.WHITE;
+
+        @NonNull
+        private static Color[] colors = new Color[]{RED, PINK, PURPLE, DEEP_PURPLE, INDIGO, BLUE, LIGHT_BLUE, CYAN, TEAL, GREEN, LIGHT_GREEN, LIME, YELLOW, AMBER, ORANGE, DEEP_ORANGE, BROWN, GREY, BLUE_GREY, WHITE};
+        private static int[] intColors = new int[colors.length];
+
+        static {
+            for (int i = 0; i < colors.length; i++) {
+                intColors[i] = colors[i].toInt();
+            }
+        }
+
+        @NonNull
+        public static Color[] asArray() {
+            return colors;
+        }
+
+        @NonNull
+        public static int[] asIntArray() {
+            return intColors;
+        }
     }
+
 }

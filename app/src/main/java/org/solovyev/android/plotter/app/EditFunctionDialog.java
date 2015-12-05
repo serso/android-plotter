@@ -12,6 +12,7 @@ import org.solovyev.android.plotter.Function;
 import org.solovyev.android.plotter.PlotData;
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.math.ExpressionFunction;
+import org.solovyev.android.plotter.meshes.MeshSpec;
 
 public class EditFunctionDialog extends FunctionDialog {
     private static final String ARGS_FUNCTION = "function";
@@ -49,8 +50,22 @@ public class EditFunctionDialog extends FunctionDialog {
             final ExpressionFunction function = getFunction();
             nameEditText.setText(function.hasName() ? function.getName() : null);
             bodyEditText.setText(function.getExpressionString());
+            final MeshSpec meshSpec = plotFunction.meshSpec;
+            final int color = meshSpec.color.toInt();
+            final int[] colors = colorPicker.getColors();
+            final int i = indexOf(colors, color);
+            colorPicker.setSelectedColorPosition(Math.max(0, i));
         }
         return view;
+    }
+
+    private static int indexOf(int[] itegers, int integer) {
+        for (int i = 0; i < itegers.length; i++) {
+            if(itegers[i] == integer) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @NonNull
@@ -60,7 +75,7 @@ public class EditFunctionDialog extends FunctionDialog {
 
     protected void applyData() {
         final ExpressionFunction function = ExpressionFunction.createNamed(getName(), getBody(), "x", "y");
-        App.getPlotter().update(getFunction().getId(), PlotFunction.create(function, plotFunction.meshSpec));
+        App.getPlotter().update(getFunction().getId(), PlotFunction.create(function, applyMeshSpec()));
     }
 
     public static class ShowEvent {

@@ -21,7 +21,6 @@ public String android_min_sdk_version() {
 }
 
 buildscript {
-
     repositories {
         mavenCentral()
     }

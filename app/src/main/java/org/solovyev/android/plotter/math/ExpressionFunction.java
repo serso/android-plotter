@@ -86,7 +86,7 @@ public final class ExpressionFunction extends Function {
         expression.setVariable(arguments[0], x);
         try {
             return (float) expression.evaluate();
-        } catch (ArithmeticException e) {
+        } catch (RuntimeException e) {
             return Float.NaN;
         }
     }
@@ -97,7 +97,7 @@ public final class ExpressionFunction extends Function {
         expression.setVariable(arguments[1], y);
         try {
             return (float) expression.evaluate();
-        } catch (ArithmeticException e) {
+        } catch (RuntimeException e) {
             return Float.NaN;
         }
     }

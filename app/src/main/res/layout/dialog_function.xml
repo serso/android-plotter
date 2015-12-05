@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/fn_name_input"
@@ -21,7 +21,7 @@
             android:minLines="1"
             android:nextFocusDown="@+id/fn_body_edittext"
             android:nextFocusRight="@+id/fn_body_edittext"
-            android:singleLine="true" />
+            android:singleLine="true"/>
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -36,6 +36,26 @@
             android:hint="Body"
             android:imeOptions="flagNoExtractUi"
             android:inputType="textMultiLine|textNoSuggestions"
-            android:typeface="monospace" />
+            android:typeface="monospace"/>
     </android.support.design.widget.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/fn_advanced_views"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/fn_advanced_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fn_advanced"
+            android:textAppearance="@style/TextAppearance.Design.Hint"/>
+
+        <uz.shift.colorpicker.LineColorPicker
+            android:id="@+id/fn_color_picker"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            app:orientation="horizontal"/>
+    </LinearLayout>
 </LinearLayout>

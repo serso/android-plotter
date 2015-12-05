@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
@@ -34,14 +37,18 @@ import net.objecthunter.exp4j.constant.Constants;
 import net.objecthunter.exp4j.function.Function;
 import net.objecthunter.exp4j.function.Functions;
 
+import org.solovyev.android.plotter.Color;
+import org.solovyev.android.plotter.meshes.MeshSpec;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import uz.shift.colorpicker.LineColorPicker;
 
-public abstract class FunctionDialog extends BaseDialogFragment implements View.OnFocusChangeListener, View.OnClickListener {
+public abstract class FunctionDialog extends BaseDialogFragment implements View.OnFocusChangeListener, View.OnClickListener, View.OnKeyListener {
 
     private static final int MENU_FUNCTION = Menu.FIRST;
     private static final int MENU_CONSTANT = Menu.FIRST + 1;
@@ -68,6 +75,12 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     TextInputLayout bodyInput;
     @Bind(R.id.fn_body_edittext)
     EditText bodyEditText;
+    @Bind(R.id.fn_advanced_views)
+    ViewGroup advancedViews;
+    @Bind(R.id.fn_advanced_textview)
+    TextView advancedTextView;
+    @Bind(R.id.fn_color_picker)
+    LineColorPicker colorPicker;
     @Nullable
     PopupWindow keyboardWindow;
 
@@ -97,10 +110,16 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     @NonNull
     @Override
     protected View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater, Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.dialog_new_function, null);
+        final View view = inflater.inflate(R.layout.dialog_function, null);
         ButterKnife.bind(this, view);
         bodyEditText.setOnFocusChangeListener(this);
         bodyEditText.setOnClickListener(this);
+        bodyEditText.setOnKeyListener(this);
+        advancedTextView.setPaintFlags(advancedTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        advancedViews.setPadding(nameEditText.getCompoundPaddingLeft(), nameEditText.getCompoundPaddingTop(), nameEditText.getCompoundPaddingRight(), nameEditText.getCompoundPaddingBottom());
+
+        final int[] colors = MeshSpec.LightColors.asIntArray();
+        colorPicker.setColors(colors);
         return view;
     }
 
@@ -137,6 +156,13 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     protected abstract void applyData();
 
     @NonNull
+    protected MeshSpec applyMeshSpec() {
+        final MeshSpec meshSpec = MeshSpec.createDefault(getContext());
+        meshSpec.color = Color.create(colorPicker.getColor());
+        return meshSpec;
+    }
+
+    @NonNull
     protected String getName() {
         return nameEditText.getText().toString().trim();
     }
@@ -147,16 +173,29 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     }
 
     protected boolean validate() {
+        if (!validateBody()) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateBody() {
         final String body = getBody();
         if (TextUtils.isEmpty(body)) {
             App.setError(bodyInput, "Empty");
             return false;
         }
-        final Expression expression = new ExpressionBuilder(body).variables("x", "y").build();
-        final ValidationResult validateResult = expression.validate(false);
-        if (!validateResult.isValid()) {
-            final List<String> errors = validateResult.getErrors();
-            App.setError(bodyInput, errors.isEmpty() ? " " : errors.get(0));
+        try {
+            final Expression expression = new ExpressionBuilder(body).variables("x", "y").build();
+            final ValidationResult validateResult = expression.validate(false);
+            if (!validateResult.isValid()) {
+                final List<String> errors = validateResult.getErrors();
+                App.setError(bodyInput, errors.isEmpty() ? " " : errors.get(0));
+                return false;
+            }
+        } catch (RuntimeException e) {
+            final String message = e.getLocalizedMessage();
+            App.setError(bodyInput, TextUtils.isEmpty(message) ? " " : message);
             return false;
         }
         App.clearError(bodyInput);
@@ -188,7 +227,7 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     }
 
     private void hideKeyboard() {
-        if (keyboardWindow == null) {
+        if (!isKeyboardShown()) {
             return;
         }
         moveDialog(Gravity.CENTER);
@@ -197,7 +236,7 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     }
 
     private void showKeyboard() {
-        if (keyboardWindow != null) {
+        if (isKeyboardShown()) {
             return;
         }
         moveDialog(Gravity.TOP);
@@ -233,6 +272,21 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
             }
         });
         new KeyboardUi(keyboardUser).makeView();
+    }
+
+    private boolean isKeyboardShown() {
+        return keyboardWindow != null;
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (v.getId() == R.id.fn_body_edittext) {
+            if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK && isKeyboardShown()) {
+                hideKeyboard();
+                return true;
+            }
+        }
+        return false;
     }
 
     private class KeyboardUser implements KeyboardUi.User, MenuItem.OnMenuItemClickListener {
@@ -350,7 +404,7 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
         @Override
         public void done() {
             hideKeyboard();
-            tryClose();
+            validateBody();
         }
 
         @Override
