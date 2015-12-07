@@ -83,11 +83,11 @@ public class LineColorPicker extends View {
     private void drawVerticalPicker(Canvas canvas) {
         rect.left = 0;
         rect.top = 0;
-        rect.right = canvas.getWidth();
+        rect.right = getWidth();
         rect.bottom = 0;
 
         // 8%
-        int margin = Math.round(canvas.getWidth() * 0.08f);
+        int margin = Math.round(getWidth() * 0.08f);
 
         for (int i = 0; i < colors.length; i++) {
 
@@ -98,10 +98,10 @@ public class LineColorPicker extends View {
 
             if (isColorSelected && colors[i] == selectedColor) {
                 rect.left = 0;
-                rect.right = canvas.getWidth();
+                rect.right = getWidth();
             } else {
                 rect.left = margin;
-                rect.right = canvas.getWidth() - margin;
+                rect.right = getWidth() - margin;
             }
 
             canvas.drawRect(rect, paint);
@@ -113,10 +113,10 @@ public class LineColorPicker extends View {
         rect.left = 0;
         rect.top = 0;
         rect.right = 0;
-        rect.bottom = canvas.getHeight();
+        rect.bottom = getHeight();
 
         // 8%
-        int margin = Math.round(canvas.getHeight() * 0.08f);
+        int margin = Math.round(getHeight() * 0.08f);
 
         for (int i = 0; i < colors.length; i++) {
 
@@ -127,10 +127,10 @@ public class LineColorPicker extends View {
 
             if (isColorSelected && colors[i] == selectedColor) {
                 rect.top = 0;
-                rect.bottom = canvas.getHeight();
+                rect.bottom = getHeight();
             } else {
                 rect.top = margin;
-                rect.bottom = canvas.getHeight() - margin;
+                rect.bottom = getHeight() - margin;
             }
 
             canvas.drawRect(rect, paint);
