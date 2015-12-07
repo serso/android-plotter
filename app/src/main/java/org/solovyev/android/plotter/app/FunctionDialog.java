@@ -27,6 +27,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
@@ -36,6 +38,7 @@ import net.objecthunter.exp4j.function.Function;
 import net.objecthunter.exp4j.function.Functions;
 
 import org.solovyev.android.plotter.Color;
+import org.solovyev.android.plotter.PlotIconView;
 import org.solovyev.android.plotter.meshes.MeshSpec;
 
 import java.util.ArrayList;
@@ -45,6 +48,7 @@ import java.util.Map;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import uz.shift.colorpicker.LineColorPicker;
+import uz.shift.colorpicker.OnColorChangedListener;
 
 public abstract class FunctionDialog extends BaseDialogFragment implements View.OnFocusChangeListener, View.OnClickListener, View.OnKeyListener {
 
@@ -73,8 +77,18 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
     TextInputLayout bodyInput;
     @Bind(R.id.fn_body_edittext)
     EditText bodyEditText;
+    @Bind(R.id.fn_meshspec_views)
+    View meshSpecViews;
+    @Bind(R.id.fn_color_label)
+    TextView colorLabel;
     @Bind(R.id.fn_color_picker)
     LineColorPicker colorPicker;
+    @Bind(R.id.fn_linewidth_label)
+    TextView lineWidthLabel;
+    @Bind(R.id.fn_linewidth_seekbar)
+    SeekBar lineWidthSeekBar;
+    @Bind(R.id.fn_iconview)
+    PlotIconView iconView;
     @Nullable
     PopupWindow keyboardWindow;
 
@@ -109,17 +123,62 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
         bodyEditText.setOnFocusChangeListener(this);
         bodyEditText.setOnClickListener(this);
         bodyEditText.setOnKeyListener(this);
-        setMargins(colorPicker);
+        setMargins(meshSpecViews);
+        setMargins(colorLabel, false, false, false, true);
+        setMargins(colorPicker, false, false, false, true);
+        setMargins(lineWidthLabel, false, false, false, true);
+        setMargins(lineWidthSeekBar, false, false, false, true);
+        fixLabelColor(colorLabel);
+        fixLabelColor(lineWidthLabel);
+        colorPicker.setOnColorChangedListener(new OnColorChangedListener() {
+            @Override
+            public void onColorChanged(int c) {
+                iconView.setMeshSpec(applyMeshSpec());
+            }
+        });
+        lineWidthSeekBar.setMax(MeshSpec.MAX_WIDTH - MeshSpec.MIN_WIDTH);
+        lineWidthSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                iconView.setMeshSpec(applyMeshSpec());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
 
         final int[] colors = MeshSpec.LightColors.asIntArray();
         colorPicker.setColors(colors);
         return view;
     }
 
+    private void fixLabelColor(@NonNull TextView view) {
+        view.setTextColor(nameEditText.getHintTextColors());
+    }
+
     private void setMargins(@NonNull View view) {
+        setMargins(view, true, true, true, true);
+    }
+
+    private void setMargins(@NonNull View view, boolean left, boolean top, boolean right, boolean bottom) {
         final ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-        lp.leftMargin = nameEditText.getCompoundPaddingLeft();
-        lp.rightMargin = nameEditText.getCompoundPaddingRight();
+        if (left) {
+            lp.leftMargin = nameEditText.getCompoundPaddingLeft();
+        }
+        if (right) {
+            lp.rightMargin = nameEditText.getCompoundPaddingRight();
+        }
+        if (top) {
+            lp.topMargin = nameEditText.getCompoundPaddingTop();
+        }
+        if (bottom) {
+            lp.bottomMargin = nameEditText.getCompoundPaddingBottom();
+        }
         view.setLayoutParams(lp);
     }
 
@@ -157,9 +216,9 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
 
     @NonNull
     protected MeshSpec applyMeshSpec() {
-        final MeshSpec meshSpec = MeshSpec.createDefault(getContext());
-        meshSpec.color = Color.create(colorPicker.getColor());
-        return meshSpec;
+        final Color color = Color.create(colorPicker.getColor());
+        final int width = MeshSpec.MIN_WIDTH + lineWidthSeekBar.getProgress();
+        return MeshSpec.create(color, width);
     }
 
     @NonNull

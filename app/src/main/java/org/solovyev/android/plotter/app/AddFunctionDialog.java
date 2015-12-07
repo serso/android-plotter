@@ -8,6 +8,7 @@ import android.view.View;
 
 import org.solovyev.android.plotter.PlotFunction;
 import org.solovyev.android.plotter.math.ExpressionFunction;
+import org.solovyev.android.plotter.meshes.MeshSpec;
 
 public class AddFunctionDialog extends FunctionDialog {
     @NonNull
@@ -26,6 +27,8 @@ public class AddFunctionDialog extends FunctionDialog {
         final View view = super.onCreateDialogView(context, inflater, savedInstanceState);
         if (savedInstanceState == null) {
             colorPicker.setSelectedColorPosition(0);
+            lineWidthSeekBar.setProgress(MeshSpec.defaultWidth(getActivity()) - MeshSpec.MIN_WIDTH);
+            iconView.setMeshSpec(applyMeshSpec());
         }
         return view;
     }

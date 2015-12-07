@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="wrap_content"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/fn_name_input"
@@ -21,7 +21,7 @@
             android:minLines="1"
             android:nextFocusDown="@+id/fn_body_edittext"
             android:nextFocusRight="@+id/fn_body_edittext"
-            android:singleLine="true"/>
+            android:singleLine="true" />
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.TextInputLayout
@@ -36,12 +36,55 @@
             android:hint="Body"
             android:imeOptions="flagNoExtractUi"
             android:inputType="textMultiLine|textNoSuggestions"
-            android:typeface="monospace"/>
+            android:typeface="monospace" />
     </android.support.design.widget.TextInputLayout>
 
-    <uz.shift.colorpicker.LineColorPicker
-        android:id="@+id/fn_color_picker"
+    <LinearLayout
+        android:id="@+id/fn_meshspec_views"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        app:orientation="horizontal"/>
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <org.solovyev.android.plotter.PlotIconView
+            android:id="@+id/fn_iconview"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginRight="16dp"
+            android:background="#212121"
+            android:padding="5dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/fn_linewidth_label"
+                style="@style/TextAppearance.AppCompat.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Line width" />
+
+            <SeekBar
+                android:id="@+id/fn_linewidth_seekbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/fn_color_label"
+                style="@style/TextAppearance.AppCompat.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Line color" />
+
+            <uz.shift.colorpicker.LineColorPicker
+                android:id="@+id/fn_color_picker"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                app:orientation="horizontal" />
+        </LinearLayout>
+
+    </LinearLayout>
+
 </LinearLayout>

@@ -55,6 +55,8 @@ public class EditFunctionDialog extends FunctionDialog {
             final int[] colors = colorPicker.getColors();
             final int i = indexOf(colors, color);
             colorPicker.setSelectedColorPosition(Math.max(0, i));
+            lineWidthSeekBar.setProgress(meshSpec.width - MeshSpec.MIN_WIDTH);
+            iconView.setMeshSpec(plotFunction.meshSpec);
         }
         return view;
     }

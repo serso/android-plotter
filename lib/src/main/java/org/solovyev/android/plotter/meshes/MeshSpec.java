@@ -10,6 +10,8 @@ import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.Plot;
 
 public class MeshSpec {
+    public static final int MAX_WIDTH = 20;
+    public static final int MIN_WIDTH = 1;
     @NonNull
     public static final Color COLOR_NO = Color.TRANSPARENT;
     @NonNull
@@ -22,12 +24,12 @@ public class MeshSpec {
 
     private MeshSpec(@NonNull JSONObject json) {
         this.color = Color.create(json.optInt(JSON_COLOR, Color.WHITE.toInt()));
-        this.width = json.optInt(JSON_WIDTH, 1);
+        this.width = json.optInt(JSON_WIDTH, MIN_WIDTH);
     }
 
     private MeshSpec(@NonNull Color color, int width) {
         this.color = color;
-        this.width = width;
+        this.width = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width));
     }
 
     @NonNull

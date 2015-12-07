@@ -62,7 +62,7 @@ public class PlotIconView extends View {
         }
         final int height = getHeight();
         final int width = getWidth();
-        final float y = height / 2 - paint.getStrokeWidth() / 2;
-        canvas.drawLine(0, y, width, y, paint);
+        final float y = (height - getPaddingTop() - getPaddingBottom()) / 2 + getPaddingTop();
+        canvas.drawLine(getPaddingLeft(), y, width - getPaddingRight(), y, paint);
     }
 }
