@@ -94,9 +94,9 @@ final class DefaultPlotter implements Plotter {
         @Override
         public FunctionGraph create() {
             if (is3d()) {
-                return FunctionGraph3d.create(Dimensions.empty(), Function0.ZERO);
+                return FunctionGraph3d.create(Dimensions.empty(), Function0.ZERO, MeshSpec.DEFAULT_POINTS_COUNT);
             } else {
-                return FunctionGraph2d.create(Dimensions.empty(), Function0.ZERO);
+                return FunctionGraph2d.create(Dimensions.empty(), Function0.ZERO, MeshSpec.DEFAULT_POINTS_COUNT);
             }
         }
 

@@ -50,7 +50,7 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
         final Dimensions dimensions = this.dimensions.get();
         if (!dimensions.isZero()) {
             final long start = System.nanoTime();
-            fillGraph(graph, dimensions);
+            fillGraph(graph, dimensions, getPointsCount());
             final long end = System.nanoTime();
             Log.d(TAG, this + ": calculation time=" + TimeUnit.NANOSECONDS.toMillis(end - start));
 
@@ -68,6 +68,8 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
         }
     }
 
+    protected abstract int getPointsCount();
+
     @Override
     public void onInitGl(@NonNull GL11 gl, @NonNull MeshConfig config) {
         super.onInitGl(gl, config);
@@ -78,12 +80,21 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
         setIndices(indicesBuffer, CUTOFF ? IndicesOrder.LINES : IndicesOrder.LINE_STRIP);
     }
 
-    void fillGraph(@NonNull Graph graph, @NonNull Dimensions dimensions) {
+    void fillGraph(@NonNull Graph graph, @NonNull Dimensions dimensions, int pointsCount) {
         final float add = dimensions.graph.size.width;
         final float newXMin = dimensions.graph.xMin() - add;
         final float newXMax = dimensions.graph.xMax() + add;
-        final int maxPoints = 4 * dimensions.scene.view.width;
-        final float points = maxPoints / 2;
+        final int maxPoints;
+        final int points;
+        if (pointsCount == MeshSpec.DEFAULT_POINTS_COUNT) {
+            maxPoints = 4 * dimensions.scene.view.width;
+            points = maxPoints / 2;
+        } else {
+            final int multiplier = Scene.getMultiplier(false);
+            points = pointsCount * multiplier;
+            maxPoints = points;
+            graph.clear();
+        }
         final float step = Math.abs(newXMax - newXMin) / points;
 
         if (graph.step < 0 || graph.step > step || graph.center.x != dimensions.graph.center.x || graph.center.y != dimensions.graph.center.y) {

@@ -9,21 +9,24 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
 
     @NonNull
     private volatile Function function;
+    private volatile int pointsCount = MeshSpec.DEFAULT_POINTS_COUNT;
 
-    FunctionGraph3d(@NonNull Dimensions dimensions, @NonNull Function function) {
+    FunctionGraph3d(@NonNull Dimensions dimensions, @NonNull Function function, int pointsCount) {
         super(dimensions);
         this.function = function;
+        this.pointsCount = pointsCount;
     }
 
     @NonNull
-    public static FunctionGraph3d create(@NonNull Dimensions dimensions, @NonNull Function function) {
-        return new FunctionGraph3d(dimensions, function);
+    public static FunctionGraph3d create(@NonNull Dimensions dimensions, @NonNull Function function, int pointsCount) {
+        return new FunctionGraph3d(dimensions, function, pointsCount);
     }
 
     @NonNull
     @Override
     protected SurfaceInitializer createInitializer() {
-        return new SurfaceInitializer.GraphSurfaceInitializer(this, dimensions.graph);
+        final int size = pointsCount == MeshSpec.DEFAULT_POINTS_COUNT ? 20 : pointsCount * Scene.getMultiplier(true);
+        return new SurfaceInitializer.GraphSurfaceInitializer(this, dimensions.graph, size);
     }
 
     @Override
@@ -59,11 +62,25 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
     @NonNull
     @Override
     protected BaseMesh makeCopy() {
-        return new FunctionGraph3d(dimensions, function);
+        return new FunctionGraph3d(dimensions, function, pointsCount);
     }
 
     @Override
     public String toString() {
         return function.toString();
+    }
+
+    @Override
+    public int getPointsCount() {
+        return pointsCount;
+    }
+
+    @Override
+    public void setPointsCount(int pointsCount) {
+        if (this.pointsCount == pointsCount) {
+            return;
+        }
+        this.pointsCount = pointsCount;
+        setDirty();
     }
 }

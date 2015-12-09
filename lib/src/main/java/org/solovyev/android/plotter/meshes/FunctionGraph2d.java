@@ -9,15 +9,17 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
 
     @NonNull
     private volatile Function function;
+    private volatile int pointsCount;
 
-    private FunctionGraph2d(@NonNull Dimensions dimensions, @NonNull Function function) {
+    private FunctionGraph2d(@NonNull Dimensions dimensions, @NonNull Function function, int pointsCount) {
         super(dimensions);
         this.function = function;
+        this.pointsCount = pointsCount;
     }
 
     @NonNull
-    public static FunctionGraph2d create(@NonNull Dimensions dimensions, @NonNull Function function) {
-        return new FunctionGraph2d(dimensions, function);
+    public static FunctionGraph2d create(@NonNull Dimensions dimensions, @NonNull Function function, int pointsCount) {
+        return new FunctionGraph2d(dimensions, function, pointsCount);
     }
 
     @Override
@@ -53,11 +55,26 @@ public class FunctionGraph2d extends BaseCurve implements FunctionGraph {
     @NonNull
     @Override
     protected BaseMesh makeCopy() {
-        return create(dimensions.get(), function);
+        return create(dimensions.get(), function, getPointsCount());
     }
 
     @Override
     public String toString() {
         return function.toString() + "(" + Integer.toString(System.identityHashCode(this), 16) + ")";
+    }
+
+    @Override
+    public int getPointsCount() {
+        return pointsCount;
+
+    }
+
+    @Override
+    public void setPointsCount(int pointsCount) {
+        if (this.pointsCount == pointsCount) {
+            return;
+        }
+        this.pointsCount = pointsCount;
+        setDirty();
     }
 }

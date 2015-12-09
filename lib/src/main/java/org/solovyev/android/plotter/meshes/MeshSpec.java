@@ -12,6 +12,7 @@ import org.solovyev.android.plotter.Plot;
 public class MeshSpec {
     public static final int MAX_WIDTH = 20;
     public static final int MIN_WIDTH = 1;
+    public static final int DEFAULT_POINTS_COUNT = -1;
     @NonNull
     public static final Color COLOR_NO = Color.TRANSPARENT;
     @NonNull
@@ -21,6 +22,7 @@ public class MeshSpec {
     @NonNull
     public Color color;
     public int width;
+    public int pointsCount = DEFAULT_POINTS_COUNT;
 
     private MeshSpec(@NonNull JSONObject json) {
         this.color = Color.create(json.optInt(JSON_COLOR, Color.WHITE.toInt()));
@@ -56,9 +58,10 @@ public class MeshSpec {
         return new MeshSpec(color, width);
     }
 
-    public void applyTo(@NonNull DimensionsAware mesh) {
+    public void applyTo(@NonNull FunctionGraph mesh) {
         mesh.setColor(color);
         mesh.setWidth(width);
+        mesh.setPointsCount(pointsCount);
     }
 
     @Override

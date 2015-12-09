@@ -9,4 +9,8 @@ public interface FunctionGraph extends DimensionsAware {
     Function getFunction();
 
     void setFunction(@NonNull Function function);
+
+    int getPointsCount();
+
+    void setPointsCount(int pointsCount);
 }

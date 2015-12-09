@@ -87,8 +87,8 @@ class SurfaceInitializer {
         int yVertices;
 
         @NonNull
-        public static Data create(@NonNull RectF bounds) {
-            return create(bounds, 20, 20);
+        public static Data create(@NonNull RectF bounds, int size) {
+            return create(bounds, size, size);
         }
 
         @NonNull
@@ -118,8 +118,8 @@ class SurfaceInitializer {
         @NonNull
         private final Dimensions.Graph graph;
 
-        public GraphSurfaceInitializer(@NonNull BaseSurface surface, @NonNull Dimensions.Graph graph) {
-            super(surface, Data.create(graph.makeBounds()));
+        public GraphSurfaceInitializer(@NonNull BaseSurface surface, @NonNull Dimensions.Graph graph, int size) {
+            super(surface, Data.create(graph.makeBounds(), size));
             this.graph = graph;
         }
 

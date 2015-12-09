@@ -12,6 +12,10 @@ final class Scene {
     private Scene() {
     }
 
+    public static int getMultiplier(boolean d3) {
+        return d3 ? 1 : 5;
+    }
+
     static final class AxisGrid {
 
         @NonNull
@@ -69,7 +73,7 @@ final class Scene {
         final float multiplier;
 
         public Axis(@NonNull Dimensions.Scene scene, boolean y, boolean d3) {
-            multiplier = d3 ? 1 : 5;
+            multiplier = getMultiplier(d3);
             final float width = multiplier * scene.size.width;
             final float height = multiplier * scene.size.height;
 
@@ -88,6 +92,7 @@ final class Scene {
         public static Axis create(@NonNull Dimensions.Scene scene, boolean y, boolean d3) {
             return new Axis(scene, y, d3);
         }
+
     }
 
     static final class Ticks {
