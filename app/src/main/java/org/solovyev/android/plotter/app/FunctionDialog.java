@@ -125,7 +125,6 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
         bodyEditText.setOnKeyListener(this);
         setMargins(meshSpecViews);
         setMargins(colorLabel, false, false, false, true);
-        setMargins(colorPicker, false, false, false, true);
         setMargins(lineWidthLabel, false, false, false, true);
         setMargins(lineWidthSeekBar, false, false, false, true);
         fixLabelColor(colorLabel);

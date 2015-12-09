@@ -52,8 +52,8 @@
 
             <org.solovyev.android.plotter.PlotIconView
                 android:id="@+id/fn_iconview"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 android:layout_marginRight="16dp"
                 android:background="#212121"
                 android:padding="5dp" />
