@@ -418,8 +418,6 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
                 final float alphaDegrees = reverse ? 180f + rotation.angle.y : rotation.angle.y;
                 final float betaDegrees = reverse ? -(180f + rotation.angle.x) : rotation.angle.x;
 
-                Log.d("CameraAngles", "alpha=" + alphaDegrees + ", beta=" + betaDegrees);
-
                 final float alpha = (float) (-Math.PI * alphaDegrees / 180f);
                 final float beta = (float) (Math.PI * betaDegrees / 180f);
                 final float eyeX = (float) (x + distance * Math.sin(alpha) * Math.cos(beta));
