@@ -11,6 +11,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.squareup.leakcanary.LeakCanary;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,6 +53,8 @@ public class PlotterApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        LeakCanary.install(this);
 
         App.create(this);
         final boolean newInstall = checkAppVersion();
