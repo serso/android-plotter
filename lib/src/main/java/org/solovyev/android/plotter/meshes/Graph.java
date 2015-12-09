@@ -70,7 +70,7 @@ class Graph {
     }
 
     private void logCapacity() {
-        Log.d(Meshes.getTag("Graph"), "Capacity=" + capacity);
+        Log.v(Meshes.getTag("Graph"), "Capacity=" + capacity);
     }
 
     void makeSpaceAtTheEnd() {
