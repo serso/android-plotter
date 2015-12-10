@@ -490,6 +490,8 @@ final class DefaultPlotter implements Plotter {
         for (DoubleBufferMesh<AxisLabels> label : labels) {
             add(label);
         }
+        //add(new Square(dimensions, new PointF(1, 1)));
+        //add(new Circle(dimensions, new PointF(0, 0), 1));
         /*final SceneRect sceneRect = new SceneRect(dimensions);
         sceneRect.setColor(MeshSpec.LightColors.GREEN);
         add(DoubleBufferMesh.wrap(sceneRect, DimensionsAwareSwapper.INSTANCE));*/
