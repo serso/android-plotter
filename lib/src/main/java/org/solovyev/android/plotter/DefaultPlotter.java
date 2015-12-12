@@ -47,9 +47,11 @@ final class DefaultPlotter implements Plotter {
     @NonNull
     private final DoubleBufferGroup<FunctionGraph> functionMeshes = DoubleBufferGroup.create(FunctionGraphSwapper.INSTANCE);
     @NonNull
-    private final DoubleBufferGroup<Mesh> otherMeshes = DoubleBufferGroup.create(null);
+    private final DoubleBufferGroup<Mesh> otherMeshesBefore = DoubleBufferGroup.create(null);
     @NonNull
-    private final Group<Mesh> allMeshes = ListGroup.create(Arrays.<Mesh>asList(functionMeshes, otherMeshes));
+    private final DoubleBufferGroup<Mesh> otherMeshesAfter = DoubleBufferGroup.create(null);
+    @NonNull
+    private final Group<Mesh> allMeshes = ListGroup.create(Arrays.<Mesh>asList(otherMeshesBefore, functionMeshes, otherMeshesAfter));
     @NonNull
     private final Initializer initializer = new Initializer();
     @NonNull
@@ -116,12 +118,17 @@ final class DefaultPlotter implements Plotter {
     }
 
     public void add(@NonNull Mesh mesh) {
-        otherMeshes.addMesh(mesh);
+        otherMeshesBefore.addMesh(mesh);
+        setDirty();
+    }
+
+    public void addAfter(@NonNull DoubleBufferMesh<? extends Mesh> mesh) {
+        otherMeshesAfter.add((DoubleBufferMesh<Mesh>) mesh);
         setDirty();
     }
 
     public void add(@NonNull DoubleBufferMesh<? extends Mesh> mesh) {
-        otherMeshes.add((DoubleBufferMesh<Mesh>) mesh);
+        otherMeshesBefore.add((DoubleBufferMesh<Mesh>) mesh);
         setDirty();
     }
 
@@ -233,15 +240,19 @@ final class DefaultPlotter implements Plotter {
         Check.isMainThread();
 
         final Dimensions dimensions = getDimensions();
+        updateDimensions(dimensions, otherMeshesAfter);
+        updateDimensions(dimensions, otherMeshesBefore);
+        updateFunctions();
+        setDirty();
+    }
 
-        for (DoubleBufferMesh<Mesh> dbm : otherMeshes) {
+    private void updateDimensions(@NonNull Dimensions dimensions, @NonNull DoubleBufferGroup<Mesh> meshes) {
+        for (DoubleBufferMesh<Mesh> dbm : meshes) {
             final Mesh mesh = dbm.getNext();
             if (mesh instanceof DimensionsAware) {
                 ((DimensionsAware) mesh).setDimensions(dimensions);
             }
         }
-        updateFunctions();
-        setDirty();
     }
 
     private void onFunctionsChanged() {
@@ -401,7 +412,8 @@ final class DefaultPlotter implements Plotter {
                 pool.release(dbm.getNext());
             }
             pool.clear();
-            otherMeshes.clear();
+            otherMeshesAfter.clear();
+            otherMeshesBefore.clear();
             if (d3) {
                 synchronized (lock) {
                     final Dimensions newDimensions = dimensions.updateGraph(new RectSizeF(dimensions.graph.size.width, Dimensions.Graph.SIZE), new PointF(dimensions.graph.center.x, 0));
@@ -464,7 +476,8 @@ final class DefaultPlotter implements Plotter {
     }
 
     private void makeSetting(boolean d3) {
-        otherMeshes.clear();
+        otherMeshesAfter.clear();
+        otherMeshesBefore.clear();
         labels.clear();
         final Dimensions dimensions = getDimensions();
         //add(new DrawableTexture(context.getResources(), R.drawable.icon));
@@ -488,7 +501,7 @@ final class DefaultPlotter implements Plotter {
             labels.add(prepareAxisLabels(AxisLabels.z(fontAtlas, dimensions, true), axisLabelsColor));
         }
         for (DoubleBufferMesh<AxisLabels> label : labels) {
-            add(label);
+            addAfter(label);
         }
         //add(new Square(dimensions, new PointF(1, 1)));
         //add(new Circle(dimensions, new PointF(0, 0), 1));
