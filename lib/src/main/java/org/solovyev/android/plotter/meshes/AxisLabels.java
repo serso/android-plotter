@@ -33,7 +33,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     private final DecimalFormat defaultFormat = new DecimalFormat("##0.##E0");
     private final boolean d3;
     @NonNull
-    private volatile Dimensions dimensions;
+    private final MeshDimensions dimensions;
     private TextMesh meshes;
 
     {
@@ -47,7 +47,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     private AxisLabels(@NonNull AxisDirection direction, @NonNull FontAtlas fontAtlas, @NonNull Dimensions dimensions, boolean d3) {
         this.direction = direction;
         this.fontAtlas = fontAtlas;
-        this.dimensions = dimensions;
+        this.dimensions = new MeshDimensions(dimensions);
         this.d3 = d3;
     }
 
@@ -75,7 +75,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     protected void onInit() {
         super.onInit();
 
-        if (dimensions.scene.isEmpty()) {
+        if (dimensions.get().scene.isEmpty()) {
             setDirty();
         }
     }
@@ -88,7 +88,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             return;
         }
 
-        final Dimensions dimensions = this.dimensions;
+        final Dimensions dimensions = this.dimensions.get();
 
         final float halfSceneWidth = dimensions.scene.size.width / 2;
         final float halfSceneHeight = dimensions.scene.size.height / 2;
@@ -147,7 +147,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
             y += dv[1] * ticks.step;
             z += dv[2] * ticks.step;
 
-            final String label = getLabel(x, y, z, format);
+            final String label = getLabel(x, y, z, format, dimensions);
             final TextMesh mesh = fontAtlas.getMesh(label, x, y, z, fontScale, !isY, isY);
             final RectF bounds = mesh.getBounds();
             mesh.translate(0, getVerticalFontOffset(bounds));
@@ -200,7 +200,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     }
 
     @NonNull
-    private String getLabel(float x, float y, float z, @NonNull DecimalFormat format) {
+    private String getLabel(float x, float y, float z, @NonNull DecimalFormat format, @NonNull Dimensions dimensions) {
         final float value;
         switch (direction) {
             case X:
@@ -230,20 +230,18 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     @NonNull
     @Override
     protected BaseMesh makeCopy() {
-        return new AxisLabels(direction, fontAtlas, dimensions, d3);
+        return new AxisLabels(direction, fontAtlas, dimensions.get(), d3);
     }
 
     @NonNull
     @Override
     public Dimensions getDimensions() {
-        return this.dimensions;
+        return this.dimensions.get();
     }
 
     @Override
     public void setDimensions(@NonNull Dimensions dimensions) {
-        // todo serso: might be called on GL thread, requires synchronization
-        if (!this.dimensions.equals(dimensions)) {
-            this.dimensions = dimensions;
+        if (this.dimensions.set(dimensions)) {
             this.camera.set(Plot.ZERO);
             setDirty();
         }
