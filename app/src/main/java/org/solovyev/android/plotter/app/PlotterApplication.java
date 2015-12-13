@@ -196,7 +196,7 @@ public class PlotterApplication extends Application {
                 });
                 try {
                     // we must wait while PlotView is initialized as we don't know yet screen
-                    // dimensions and applying graph bounds now will cause wonrg position of the
+                    // dimensions and applying graph bounds now will cause wrong position of the
                     // camera (as scene width/height will be changed)
                     latch.await(2000L, TimeUnit.MILLISECONDS);
                 } catch (InterruptedException e) {
