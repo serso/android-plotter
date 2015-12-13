@@ -172,9 +172,9 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
             }
         }
         if (id == R.id.plot_zoom_in_button) {
-            plotView.zoom(true);
+            tryZoom(true);
         } else if (id == R.id.plot_zoom_out_button) {
-            plotView.zoom(false);
+            tryZoom(false);
         } else if (id == R.id.plot_zoom_reset_button) {
             plotView.resetCamera();
             plotView.resetZoom();
@@ -184,6 +184,16 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
             }
             plotter.set3d(!plotter.is3d());
         }
+    }
+
+    private void tryZoom(boolean in) {
+        if (!plotView.canZoom(in)) {
+            if (listener != null) {
+                listener.unableToZoom(in);
+            }
+            return;
+        }
+        plotView.zoom(in);
     }
 
     public void onPause() {
@@ -200,5 +210,6 @@ public class PlotViewFrame extends FrameLayout implements PlotView.Listener, Vie
 
     public interface Listener {
         boolean onButtonPressed(@IdRes int id);
+        void unableToZoom(boolean in);
     }
 }

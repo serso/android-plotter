@@ -59,13 +59,17 @@ final class Zoomer {
         return false;
     }
 
-    public boolean zoom(boolean in) {
+    public boolean canZoom(boolean in, @NonNull Dimensions dimensions) {
+        return in ? Zoom.canZoomIn(dimensions) : Zoom.canZoomOut(dimensions);
+    }
+
+    public boolean zoom(boolean in, @NonNull Dimensions dimensions) {
         if ((isZoomingIn() && in) || (isZoomingOut() && !in)) {
             return false;
         }
 
         if (in) {
-            if (!current.canZoomIn()) {
+            if (!Zoom.canZoomIn(dimensions)) {
                 return false;
             }
             if (from == null) {
@@ -74,7 +78,7 @@ final class Zoomer {
                 reverseZoom();
             }
         } else {
-            if (!current.canZoomOut()) {
+            if (!Zoom.canZoomOut(dimensions)) {
                 return false;
             }
             if (from == null) {
@@ -87,11 +91,14 @@ final class Zoomer {
         return true;
     }
 
-    public boolean zoomBy(float level) {
+    public boolean zoomBy(float level, @NonNull Dimensions dimensions) {
         if (isZooming()) {
             return false;
         }
         if (level == 1f) {
+            return false;
+        }
+        if (!Zoom.canZoom(level, dimensions.graph.size.min())) {
             return false;
         }
         zoomTo(current.multiplyBy(level));
@@ -99,11 +106,17 @@ final class Zoomer {
         return true;
     }
 
-    public boolean zoomBy(float x, float y) {
+    public boolean zoomBy(float x, float y, @NonNull Dimensions dimensions) {
         if (isZooming()) {
             return false;
         }
         if (x == 1f && y == 1f) {
+            return false;
+        }
+        if (!Zoom.canZoom(x, dimensions.graph.width())) {
+            return false;
+        }
+        if (!Zoom.canZoom(y, dimensions.graph.height())) {
             return false;
         }
         zoomTo(current.multiplyBy(x, y));

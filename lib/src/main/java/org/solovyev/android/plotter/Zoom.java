@@ -5,9 +5,11 @@ import android.support.annotation.NonNull;
 
 public final class Zoom {
 
-    private static final float ZOOM_IN = .625f;
-    private static final float ZOOM_OUT = 1.6f;
-    private static final Zoom ZERO = new Zoom(0, 0, 0);
+    public static final float ZOOM_LEVEL_MIN = (float) Math.pow(0.1, 4);
+    public static final float ZOOM_LEVEL_MAX = (float) Float.MAX_VALUE;
+    private static final float ZOOM_SPEED = 1f;
+    private static final float ZOOM_IN = .625f / ZOOM_SPEED;
+    private static final float ZOOM_OUT = 1.6f * ZOOM_SPEED;
     private static final Zoom ONE = new Zoom(1f, 1f, 1f);
 
     final float level;
@@ -23,11 +25,6 @@ public final class Zoom {
     @NonNull
     public static Zoom one() {
         return ONE;
-    }
-
-    @NonNull
-    public static Zoom zero() {
-        return ZERO;
     }
 
     @NonNull
@@ -56,7 +53,6 @@ public final class Zoom {
         return new Zoom(level, x, y);
     }
 
-
     public void save(@NonNull Bundle bundle) {
         bundle.putFloat("zoom.level", level);
         bundle.putFloat("zoom.x", x);
@@ -73,17 +69,22 @@ public final class Zoom {
         return new Zoom(level, x * this.x, y * this.y);
     }
 
-    @NonNull
-    public Zoom divideBy(@NonNull Zoom that) {
-        return new Zoom(level / that.level, x / that.x, y / that.y);
+    static boolean canZoom(float zoomChange, float graphSize) {
+        if (zoomChange == 1f) {
+            return true;
+        }
+        if (zoomChange > 1f) {
+            return graphSize <= ZOOM_LEVEL_MAX / zoomChange;
+        }
+        return graphSize * zoomChange >= ZOOM_LEVEL_MIN;
     }
 
-    boolean canZoomIn() {
-        return ZOOM_IN * level != 0f;
+    static boolean canZoomIn(@NonNull Dimensions dimensions) {
+        return canZoom(ZOOM_IN, dimensions.graph.size.min());
     }
 
-    boolean isZero() {
-        return level == 0f || x == 0f || y == 0f;
+    static boolean canZoomOut(@NonNull Dimensions dimensions) {
+        return canZoom(ZOOM_OUT, dimensions.graph.size.min());
     }
 
     boolean isOne() {
@@ -93,10 +94,6 @@ public final class Zoom {
     @NonNull
     public Zoom zoomIn() {
         return multiplyBy(ZOOM_IN);
-    }
-
-    public boolean canZoomOut() {
-        return level < Float.MAX_VALUE / ZOOM_OUT;
     }
 
     @NonNull

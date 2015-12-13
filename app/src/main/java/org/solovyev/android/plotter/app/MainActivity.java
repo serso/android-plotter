@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -85,6 +86,11 @@ public class MainActivity extends FragmentActivity implements PlotViewFrame.List
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void unableToZoom(boolean in) {
+        Toast.makeText(this, "Can't zoom anymore", Toast.LENGTH_SHORT).show();
     }
 
     public class EventHandler {

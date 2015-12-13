@@ -29,6 +29,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
     private boolean attached;
     private boolean d3 = Plotter.D3;
     private boolean d3Initialized;
+
     public PlotView(Context context) {
         super(context);
         init();
@@ -69,19 +70,27 @@ public class PlotView extends GLSurfaceView implements PlottingView {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         if (plotter != null) {
-            plotter.attachView(this);
+            attachToPlotter(plotter);
         }
         attached = true;
+    }
+
+    private void attachToPlotter(@NonNull Plotter plotter) {
+        plotter.attachView(this);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         attached = false;
         if (plotter != null) {
-            plotter.detachView(this);
+            detachFromPlotter(plotter);
         }
         d3Initialized = false;
         super.onDetachedFromWindow();
+    }
+
+    private void detachFromPlotter(@NonNull Plotter plotter) {
+        plotter.detachView(this);
     }
 
     public void setPlotter(@NonNull Plotter plotter) {
@@ -90,7 +99,7 @@ public class PlotView extends GLSurfaceView implements PlottingView {
         this.plotter = plotter;
         this.renderer.setPlotter(plotter);
         if (attached) {
-            plotter.attachView(this);
+            attachToPlotter(plotter);
         }
     }
 
@@ -119,6 +128,10 @@ public class PlotView extends GLSurfaceView implements PlottingView {
     @Override
     public void zoom(boolean in) {
         renderer.zoom(in);
+    }
+
+    public boolean canZoom(boolean in) {
+        return renderer.canZoom(in);
     }
 
     @Override

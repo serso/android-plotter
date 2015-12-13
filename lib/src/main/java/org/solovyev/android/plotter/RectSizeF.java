@@ -78,4 +78,8 @@ public final class RectSizeF {
     public String stringSize() {
         return "[w=" + width + ", h=" + height + "]";
     }
+
+    public float min() {
+        return Math.min(width, height);
+    }
 }

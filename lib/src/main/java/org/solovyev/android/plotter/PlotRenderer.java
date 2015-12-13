@@ -267,6 +267,10 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         view.requestRender();
     }
 
+    public boolean canZoom(boolean in) {
+        return zoomer.canZoom(in);
+    }
+
     public void zoom(boolean in) {
         zoomer.zoom(in);
     }
@@ -602,8 +606,13 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         }
 
         void zoom(boolean in) {
+            final Plotter plotter = getPlotter();
+            if (plotter == null) {
+                return;
+            }
+
             synchronized (this) {
-                if (zoomer.zoom(in)) {
+                if (zoomer.zoom(in, plotter.getDimensions())) {
                     view.requestRender();
                     fader.fadeOut();
                 }
@@ -612,6 +621,17 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
                 } else {
                     Log.d(TAG, "Zooming out: " + zoomer);
                 }
+            }
+        }
+
+        public boolean canZoom(boolean in) {
+            final Plotter plotter = getPlotter();
+            if (plotter == null) {
+                return true;
+            }
+
+            synchronized (this) {
+                return zoomer.canZoom(in, plotter.getDimensions());
             }
         }
 
@@ -637,7 +657,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             synchronized (this) {
                 final float level = levels.getLevel();
                 //final boolean zooming = plotter.is3d() ? zoomer.zoomBy(level) : zoomer.zoomBy(levels.x, levels.y);
-                final boolean zooming = zoomer.zoomBy(level);
+                final boolean zooming = zoomer.zoomBy(level, plotter.getDimensions());
                 if (zooming) {
                     view.requestRender();
                 }
