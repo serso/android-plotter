@@ -37,10 +37,10 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
     private TextMesh meshes;
 
     {
-        labelFormats.add(new FormatInterval(Math.pow(10, -5), Math.pow(10, -4), new DecimalFormat("##0.####")));
-        labelFormats.add(new FormatInterval(Math.pow(10, -4), Math.pow(10, -3), new DecimalFormat("##0.###")));
-        labelFormats.add(new FormatInterval(Math.pow(10, -3), Math.pow(10, -2), new DecimalFormat("##0.##")));
-        labelFormats.add(new FormatInterval(Math.pow(10, -2), Math.pow(10, 2), new DecimalFormat("##0.#")));
+        labelFormats.add(new FormatInterval(Math.pow(10, -5), Math.pow(10, -3), new DecimalFormat("##0.####")));
+        labelFormats.add(new FormatInterval(Math.pow(10, -3), Math.pow(10, -2), new DecimalFormat("##0.###")));
+        labelFormats.add(new FormatInterval(Math.pow(10, -2), Math.pow(10, -1), new DecimalFormat("##0.##")));
+        labelFormats.add(new FormatInterval(Math.pow(10, -1), Math.pow(10, 2), new DecimalFormat("##0.#")));
         labelFormats.add(new FormatInterval(Math.pow(10, 2), Math.pow(10, 4), new DecimalFormat("##0")));
     }
 
@@ -139,7 +139,7 @@ public class AxisLabels extends BaseMesh implements DimensionsAware {
         }
         meshes.reset();
         float z = -dv[2] * (ticks.axisLength / 2 + ticks.step) + da[2] * ticks.width / 2;
-        final DecimalFormat format = getFormatter(ticks.step);
+        final DecimalFormat format = getFormatter(dimensions.graph.scaleToGraphX(ticks.step));
         TextMesh previous = null;
         boolean previousShifted = false;
         for (int tick = 0; tick < ticks.count; tick++) {
