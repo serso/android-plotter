@@ -49,7 +49,7 @@ public interface Plotter {
     @NonNull
     Dimensions.Scene getSceneDimensions();
 
-    void updateScene(@Nullable Object source, @NonNull Zoom zoom, @NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter);
+    void updateScene(@Nullable Object source, @NonNull RectSize viewSize, @NonNull RectSizeF sceneSize, @NonNull PointF sceneCenter);
 
     void updateGraph(@Nullable Object source, @NonNull RectSizeF graphSize, @NonNull PointF graphCenter);
 

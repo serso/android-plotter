@@ -343,9 +343,10 @@ public final class Dimensions {
         @Override
         public String toString() {
             return "Graph{" +
-                    "size=" + size +
-                    ", original=" + original +
+                    "size=" + size.stringSize() +
+                    ", original=" + original.stringSize() +
                     ", center=" + center +
+                    ", scale=" + scale +
                     '}';
         }
 

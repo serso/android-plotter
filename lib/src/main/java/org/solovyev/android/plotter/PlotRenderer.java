@@ -88,12 +88,11 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
     }
 
     public void setPlotter(@NonNull Plotter plotter) {
-        final Zoom zoom = zoomer.current();
         synchronized (lock) {
             Check.isNull(this.plotter);
             this.plotter = plotter;
             if (!viewSize.isEmpty()) {
-                this.plotter.updateScene(SOURCE, zoom, viewSize, getSceneSize(), getSceneCenter());
+                this.plotter.updateScene(SOURCE, viewSize, getSceneSize(), getSceneCenter());
             }
         }
     }
@@ -212,14 +211,12 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         viewSize.set(width, height);
         gl.glViewport(0, 0, width, height);
         zoomer.onSurfaceChanged(gl);
-        final Zoom zoom = zoomer.current();
-
         view.post(new Runnable() {
             @Override
             public void run() {
                 final Plotter plotter = getPlotter();
                 if (plotter != null) {
-                    plotter.updateScene(SOURCE, zoom, viewSize, getSceneSize(), getSceneCenter());
+                    plotter.updateScene(SOURCE, viewSize, getSceneSize(), getSceneCenter());
                 }
                 view.onSizeChanged(viewSize);
             }
@@ -304,8 +301,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
 
         final Plotter plotter = getPlotter();
         if (plotter != null) {
-            final Zoom zoom = zoomer.current();
-            plotter.updateScene(SOURCE, zoom, viewSize, getSceneSize(), getSceneCenter());
+            plotter.updateScene(SOURCE, viewSize, getSceneSize(), getSceneCenter());
         }
         fader.fadeIn();
         view.requestRender();
@@ -493,7 +489,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
                 } else if (moving) {
                     camera.set(cameraMan.getPosition());
                     moving = false;
-                    plotter.updateScene(SOURCE, zoomer.current(), viewSize, getSceneSize(), getSceneCenter(camera));
+                    plotter.updateScene(SOURCE, viewSize, getSceneSize(), getSceneCenter(camera));
                     fader.fadeIn();
                 }
                 out.set(camera);
@@ -565,7 +561,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
                     // if we were running and now we are stopped it's time to update the dimensions
                     if (!zoomer.isZooming()) {
                         if (!pinchZoom) {
-                            plotter.updateScene(SOURCE, zoomer.current(), viewSize, getSceneSize(), getSceneCenter());
+                            plotter.updateScene(SOURCE, viewSize, getSceneSize(), getSceneCenter());
                             fader.fadeIn();
                         }
                         startRotating();
@@ -592,17 +588,15 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
         }
 
         void restoreState(@NonNull Bundle bundle) {
-            final Zoom zoomLevel;
             synchronized (this) {
                 zoomer = new Zoomer(bundle);
                 Log.d(TAG, "Restoring state: " + zoomer);
-                zoomLevel = zoomer.current();
             }
 
             if (!viewSize.isEmpty()) {
                 final Plotter plotter = getPlotter();
                 if (plotter != null) {
-                    plotter.updateScene(SOURCE, zoomLevel, viewSize, getSceneSize(), getSceneCenter());
+                    plotter.updateScene(SOURCE, viewSize, getSceneSize(), getSceneCenter());
                 }
             }
         }
@@ -665,7 +659,7 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
                     } else {
                         fader.fadeIn();
                         if (plotter != null) {
-                            plotter.updateScene(SOURCE, zoomer.current(), viewSize, getSceneSize(), getSceneCenter());
+                            plotter.updateScene(SOURCE, viewSize, getSceneSize(), getSceneCenter());
                         }
                         Log.d(TAG, "Ending pinch zoom");
                     }
@@ -673,13 +667,5 @@ final class PlotRenderer implements GLSurfaceView.Renderer {
             }
         }
 
-        @NonNull
-        private Zoom current() {
-            final Zoom zoom;
-            synchronized (this) {
-                zoom = zoomer.current();
-            }
-            return zoom;
-        }
     }
 }
