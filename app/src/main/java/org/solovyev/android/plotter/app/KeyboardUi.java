@@ -40,6 +40,7 @@ public class KeyboardUi {
     private final int textColorSecondary;
     private final int sidePadding;
 
+    @SuppressWarnings("deprecation")
     public KeyboardUi(@NonNull User user) {
         this.user = user;
         this.dragListener = new SimpleDragListener(buttonHandler, user.getContext());
