@@ -25,7 +25,7 @@ public class FunctionGraph3d extends BaseSurface implements FunctionGraph {
     @NonNull
     @Override
     protected SurfaceInitializer createInitializer() {
-        final int size = pointsCount == MeshSpec.DEFAULT_POINTS_COUNT ? 20 : pointsCount * Scene.getMultiplier(true);
+        final int size = pointsCount == MeshSpec.DEFAULT_POINTS_COUNT ? 80 : pointsCount * Scene.getMultiplier(true);
         return new SurfaceInitializer.GraphSurfaceInitializer(this, dimensions.graph, size);
     }
 
