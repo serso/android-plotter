@@ -20,7 +20,7 @@
         a:id="@id/plot_3d_button"
         style="@style/PlotButton"
         a:layout_gravity="top|end"
-        a:text="3D" />
+        a:text="@string/plot_3d" />
 
     <LinearLayout
         a:layout_width="wrap_content"
@@ -31,7 +31,7 @@
         <org.solovyev.android.material.MaterialButton
             a:id="@+id/plot_add_function"
             style="@style/PlotButton"
-            a:text="+" />
+            a:text="@string/plot_add_function" />
 
         <org.solovyev.android.material.MaterialImageButton
             a:id="@+id/plot_functions"
@@ -48,17 +48,17 @@
         <org.solovyev.android.material.MaterialButton
             a:id="@id/plot_zoom_in_button"
             style="@style/PlotButton"
-            a:text="+" />
+            a:text="@string/plot_zoom_in" />
 
         <org.solovyev.android.material.MaterialButton
             a:id="@id/plot_zoom_reset_button"
             style="@style/PlotButton"
-            a:text="0" />
+            a:text="@string/plot_zoom_reset" />
 
         <org.solovyev.android.material.MaterialButton
             a:id="@id/plot_zoom_out_button"
             style="@style/PlotButton"
-            a:text="−" />
+            a:text="@string/plot_zoom_out" />
     </LinearLayout>
 
 </org.solovyev.android.plotter.PlotViewFrame>

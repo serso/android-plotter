@@ -17,7 +17,7 @@
             <EditText
                 android:id="@+id/x_min_edittext"
                 style="@style/DimensionEditText"
-                android:hint="X min"
+                android:hint="@string/dimensions_x_min"
                 android:nextFocusRight="@+id/x_max_edittext" />
         </android.support.design.widget.TextInputLayout>
 
@@ -30,7 +30,7 @@
             <EditText
                 android:id="@+id/x_max_edittext"
                 style="@style/DimensionEditText"
-                android:hint="X max"
+                android:hint="@string/dimensions_x_max"
                 android:nextFocusDown="@+id/y_min_edittext"
                 android:nextFocusRight="@+id/y_min_edittext" />
         </android.support.design.widget.TextInputLayout>
@@ -48,7 +48,7 @@
             <EditText
                 android:id="@+id/y_min_edittext"
                 style="@style/DimensionEditText"
-                android:hint="Y min"
+                android:hint="@string/dimensions_y_min"
                 android:nextFocusRight="@+id/y_max_edittext" />
         </android.support.design.widget.TextInputLayout>
 
@@ -61,7 +61,7 @@
             <EditText
                 android:id="@+id/y_max_edittext"
                 style="@style/DimensionEditText.Last"
-                android:hint="Y max" />
+                android:hint="@string/dimensions_y_max" />
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 

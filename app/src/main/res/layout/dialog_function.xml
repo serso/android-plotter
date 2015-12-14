@@ -18,7 +18,7 @@
                 android:id="@+id/fn_name_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Name"
+                android:hint="@string/fn_name"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text"
                 android:lines="1"
@@ -37,7 +37,7 @@
                 android:id="@+id/fn_body_edittext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Body"
+                android:hint="@string/fn_body"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="textMultiLine|textNoSuggestions"
                 android:typeface="monospace" />
@@ -69,7 +69,7 @@
                     style="@style/TextAppearance.AppCompat.Caption"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Line width" />
+                    android:text="@string/fn_line_width" />
 
                 <SeekBar
                     android:id="@+id/fn_linewidth_seekbar"
@@ -81,7 +81,7 @@
                     style="@style/TextAppearance.AppCompat.Caption"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Line color" />
+                    android:text="@string/fn_line_color" />
 
                 <uz.shift.colorpicker.LineColorPicker
                     android:id="@+id/fn_color_picker"

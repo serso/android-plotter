@@ -2,4 +2,17 @@
 <resources>
     <string name="app_name">Plotter Lib</string>
     <string name="fn_delete">Delete</string>
+    <string name="dimensions_x_min" translatable="false">X min</string>
+    <string name="dimensions_x_max" translatable="false">X max</string>
+    <string name="dimensions_y_min" translatable="false">Y min</string>
+    <string name="dimensions_y_max" translatable="false">Y max</string>
+    <string name="fn_name">Name</string>
+    <string name="fn_line_width">Line width</string>
+    <string name="fn_line_color">Line color</string>
+    <string name="plot_3d" translatable="false">3D</string>
+    <string name="plot_add_function" translatable="false">+</string>
+    <string name="plot_zoom_in" translatable="false">+</string>
+    <string name="plot_zoom_reset" translatable="false">0</string>
+    <string name="plot_zoom_out" translatable="false">−</string>
+    <string name="fn_body" translatable="false">f(x, y)</string>
 </resources>
