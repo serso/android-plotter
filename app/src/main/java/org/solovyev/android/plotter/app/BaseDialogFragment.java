@@ -25,6 +25,7 @@ public abstract class BaseDialogFragment extends DialogFragment {
     }
 
     protected abstract void onPrepareDialog(@NonNull AlertDialog.Builder builder);
+
     @NonNull
     protected abstract View onCreateDialogView(@NonNull Context context, @NonNull LayoutInflater inflater, @Nullable Bundle savedInstanceState);
 }

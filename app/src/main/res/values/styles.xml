@@ -15,6 +15,7 @@
     <style name="DimensionEditText.Last" parent="DimensionEditText">
         <item name="android:imeOptions">actionDone|flagNoExtractUi</item>
     </style>
+
     <style name="DimensionEditText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -23,10 +24,12 @@
         <item name="android:selectAllOnFocus">true</item>
         <item name="android:gravity">start|center_vertical</item>
     </style>
+
     <style name="DimensionTextInput">
         <item name="android:layout_width">100dp</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
+
     <style name="DimensionLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

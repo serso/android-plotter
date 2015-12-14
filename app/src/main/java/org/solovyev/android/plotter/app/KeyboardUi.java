@@ -174,6 +174,7 @@ public class KeyboardUi {
         void insertOperator(@NonNull String operator);
 
         void showFunctions(@NonNull View v);
+
         void showConstants(@NonNull View v);
 
         void insertText(@NonNull CharSequence text, int offset);

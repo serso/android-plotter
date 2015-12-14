@@ -27,6 +27,15 @@ public class EditFunctionDialog extends FunctionDialog {
         return fragment;
     }
 
+    private static int indexOf(int[] itegers, int integer) {
+        for (int i = 0; i < itegers.length; i++) {
+            if (itegers[i] == integer) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,15 +68,6 @@ public class EditFunctionDialog extends FunctionDialog {
             iconView.setMeshSpec(plotFunction.meshSpec);
         }
         return view;
-    }
-
-    private static int indexOf(int[] itegers, int integer) {
-        for (int i = 0; i < itegers.length; i++) {
-            if(itegers[i] == integer) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     @NonNull

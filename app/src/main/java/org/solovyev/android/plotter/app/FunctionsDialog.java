@@ -39,9 +39,9 @@ public class FunctionsDialog extends BaseDialogFragment {
 
     @NonNull
     private final Plotter plotter = App.getPlotter();
-    private Adapter adapter;
     @NonNull
     private final PlotterListener plotterListener = new PlotterListener();
+    private Adapter adapter;
 
     public FunctionsDialog() {
     }
@@ -187,23 +187,6 @@ public class FunctionsDialog extends BaseDialogFragment {
         }
     }
 
-    private class PlotterListener extends BasePlotterListener {
-        @Override
-        public void onFunctionAdded(@NonNull PlotFunction function) {
-            adapter.add(function);
-        }
-
-        @Override
-        public void onFunctionUpdated(int id, @NonNull PlotFunction function) {
-            adapter.update(id, function);
-        }
-
-        @Override
-        public void onFunctionRemoved(@NonNull PlotFunction function) {
-            adapter.remove(function);
-        }
-    }
-
     private static class Adapter extends RecyclerView.Adapter {
         @NonNull
         private final List<PlotFunction> list;
@@ -256,6 +239,23 @@ public class FunctionsDialog extends BaseDialogFragment {
         public void add(@NonNull PlotFunction function) {
             list.add(function);
             notifyItemInserted(list.size() - 1);
+        }
+    }
+
+    private class PlotterListener extends BasePlotterListener {
+        @Override
+        public void onFunctionAdded(@NonNull PlotFunction function) {
+            adapter.add(function);
+        }
+
+        @Override
+        public void onFunctionUpdated(int id, @NonNull PlotFunction function) {
+            adapter.update(id, function);
+        }
+
+        @Override
+        public void onFunctionRemoved(@NonNull PlotFunction function) {
+            adapter.remove(function);
         }
     }
 }

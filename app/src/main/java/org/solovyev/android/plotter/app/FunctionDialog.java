@@ -277,6 +277,7 @@ public abstract class FunctionDialog extends BaseDialogFragment implements View.
             showKeyboard();
         }
     }
+
     public void moveDialog(int gravity) {
         final Window window = getDialog().getWindow();
         final WindowManager.LayoutParams lp = window.getAttributes();

@@ -24,8 +24,8 @@
         <android.support.design.widget.TextInputLayout
             android:id="@+id/x_max_textinput"
             style="@style/DimensionTextInput"
-            android:layout_marginStart="@dimen/form_input_margin_hor"
-            android:layout_marginLeft="@dimen/form_input_margin_hor">
+            android:layout_marginLeft="@dimen/form_input_margin_hor"
+            android:layout_marginStart="@dimen/form_input_margin_hor">
 
             <EditText
                 android:id="@+id/x_max_edittext"
@@ -55,8 +55,8 @@
         <android.support.design.widget.TextInputLayout
             android:id="@+id/y_max_textinput"
             style="@style/DimensionTextInput"
-            android:layout_marginStart="@dimen/form_input_margin_hor"
-            android:layout_marginLeft="@dimen/form_input_margin_hor">
+            android:layout_marginLeft="@dimen/form_input_margin_hor"
+            android:layout_marginStart="@dimen/form_input_margin_hor">
 
             <EditText
                 android:id="@+id/y_max_edittext"

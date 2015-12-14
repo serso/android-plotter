@@ -6,13 +6,11 @@ import android.support.annotation.Nullable;
 class IntervalLimit<T extends Comparable<T>> {
 
     public static final Integer BOTH_NULLS_CONST = 0;
-    @Nullable
-    private T value;
-
-    private boolean closed;
-
     @NonNull
     private final Type type;
+    @Nullable
+    private T value;
+    private boolean closed;
 
     private IntervalLimit(@NonNull Type type) {
         this.type = type;
