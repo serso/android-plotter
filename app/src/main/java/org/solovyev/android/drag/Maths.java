@@ -67,7 +67,6 @@ public class Maths {
      * @return 'true' if values are equal with specified precision
      */
     public static boolean equals(double d1, double d2, int precision) {
-        assert precision >= 1;
         return Math.abs(d1 - d2) < getMaxPreciseAmount(precision);
     }
 
