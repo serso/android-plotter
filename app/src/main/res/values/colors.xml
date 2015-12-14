@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#ff000000</color>
     <color name="plot_button_text">#ffffffff</color>
     <color name="kb_button_text">#d4d4d4</color>
     <color name="kb_button_text_secondary">#93999c</color>

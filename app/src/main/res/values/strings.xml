@@ -2,5 +2,4 @@
 <resources>
     <string name="app_name">Plotter Lib</string>
     <string name="fn_delete">Delete</string>
-    <string name="fn_advanced">Advanced</string>
 </resources>

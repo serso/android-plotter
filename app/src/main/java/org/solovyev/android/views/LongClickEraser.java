@@ -1,5 +1,6 @@
 package org.solovyev.android.views;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
@@ -53,6 +54,7 @@ public final class LongClickEraser implements View.OnTouchListener, View.OnClick
         return selection < 0 ? 0 : selection;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         switch (event.getAction()) {
