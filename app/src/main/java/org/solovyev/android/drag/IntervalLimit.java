@@ -12,18 +12,18 @@ class IntervalLimit<T extends Comparable<T>> {
     private boolean closed;
 
     @NonNull
-    private Type type;
+    private final Type type;
 
-    private IntervalLimit() {
+    private IntervalLimit(@NonNull Type type) {
+        this.type = type;
     }
 
     @NonNull
     public static <T extends Comparable<T>> IntervalLimit<T> create(@NonNull T value, boolean closed) {
-        final IntervalLimit<T> result = new IntervalLimit<T>();
+        final IntervalLimit<T> result = new IntervalLimit<>(Type.between);
 
         result.value = value;
         result.closed = closed;
-        result.type = Type.between;
 
         return result;
     }
@@ -40,10 +40,9 @@ class IntervalLimit<T extends Comparable<T>> {
 
     @NonNull
     private static <T extends Comparable<T>> IntervalLimit<T> create(@NonNull Type type) {
-        final IntervalLimit<T> result = new IntervalLimit<T>();
+        final IntervalLimit<T> result = new IntervalLimit<>(type);
 
         result.value = null;
-        result.type = type;
         result.closed = false;
 
         return result;
@@ -102,27 +101,6 @@ class IntervalLimit<T extends Comparable<T>> {
         return this.type == Type.highest;
     }
 
-    public boolean isLowerThan(@NonNull T that) {
-        if (this.isLowest()) {
-            return true;
-        } else if (this.isHighest()) {
-            return false;
-        } else {
-            assert this.value != null;
-            return this.value.compareTo(that) < 0;
-        }
-    }
-
-    public boolean isLowerThan(@NonNull IntervalLimit<T> that) {
-        if (this.isLowest()) {
-            return !that.isLowest();
-        } else if (this.isHighest()) {
-            return false;
-        } else {
-            return this.compareTo(that) < 0;
-        }
-    }
-
     public boolean isLowerOrEqualsThan(@NonNull T that) {
         if (this.isLowest()) {
             return true;
@@ -153,27 +131,6 @@ class IntervalLimit<T extends Comparable<T>> {
         }
     }
 
-    public boolean isHigherThan(@NonNull T that) {
-        if (this.isHighest()) {
-            return true;
-        } else if (this.isLowest()) {
-            return false;
-        } else {
-            assert this.value != null;
-            return this.value.compareTo(that) > 0;
-        }
-    }
-
-    public boolean isHigherThan(@NonNull IntervalLimit<T> that) {
-        if (this.isHighest()) {
-            return !that.isHighest();
-        } else if (this.isLowest()) {
-            return false;
-        } else {
-            return this.compareTo(that) > 0;
-        }
-    }
-
     public boolean isHigherOrEqualsThan(@NonNull T that) {
         if (this.isHighest()) {
             return true;
@@ -182,10 +139,8 @@ class IntervalLimit<T extends Comparable<T>> {
         } else {
             assert this.value != null;
             if (this.isClosed()) {
-                assert this.value != null;
                 return this.value.compareTo(that) >= 0;
             } else {
-                assert this.value != null;
                 return this.value.compareTo(that) > 0;
             }
         }
@@ -270,7 +225,7 @@ class IntervalLimit<T extends Comparable<T>> {
         }
     }
 
-    public static enum Type {
+    public enum Type {
         lowest,
         between,
         highest
