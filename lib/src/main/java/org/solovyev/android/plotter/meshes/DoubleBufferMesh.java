@@ -7,8 +7,8 @@ import android.util.Log;
 import org.solovyev.android.plotter.Color;
 import org.solovyev.android.plotter.MeshConfig;
 
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
+import javaz.annotation.concurrent.GuardedBy;
+import javaz.annotation.concurrent.ThreadSafe;
 import javax.microedition.khronos.opengles.GL11;
 
 @ThreadSafe

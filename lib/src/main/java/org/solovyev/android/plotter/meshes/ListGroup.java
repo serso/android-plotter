@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import javax.annotation.concurrent.ThreadSafe;
+import javaz.annotation.concurrent.ThreadSafe;
 import javax.microedition.khronos.opengles.GL11;
 
 @ThreadSafe

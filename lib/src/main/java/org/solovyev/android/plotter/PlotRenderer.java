@@ -24,10 +24,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import javax.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
+
+import javaz.annotation.concurrent.GuardedBy;
 
 @SuppressWarnings("SynchronizeOnNonFinalField")
 final class PlotRenderer implements GLSurfaceView.Renderer {

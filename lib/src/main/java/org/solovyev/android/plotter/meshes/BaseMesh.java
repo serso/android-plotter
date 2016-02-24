@@ -16,7 +16,7 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-import javax.annotation.concurrent.GuardedBy;
+import javaz.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 

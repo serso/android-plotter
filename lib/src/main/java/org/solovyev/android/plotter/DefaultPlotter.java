@@ -35,7 +35,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.concurrent.GuardedBy;
+import javaz.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL11;
 
 final class DefaultPlotter implements Plotter {

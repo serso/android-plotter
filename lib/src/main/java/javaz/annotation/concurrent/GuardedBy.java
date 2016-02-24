@@ -1,4 +1,4 @@
-package javax.annotation.concurrent;
+package javaz.annotation.concurrent;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
