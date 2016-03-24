@@ -35,6 +35,8 @@ public interface Plotter {
     @NonNull
     PlotData getPlotData();
 
+    void setAxisStyle(@NonNull AxisStyle style);
+
     void attachView(@NonNull PlottingView view);
 
     void detachView(@NonNull PlottingView view);

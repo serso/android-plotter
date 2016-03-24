@@ -35,8 +35,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javaz.annotation.concurrent.GuardedBy;
 import javax.microedition.khronos.opengles.GL11;
+
+import javaz.annotation.concurrent.GuardedBy;
 
 final class DefaultPlotter implements Plotter {
 
@@ -308,6 +309,12 @@ final class DefaultPlotter implements Plotter {
     public PlotData getPlotData() {
         Check.isMainThread();
         return plotData.copy();
+    }
+
+    @Override
+    public void setAxisStyle(@NonNull AxisStyle style) {
+        Check.isMainThread();
+        plotData.axisStyle.set(style);
     }
 
     @Override

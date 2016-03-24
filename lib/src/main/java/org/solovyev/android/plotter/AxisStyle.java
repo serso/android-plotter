@@ -42,10 +42,14 @@ public final class AxisStyle {
     @NonNull
     public AxisStyle copy() {
         final AxisStyle copy = new AxisStyle();
-        copy.axisColor = axisColor;
-        copy.axisLabelsColor = axisLabelsColor;
-        copy.gridColor = gridColor;
-        copy.backgroundColor = backgroundColor;
+        copy.set(this);
         return copy;
+    }
+
+    public void set(@NonNull AxisStyle that) {
+        this.axisColor = that.axisColor;
+        this.axisLabelsColor = that.axisLabelsColor;
+        this.gridColor = that.gridColor;
+        this.backgroundColor = that.backgroundColor;
     }
 }
