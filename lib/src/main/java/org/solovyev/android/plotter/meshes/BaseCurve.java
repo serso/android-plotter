@@ -85,16 +85,13 @@ public abstract class BaseCurve extends BaseMesh implements DimensionsAware {
         final float newXMin = dimensions.graph.xMin() - add;
         final float newXMax = dimensions.graph.xMax() + add;
         final int maxPoints;
-        final int points;
         if (pointsCount == MeshSpec.DEFAULT_POINTS_COUNT) {
             maxPoints = 4 * dimensions.scene.view.width;
-            points = maxPoints / 2;
         } else {
             final int multiplier = Scene.getMultiplier(false);
-            points = pointsCount * multiplier;
-            maxPoints = points;
-            graph.clear();
+            maxPoints = pointsCount * multiplier;
         }
+        final int points = maxPoints / 2;
         final float step = Math.abs(newXMax - newXMin) / points;
 
         if (graph.step < 0 || graph.step > step || graph.center.x != dimensions.graph.center.x || graph.center.y != dimensions.graph.center.y) {

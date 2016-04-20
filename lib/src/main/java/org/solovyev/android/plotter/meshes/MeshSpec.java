@@ -19,6 +19,7 @@ public class MeshSpec {
     public static final Color COLOR_DEFAULT = Color.WHITE;
     private static final String JSON_COLOR = "c";
     private static final String JSON_WIDTH = "w";
+    private static final String JSON_POINTS_COUNT = "pc";
     @NonNull
     public Color color;
     public int width;
@@ -27,21 +28,28 @@ public class MeshSpec {
     private MeshSpec(@NonNull JSONObject json) {
         this.color = Color.create(json.optInt(JSON_COLOR, Color.WHITE.toInt()));
         this.width = json.optInt(JSON_WIDTH, MIN_WIDTH);
+        this.pointsCount = json.optInt(JSON_POINTS_COUNT, DEFAULT_POINTS_COUNT);
     }
 
-    private MeshSpec(@NonNull Color color, int width) {
+    private MeshSpec(@NonNull Color color, int width, int pointsCount) {
         this.color = color;
         this.width = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, width));
+        this.pointsCount = pointsCount;
+    }
+
+    @NonNull
+    public static MeshSpec create(@NonNull Color color, int width, int pointsCount) {
+        return new MeshSpec(color, width, pointsCount);
     }
 
     @NonNull
     public static MeshSpec create(@NonNull Color color, int width) {
-        return new MeshSpec(color, width);
+        return create(color, width, DEFAULT_POINTS_COUNT);
     }
 
     @NonNull
     public static MeshSpec createDefault(@NonNull Context context) {
-        return new MeshSpec(COLOR_DEFAULT, defaultWidth(context));
+        return new MeshSpec(COLOR_DEFAULT, defaultWidth(context), DEFAULT_POINTS_COUNT);
     }
 
     public static int defaultWidth(@NonNull Context context) {
@@ -55,7 +63,7 @@ public class MeshSpec {
 
     @NonNull
     public MeshSpec copy() {
-        return new MeshSpec(color, width);
+        return new MeshSpec(color, width, pointsCount);
     }
 
     public void applyTo(@NonNull FunctionGraph mesh) {
@@ -67,19 +75,22 @@ public class MeshSpec {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof MeshSpec)) return false;
 
         final MeshSpec that = (MeshSpec) o;
 
         if (width != that.width) return false;
-        return color.equals(that.color);
+        if (pointsCount != that.pointsCount) return false;
+        if (!color.equals(that.color)) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = color.hashCode();
         result = 31 * result + width;
+        result = 31 * result + pointsCount;
         return result;
     }
 
@@ -88,6 +99,7 @@ public class MeshSpec {
         final JSONObject json = new JSONObject();
         json.put(JSON_COLOR, color.toInt());
         json.put(JSON_WIDTH, width);
+        json.put(JSON_POINTS_COUNT, pointsCount);
         return json;
     }
 
